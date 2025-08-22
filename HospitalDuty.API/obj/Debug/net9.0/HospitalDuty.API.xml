@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HospitalDuty.API</name>
+    </assembly>
+    <members>
+        <member name="M:HospitalDuty.API.Controllers.EmployeeController.GetAll">
+            <summary>
+            Returns all Employee
+            </summary>
+        </member>
+        <member name="M:HospitalDuty.API.Controllers.EmployeeController.GetById(System.Guid)">
+            <summary>
+            Returns an Employee by Id
+            </summary>
+        </member>
+        <member name="M:HospitalDuty.API.Controllers.EmployeeController.Delete(System.Guid)">
+            <summary>
+            Deletes an Employee by Id
+            </summary>
+        </member>
+    </members>
+</doc>

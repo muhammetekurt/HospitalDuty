@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "HospitalDuty.Domain/1.0.0": {
+        "runtime": {
+          "HospitalDuty.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "HospitalDuty.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

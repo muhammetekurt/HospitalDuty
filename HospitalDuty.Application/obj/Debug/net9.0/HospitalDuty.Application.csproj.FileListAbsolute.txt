@@ -1,0 +1,15 @@
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/bin/Debug/net9.0/HospitalDuty.Application.deps.json
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/bin/Debug/net9.0/HospitalDuty.Application.dll
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/bin/Debug/net9.0/HospitalDuty.Application.pdb
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/bin/Debug/net9.0/HospitalDuty.Domain.dll
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/bin/Debug/net9.0/HospitalDuty.Domain.pdb
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.csproj.AssemblyReference.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.AssemblyInfoInputs.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.AssemblyInfo.cs
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.csproj.CoreCompileInputs.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/Hospital.B07FDF91.Up2Date
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.dll
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/refint/HospitalDuty.Application.dll
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.pdb
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/ref/HospitalDuty.Application.dll
