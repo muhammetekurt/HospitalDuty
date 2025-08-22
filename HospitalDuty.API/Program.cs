@@ -1,4 +1,5 @@
 using System.Reflection;
+using HospitalDuty.API.Middlewares;
 using HospitalDuty.Application.Abstractions;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Application.Services;
@@ -34,6 +35,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

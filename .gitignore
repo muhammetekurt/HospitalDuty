@@ -161,3 +161,9 @@ node_modules/
 
 # Webpack
 dist/
+
+# Cache files (additional)
+**/*.cache
+**/cache/
+.cache/
+**/.cache/
