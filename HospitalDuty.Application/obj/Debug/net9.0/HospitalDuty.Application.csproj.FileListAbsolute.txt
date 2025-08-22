@@ -13,3 +13,4 @@
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/refint/HospitalDuty.Application.dll
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.pdb
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/ref/HospitalDuty.Application.dll
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Application/obj/Debug/net9.0/HospitalDuty.Application.sourcelink.json

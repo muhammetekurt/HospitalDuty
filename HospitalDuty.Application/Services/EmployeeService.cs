@@ -3,6 +3,7 @@ using HospitalDuty.Application.Abstractions;
 using HospitalDuty.Application.DTOs.Employee;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Domain.Entities;
+using HospitalDuty.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,6 +30,40 @@ namespace HospitalDuty.Application.Services
         {
             var employee = await _context.GetByIdAsync(id);
             return employee is null ? null : _mapper.Map<EmployeeDto>(employee);
+        }
+
+        public async Task<IEnumerable<EmployeeDto>> GetByDepartmentAsync(Guid departmentId)
+        {
+            var employees = await _context.GetByDepartmentAsync(departmentId);
+            return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        }
+
+        public async Task<IEnumerable<EmployeeDto>> GetByRoleAsync(Role role)
+        {
+            var employees = await _context.GetByRoleAsync(role);
+            return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        }
+
+        public async Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto)
+        {
+            var employee = _mapper.Map<Employee>(employeeDto);
+            await _context.CreateAsync(employee);
+            return _mapper.Map<EmployeeDto>(employee);
+        }
+
+        public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto employeeDto)
+        {
+            // Önce mevcut employee'yi al
+            var existingEmployee = await _context.GetByIdAsync(id);
+            
+            if (existingEmployee == null)
+                return null;
+                
+            // DTO'daki değerleri mevcut entity'ye map et
+            _mapper.Map(employeeDto, existingEmployee);
+            
+            var result = await _context.UpdateAsync(existingEmployee);
+            return result ? _mapper.Map<EmployeeDto>(existingEmployee) : null;
         }
 
         public async Task<bool> DeleteAsync(Guid id)

@@ -17,3 +17,4 @@
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.pdb
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.genruntimeconfig.cache
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/ref/HospitalDuty.Infrastructure.dll
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.sourcelink.json

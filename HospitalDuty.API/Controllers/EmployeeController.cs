@@ -2,6 +2,7 @@ using HospitalDuty.Application.DTOs.Employee;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Application.Services;
 using HospitalDuty.Domain.Entities;
+using HospitalDuty.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalDuty.API.Controllers;
@@ -34,6 +35,56 @@ public class EmployeeController : ControllerBase
     public async Task<ActionResult<EmployeeDto>> GetById(Guid id)
     {
         var employee = await _employeeService.GetByIdAsync(id);
+        if (employee == null)
+            return NotFound();
+
+        return Ok(employee);
+    }
+    /// <summary>
+    /// Returns Employees by departmentId
+    /// </summary>
+    [HttpGet("department/{departmentId:guid}")]
+    public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetByDepartment(Guid departmentId)
+    {
+        var employees = await _employeeService.GetByDepartmentAsync(departmentId);
+        if (employees == null || !employees.Any())
+            return NotFound();
+
+        return Ok(employees);
+    }
+
+    /// <summary>
+    /// Returns Employees by roleId
+    /// </summary>
+    [HttpGet("role/{role}")]
+    public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetByRole(Role role)
+    {
+        var employees = await _employeeService.GetByRoleAsync(role);
+        if (employees == null || !employees.Any())
+            return NotFound();
+
+        return Ok(employees);
+    }
+
+    /// <summary>
+    /// Creates a new Employee
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto employeeDto)
+    {
+        var employee = await _employeeService.CreateAsync(employeeDto);
+        if (employee == null)
+            return BadRequest();
+
+        return CreatedAtAction(nameof(GetById), new { id = employee.Id }, employee);
+    }
+    /// <summary>
+    /// Updates an existing Employee
+    /// </summary>
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<EmployeeDto>> Update(Guid id, UpdateEmployeeDto employeeDto)
+    {
+        var employee = await _employeeService.UpdateAsync(id, employeeDto);
         if (employee == null)
             return NotFound();
 
