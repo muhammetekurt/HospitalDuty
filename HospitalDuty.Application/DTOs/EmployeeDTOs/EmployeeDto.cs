@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HospitalDuty.Application.DTOs.HospitalDTOs;
 using HospitalDuty.Domain.Entities;
 using DomainRole = HospitalDuty.Domain.Enums.Role;
 
@@ -16,6 +17,6 @@ namespace HospitalDuty.Application.DTOs.EmployeeDTOs
         public DomainRole Role { get; set; }
         public Guid DepartmentId { get; set; }
         public Guid HospitalId { get; set; }
-        public Hospital Hospital { get; set; } = default!;
+        //public HospitalDto Hospital { get; set; } = default!;
     }
 }

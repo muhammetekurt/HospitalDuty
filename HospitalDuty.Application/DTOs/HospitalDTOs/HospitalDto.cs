@@ -1,4 +1,5 @@
 using System;
+using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Domain.Entities;
 
 namespace HospitalDuty.Application.DTOs.HospitalDTOs;
@@ -14,5 +15,5 @@ public class HospitalDto
     public string Email { get; set; } = string.Empty;
     public string Website { get; set; } = string.Empty;
     public Guid? DirectorId { get; set; }
-    public Employee? Director { get; set; }
+    public EmployeeDto? Director { get; set; }
 }
