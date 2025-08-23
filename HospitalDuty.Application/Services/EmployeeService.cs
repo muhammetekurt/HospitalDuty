@@ -53,15 +53,11 @@ namespace HospitalDuty.Application.Services
 
         public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto employeeDto)
         {
-            // Önce mevcut employee'yi al
             var existingEmployee = await _context.GetByIdAsync(id);
             
-            if (existingEmployee == null)
-                return null;
+            if (existingEmployee == null) return null;
                 
-            // DTO'daki değerleri mevcut entity'ye map et
             _mapper.Map(employeeDto, existingEmployee);
-            
             var result = await _context.UpdateAsync(existingEmployee);
             return result ? _mapper.Map<EmployeeDto>(existingEmployee) : null;
         }
