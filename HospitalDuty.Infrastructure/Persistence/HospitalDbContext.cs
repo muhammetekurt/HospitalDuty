@@ -1,10 +1,11 @@
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalDuty.Infrastructure.Persistence;
 
-public class HospitalDbContext : DbContext
+public class HospitalDbContext : IdentityDbContext<ApplicationUser>
 {
     public HospitalDbContext(DbContextOptions<HospitalDbContext> options)
         : base(options) { }

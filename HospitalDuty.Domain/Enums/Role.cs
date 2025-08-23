@@ -4,7 +4,10 @@ public enum Role
 {
     HospitalDirector,              // Sistem başhekimi
     DepartmentManager,   // Departman yöneticisi
+    DepartmentLeader,   // Departman lideri
     Doctor,
     Nurse,
-    Staff
+    Staff,
+    //
+    SystemAdmin  // Sistem yöneticisi
 }

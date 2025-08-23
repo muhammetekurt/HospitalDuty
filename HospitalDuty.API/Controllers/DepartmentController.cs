@@ -3,6 +3,7 @@ using HospitalDuty.Application.DTOs.DepartmentDTOs;
 using HospitalDuty.Application.DTOs.HospitalDTOs;
 using HospitalDuty.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalDuty.API.Controllers;
 
@@ -92,5 +93,17 @@ public class DepartmentController : ControllerBase
         if (!result) return NotFound();
         return NoContent();
     }
+
+    //
+
+
+    [Authorize] // login zorunlu
+    [HttpGet("me")]
+    public IActionResult Me() => Ok("Authenticated!");
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("admin-only")]
+    public IActionResult AdminOnly() => Ok("Only admin can see this.");
+
 
 }
