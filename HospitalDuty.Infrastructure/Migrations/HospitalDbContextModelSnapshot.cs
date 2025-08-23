@@ -36,9 +36,6 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid?>("EmployeeId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -145,6 +142,9 @@ namespace HospitalDuty.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("TEXT");
 
@@ -176,61 +176,14 @@ namespace HospitalDuty.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
+
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("HospitalId");
 
                     b.ToTable("Employees");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("e1111111-1111-1111-1111-111111111111"),
-                            DepartmentId = new Guid("d1111111-1111-1111-1111-111111111111"),
-                            Email = "mehmet.yilmaz@ankarashehir.gov.tr",
-                            FirstName = "Mehmet",
-                            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            LastName = "Yılmaz",
-                            PhoneNumber = "0532-111-1111",
-                            ProfileImage = "mehmet.jpg",
-                            Role = 2
-                        },
-                        new
-                        {
-                            Id = new Guid("e2222222-2222-2222-2222-222222222222"),
-                            DepartmentId = new Guid("d2222222-2222-2222-2222-222222222222"),
-                            Email = "ayse.kaya@ankarashehir.gov.tr",
-                            FirstName = "Ayşe",
-                            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            LastName = "Kaya",
-                            PhoneNumber = "0532-222-2222",
-                            ProfileImage = "ayse.jpg",
-                            Role = 2
-                        },
-                        new
-                        {
-                            Id = new Guid("e3333333-3333-3333-3333-333333333333"),
-                            DepartmentId = new Guid("d3333333-3333-3333-3333-333333333333"),
-                            Email = "fatma.sahin@hacettepe.edu.tr",
-                            FirstName = "Fatma",
-                            HospitalId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            LastName = "Şahin",
-                            PhoneNumber = "0532-333-3333",
-                            ProfileImage = "fatma.jpg",
-                            Role = 2
-                        },
-                        new
-                        {
-                            Id = new Guid("e4444444-4444-4444-4444-444444444444"),
-                            DepartmentId = new Guid("d4444444-4444-4444-4444-444444444444"),
-                            Email = "ali.demir@hacettepe.edu.tr",
-                            FirstName = "Ali",
-                            HospitalId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            LastName = "Demir",
-                            PhoneNumber = "0532-444-4444",
-                            ProfileImage = "ali.jpg",
-                            Role = 2
-                        });
                 });
 
             modelBuilder.Entity("HospitalDuty.Domain.Entities.Hospital", b =>
@@ -360,52 +313,6 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.HasIndex("HospitalId");
 
                     b.ToTable("Shifts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DepartmentId = new Guid("d1111111-1111-1111-1111-111111111111"),
-                            EmployeeId = new Guid("e1111111-1111-1111-1111-111111111111"),
-                            EndTime = new DateTime(2025, 1, 1, 16, 0, 0, 0, DateTimeKind.Unspecified),
-                            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Notes = "Gündüz vardiyası",
-                            ShiftType = 0,
-                            StartTime = new DateTime(2025, 1, 1, 8, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DepartmentId = new Guid("d2222222-2222-2222-2222-222222222222"),
-                            EmployeeId = new Guid("e2222222-2222-2222-2222-222222222222"),
-                            EndTime = new DateTime(2025, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Notes = "Akşam vardiyası",
-                            ShiftType = 2,
-                            StartTime = new DateTime(2025, 1, 1, 16, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DepartmentId = new Guid("d3333333-3333-3333-3333-333333333333"),
-                            EmployeeId = new Guid("e3333333-3333-3333-3333-333333333333"),
-                            EndTime = new DateTime(2025, 1, 1, 8, 0, 0, 0, DateTimeKind.Unspecified),
-                            HospitalId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Notes = "Gece vardiyası",
-                            ShiftType = 1,
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DepartmentId = new Guid("d4444444-4444-4444-4444-444444444444"),
-                            EmployeeId = new Guid("e4444444-4444-4444-4444-444444444444"),
-                            EndTime = new DateTime(2025, 1, 2, 20, 0, 0, 0, DateTimeKind.Unspecified),
-                            HospitalId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Notes = "Nöbet vardiyası",
-                            ShiftType = 1,
-                            StartTime = new DateTime(2025, 1, 2, 8, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -556,6 +463,11 @@ namespace HospitalDuty.Infrastructure.Migrations
 
             modelBuilder.Entity("HospitalDuty.Domain.Entities.Employee", b =>
                 {
+                    b.HasOne("HospitalDuty.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithOne("Employee")
+                        .HasForeignKey("HospitalDuty.Domain.Entities.Employee", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("HospitalDuty.Domain.Entities.Department", "Department")
                         .WithMany("Employees")
                         .HasForeignKey("DepartmentId")
@@ -567,6 +479,8 @@ namespace HospitalDuty.Infrastructure.Migrations
                         .HasForeignKey("HospitalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Department");
 
@@ -659,6 +573,11 @@ namespace HospitalDuty.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HospitalDuty.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("HospitalDuty.Domain.Entities.Department", b =>

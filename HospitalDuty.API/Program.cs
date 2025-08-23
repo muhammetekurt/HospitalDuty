@@ -73,7 +73,6 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 builder.Services.AddScoped<IShiftService, ShiftService>();
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.WebHost.UseUrls("https://localhost:5000");
@@ -96,16 +95,13 @@ app.MapControllers();
 
 
 // ---- Seed roller + admin (app.Run’dan önce) ----
-using (var scope = app.Services.CreateScope())
-{
-    var sp = scope.ServiceProvider;
-    var userMgr = sp.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleMgr = sp.GetRequiredService<RoleManager<IdentityRole>>();
-    await IdentitySeed.SeedRolesAndAdminAsync(userMgr, roleMgr);
-}
-
-//app.Urls.Clear();
-//app.Urls.Add("https://localhost:5000");
+// using (var scope = app.Services.CreateScope())
+// {
+//     var sp = scope.ServiceProvider;
+//     var userMgr = sp.GetRequiredService<UserManager<ApplicationUser>>();
+//     var roleMgr = sp.GetRequiredService<RoleManager<IdentityRole>>();
+//     await IdentitySeed.SeedRolesAndAdminAsync(userMgr, roleMgr);
+// }
 
 app.Run();
 

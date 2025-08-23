@@ -6,13 +6,12 @@ namespace HospitalDuty.Domain.Entities;
 
 public class Employee
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string ProfileImage { get; set; } = string.Empty;
-
     public Role Role { get; set; } = Role.Staff;
 
     public Guid DepartmentId { get; set; }
@@ -21,4 +20,8 @@ public class Employee
     public Guid HospitalId { get; set; }
     public Hospital Hospital { get; set; } = default!;
     public ICollection<Shift> Shifts { get; set; } = new List<Shift>();
+
+    // Identity ile birebir ilişki
+    public string? ApplicationUserId { get; set; }  // string
+    public ApplicationUser? ApplicationUser { get; set; }
 }

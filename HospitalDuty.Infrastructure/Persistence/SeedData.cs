@@ -103,113 +103,113 @@ namespace HospitalDuty.Infrastructure.Persistence
             };
 
             // Employee seed data
-            var employees = new[]
-            {
-                new Employee
-                {
-                    Id = emp1Id,
-                    FirstName = "Mehmet",
-                    LastName = "Yılmaz",
-                    Email = "mehmet.yilmaz@ankarashehir.gov.tr",
-                    PhoneNumber = "0532-111-1111",
-                    ProfileImage = "mehmet.jpg",
-                    Role = Role.Doctor,
-                    DepartmentId = dept1Id,
-                    HospitalId = hospital1Id
-                },
-                new Employee
-                {
-                    Id = emp2Id,
-                    FirstName = "Ayşe",
-                    LastName = "Kaya",
-                    Email = "ayse.kaya@ankarashehir.gov.tr",
-                    PhoneNumber = "0532-222-2222",
-                    ProfileImage = "ayse.jpg",
-                    Role = Role.Doctor,
-                    DepartmentId = dept2Id,
-                    HospitalId = hospital1Id
-                },
-                new Employee
-                {
-                    Id = emp3Id,
-                    FirstName = "Fatma",
-                    LastName = "Şahin",
-                    Email = "fatma.sahin@hacettepe.edu.tr",
-                    PhoneNumber = "0532-333-3333",
-                    ProfileImage = "fatma.jpg",
-                    Role = Role.Doctor,
-                    DepartmentId = dept3Id,
-                    HospitalId = hospital2Id
-                },
-                new Employee
-                {
-                    Id = emp4Id,
-                    FirstName = "Ali",
-                    LastName = "Demir",
-                    Email = "ali.demir@hacettepe.edu.tr",
-                    PhoneNumber = "0532-444-4444",
-                    ProfileImage = "ali.jpg",
-                    Role = Role.Doctor,
-                    DepartmentId = dept4Id,
-                    HospitalId = hospital2Id
-                }
-            };
+            // var employees = new[]
+            // {
+            //     new Employee
+            //     {
+            //         Id = emp1Id,
+            //         FirstName = "Mehmet",
+            //         LastName = "Yılmaz",
+            //         Email = "mehmet.yilmaz@ankarashehir.gov.tr",
+            //         PhoneNumber = "0532-111-1111",
+            //         ProfileImage = "mehmet.jpg",
+            //         Role = Role.Doctor,
+            //         DepartmentId = dept1Id,
+            //         HospitalId = hospital1Id
+            //     },
+            //     new Employee
+            //     {
+            //         Id = emp2Id,
+            //         FirstName = "Ayşe",
+            //         LastName = "Kaya",
+            //         Email = "ayse.kaya@ankarashehir.gov.tr",
+            //         PhoneNumber = "0532-222-2222",
+            //         ProfileImage = "ayse.jpg",
+            //         Role = Role.Doctor,
+            //         DepartmentId = dept2Id,
+            //         HospitalId = hospital1Id
+            //     },
+            //     new Employee
+            //     {
+            //         Id = emp3Id,
+            //         FirstName = "Fatma",
+            //         LastName = "Şahin",
+            //         Email = "fatma.sahin@hacettepe.edu.tr",
+            //         PhoneNumber = "0532-333-3333",
+            //         ProfileImage = "fatma.jpg",
+            //         Role = Role.Doctor,
+            //         DepartmentId = dept3Id,
+            //         HospitalId = hospital2Id
+            //     },
+            //     new Employee
+            //     {
+            //         Id = emp4Id,
+            //         FirstName = "Ali",
+            //         LastName = "Demir",
+            //         Email = "ali.demir@hacettepe.edu.tr",
+            //         PhoneNumber = "0532-444-4444",
+            //         ProfileImage = "ali.jpg",
+            //         Role = Role.Doctor,
+            //         DepartmentId = dept4Id,
+            //         HospitalId = hospital2Id
+            //     }
+            // };
 
             // Shift seed data
-            var baseDate = new DateTime(2025, 1, 1);
-            var shifts = new[]
-            {
-                new Shift
-                {
-                    Id = 1,
-                    DepartmentId = dept1Id,
-                    EmployeeId = emp1Id,
-                    HospitalId = hospital1Id,
-                    StartTime = baseDate.AddHours(8),
-                    EndTime = baseDate.AddHours(16),
-                    ShiftType = ShiftType.Normal,
-                    Notes = "Gündüz vardiyası"
-                },
-                new Shift
-                {
-                    Id = 2,
-                    DepartmentId = dept2Id,
-                    EmployeeId = emp2Id,
-                    HospitalId = hospital1Id,
-                    StartTime = baseDate.AddHours(16),
-                    EndTime = baseDate.AddDays(1),
-                    ShiftType = ShiftType.Emergency,
-                    Notes = "Akşam vardiyası"
-                },
-                new Shift
-                {
-                    Id = 3,
-                    DepartmentId = dept3Id,
-                    EmployeeId = emp3Id,
-                    HospitalId = hospital2Id,
-                    StartTime = baseDate,
-                    EndTime = baseDate.AddHours(8),
-                    ShiftType = ShiftType.Night,
-                    Notes = "Gece vardiyası"
-                },
-                new Shift
-                {
-                    Id = 4,
-                    DepartmentId = dept4Id,
-                    EmployeeId = emp4Id,
-                    HospitalId = hospital2Id,
-                    StartTime = baseDate.AddDays(1).AddHours(8),
-                    EndTime = baseDate.AddDays(1).AddHours(20),
-                    ShiftType = ShiftType.Night,
-                    Notes = "Nöbet vardiyası"
-                }
-            };
+            // var baseDate = new DateTime(2025, 1, 1);
+            // var shifts = new[]
+            // {
+            //     new Shift
+            //     {
+            //         Id = 1,
+            //         DepartmentId = dept1Id,
+            //         EmployeeId = emp1Id,
+            //         HospitalId = hospital1Id,
+            //         StartTime = baseDate.AddHours(8),
+            //         EndTime = baseDate.AddHours(16),
+            //         ShiftType = ShiftType.Normal,
+            //         Notes = "Gündüz vardiyası"
+            //     },
+            //     new Shift
+            //     {
+            //         Id = 2,
+            //         DepartmentId = dept2Id,
+            //         EmployeeId = emp2Id,
+            //         HospitalId = hospital1Id,
+            //         StartTime = baseDate.AddHours(16),
+            //         EndTime = baseDate.AddDays(1),
+            //         ShiftType = ShiftType.Emergency,
+            //         Notes = "Akşam vardiyası"
+            //     },
+            //     new Shift
+            //     {
+            //         Id = 3,
+            //         DepartmentId = dept3Id,
+            //         EmployeeId = emp3Id,
+            //         HospitalId = hospital2Id,
+            //         StartTime = baseDate,
+            //         EndTime = baseDate.AddHours(8),
+            //         ShiftType = ShiftType.Night,
+            //         Notes = "Gece vardiyası"
+            //     },
+            //     new Shift
+            //     {
+            //         Id = 4,
+            //         DepartmentId = dept4Id,
+            //         EmployeeId = emp4Id,
+            //         HospitalId = hospital2Id,
+            //         StartTime = baseDate.AddDays(1).AddHours(8),
+            //         EndTime = baseDate.AddDays(1).AddHours(20),
+            //         ShiftType = ShiftType.Night,
+            //         Notes = "Nöbet vardiyası"
+            //     }
+            // };
 
             // Seed data'yı model builder'a ekle
             modelBuilder.Entity<Hospital>().HasData(hospitals);
             modelBuilder.Entity<Department>().HasData(departments);
-            modelBuilder.Entity<Employee>().HasData(employees);
-            modelBuilder.Entity<Shift>().HasData(shifts);
+            //modelBuilder.Entity<Employee>().HasData(employees);
+            //modelBuilder.Entity<Shift>().HasData(shifts);
         }
     }
 }

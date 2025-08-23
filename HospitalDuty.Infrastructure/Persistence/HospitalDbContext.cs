@@ -38,6 +38,12 @@ public class HospitalDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(e => e.Hospital)
             .WithMany(h => h.Employees)
             .HasForeignKey(e => e.HospitalId);
+        
+        modelBuilder.Entity<Employee>()
+            .HasOne(e => e.ApplicationUser)
+            .WithOne(u => u.Employee)
+            .HasForeignKey<Employee>(e => e.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Shift>()
             .HasOne(s => s.Hospital)
@@ -54,6 +60,6 @@ public class HospitalDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(d => d.Shifts)
             .HasForeignKey(s => s.DepartmentId);
 
-        //modelBuilder.Seed();
+        modelBuilder.Seed();
     }
 }

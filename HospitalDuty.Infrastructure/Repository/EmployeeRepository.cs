@@ -42,12 +42,31 @@ namespace HospitalDuty.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<bool> CreateAsync(Employee employee)
-        {
-            await _context.Employees.AddAsync(employee);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+public async Task<bool> CreateAsync(Employee employee)
+{
+    try
+    {
+        await _context.Employees.AddAsync(employee);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    catch (DbUpdateException dbEx)
+    {
+        // DB ile ilgili hataları yakala
+        Console.WriteLine("DB Update Error: " + dbEx.Message);
+        if (dbEx.InnerException != null)
+            Console.WriteLine("Inner Exception: " + dbEx.InnerException.Message);
+        throw;
+    }
+    catch (Exception ex)
+    {
+        // Genel hatalar
+        Console.WriteLine("General Error: " + ex.Message);
+        if (ex.InnerException != null)
+            Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
+        throw;
+    }
+}
 
         public async Task<bool> UpdateAsync(Employee employee)
         {

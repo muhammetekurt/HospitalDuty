@@ -27,6 +27,8 @@ namespace HospitalDuty.Application.Mapping
             CreateMap<Shift, ShiftDto>();
             CreateMap<CreateShiftDto, Shift>();
             CreateMap<UpdateShiftDto, Shift>();
+
+
         }
     }
 }
