@@ -30,6 +30,35 @@ public class ShiftService : IShiftService
         return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
     }
 
+    public async Task<IEnumerable<ShiftDto>> GetShiftByDateRangeAsync(DateTime startDate, DateTime endDate)
+    {
+        var shifts = await _shiftRepository.GetShiftByDateRangeAsync(startDate, endDate);
+        return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
+    }
+
+    public async Task<IEnumerable<ShiftDto>> GetShiftByDateAsync(DateTime date)
+    {
+        var shifts = await _shiftRepository.GetShiftByDateAsync(date);
+        return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
+    }
+
+    public async Task<IEnumerable<ShiftDto>> GetShiftByEmployeeIdAsync(Guid employeeId)
+    {
+        var shifts = await _shiftRepository.GetShiftByEmployeeIdAsync(employeeId);
+        return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
+    }
+
+    public async Task<IEnumerable<ShiftDto>> GetShiftByDepartmentIdAsync(Guid departmentId)
+    {
+        var shifts = await _shiftRepository.GetShiftByDepartmentIdAsync(departmentId);
+        return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
+    }
+    public async Task<IEnumerable<ShiftDto>> GetShiftByHospitalIdAsync(Guid hospitalId)
+    {
+        var shifts = await _shiftRepository.GetShiftByHospitalIdAsync(hospitalId);
+        return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
+    }
+
     public async Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto)
     {
         var shift = _mapper.Map<Shift>(createShiftDto);

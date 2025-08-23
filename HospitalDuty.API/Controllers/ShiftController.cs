@@ -38,6 +38,55 @@ public class ShiftController : ControllerBase
     }
 
     /// <summary>
+    /// Returns all Shifts for a specific Hospital
+    /// </summary>
+    [HttpGet("hospital/{hospitalId}")]
+    public async Task<IActionResult> GetShiftByHospitalId(Guid hospitalId)
+    {
+        var shifts = await _shiftService.GetShiftByHospitalIdAsync(hospitalId);
+        return Ok(shifts);
+    }
+
+    /// <summary>
+    /// Returns all Shifts for a specific Employee
+    /// </summary>
+    [HttpGet("employee/{employeeId}")]
+    public async Task<IActionResult> GetShiftByEmployeeId(Guid employeeId)
+    {
+        var shifts = await _shiftService.GetShiftByEmployeeIdAsync(employeeId);
+        return Ok(shifts);
+    }
+
+    /// <summary>
+    /// Returns all Shifts for a specific Department
+    /// </summary>
+    [HttpGet("department/{departmentId}")]
+    public async Task<IActionResult> GetShiftByDepartmentId(Guid departmentId)
+    {
+        var shifts = await _shiftService.GetShiftByDepartmentIdAsync(departmentId);
+        return Ok(shifts);
+    }
+    /// <summary>
+    /// Returns all Shifts for a specific Date
+    /// </summary>
+    [HttpGet("date/{date}")]
+    public async Task<IActionResult> GetShiftByDate(DateTime date)
+    {
+        var shifts = await _shiftService.GetShiftByDateAsync(date);
+        return Ok(shifts);
+    }
+
+    /// <summary>
+    /// Returns all Shifts for a specific Date Range
+    /// </summary>
+    [HttpGet("dateRange")]
+    public async Task<IActionResult> GetShiftByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        var shifts = await _shiftService.GetShiftByDateRangeAsync(startDate, endDate);
+        return Ok(shifts);
+    }
+
+    /// <summary>
     /// Creates a Shift
     /// </summary>
     [HttpPost]

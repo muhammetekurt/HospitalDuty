@@ -17,14 +17,94 @@ public class ShiftRepository : IShiftRepository
 
     public async Task<Shift> GetShiftByIdAsync(int id)
     {
-        return await _context.Shifts.FindAsync(id);
+        var shift = await _context.Shifts.FindAsync(id);
+        if (shift == null) throw new KeyNotFoundException($"Shift with Id {id} not found.");
+        return shift;
     }
 
+    // public async Task<IEnumerable<Shift>> GetAllShiftsAsync()
+    // {
+    //     return await _context.Shifts
+    //         .Include(s => s.Hospital)
+    //         .Include(s => s.Department)
+    //         .Include(s => s.Employee)
+    //         .ToListAsync();
+    // }
+    private IQueryable<Shift> GetShiftsWithIncludes()
+    {
+        return _context.Shifts
+            .Include(s => s.Hospital)
+            .Include(s => s.Department)
+            .Include(s => s.Employee)
+            .Select(s => new Shift
+            {
+                Id = s.Id,
+                DepartmentId = s.DepartmentId,
+                EmployeeId = s.EmployeeId,
+                HospitalId = s.HospitalId,
+                StartTime = s.StartTime,
+                EndTime = s.EndTime,
+                ShiftType = s.ShiftType,
+                Notes = s.Notes,
+                Department = new Department 
+                { 
+                    Id = s.Department.Id, 
+                    Name = s.Department.Name 
+                },
+                Employee = new Employee 
+                { 
+                    Id = s.Employee.Id, 
+                    FirstName = s.Employee.FirstName,
+                    LastName = s.Employee.LastName
+                },
+                Hospital = new Hospital 
+                { 
+                    Id = s.Hospital.Id, 
+                    Name = s.Hospital.Name,
+                }
+            });
+    }
+
+    // Artık tüm methodlar çok kısa:
     public async Task<IEnumerable<Shift>> GetAllShiftsAsync()
     {
-        return await _context.Shifts.ToListAsync();
+        return await GetShiftsWithIncludes().ToListAsync();
     }
 
+    public async Task<IEnumerable<Shift>> GetShiftByHospitalIdAsync(Guid hospitalId)
+    {
+        return await GetShiftsWithIncludes()
+            .Where(s => s.HospitalId == hospitalId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Shift>> GetShiftByDepartmentIdAsync(Guid departmentId)
+    {
+        return await GetShiftsWithIncludes()
+            .Where(s => s.DepartmentId == departmentId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Shift>> GetShiftByEmployeeIdAsync(Guid employeeId)
+    {
+        return await GetShiftsWithIncludes()
+            .Where(s => s.EmployeeId == employeeId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Shift>> GetShiftByDateAsync(DateTime date)
+    {
+        return await GetShiftsWithIncludes()
+            .Where(s => s.StartTime.Date == date.Date)  // Date karşılaştırması daha iyi
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Shift>> GetShiftByDateRangeAsync(DateTime startDate, DateTime endDate)
+    {
+        return await GetShiftsWithIncludes()
+            .Where(s => s.StartTime >= startDate && s.StartTime <= endDate)
+            .ToListAsync();
+    }
     public async Task<Shift> CreateShiftAsync(Shift shift)
     {
         _context.Shifts.Add(shift);
