@@ -1,3 +1,12 @@
+
+<img width="1315" height="845" alt="Ekran Resmi 2025-08-24 00 08 45" src="https://github.com/user-attachments/assets/9fa20fe0-8c2a-414a-b124-7a0db4a7b7a0" />
+
+<img width="1315" height="835" alt="Ekran Resmi 2025-08-24 00 09 06" src="https://github.com/user-attachments/assets/3d30e293-e321-48a8-922d-e60fa1bbe06b" />
+
+<img width="1315" height="908" alt="Ekran Resmi 2025-08-24 00 09 15" src="https://github.com/user-attachments/assets/76ffe83f-f803-429e-977f-809d9c7d8ad3" />
+
+
+
 # Branch Rules
 
 Bu **README** dosyası, proje üzerinde branch açma, isimlendirme ve Pull Request kurallarını tanımlar.
