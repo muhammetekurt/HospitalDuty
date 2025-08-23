@@ -1,4 +1,4 @@
-using HospitalDuty.Application.DTOs.Employee;
+using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Application.Services;
 using HospitalDuty.Domain.Entities;

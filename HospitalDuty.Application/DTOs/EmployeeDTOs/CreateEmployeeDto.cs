@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DomainRole = HospitalDuty.Domain.Enums.Role;
 
-namespace HospitalDuty.Application.DTOs.Employee
+namespace HospitalDuty.Application.DTOs.EmployeeDTOs
 {
     public class CreateEmployeeDto
     {

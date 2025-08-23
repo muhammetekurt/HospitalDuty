@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HospitalDuty.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+129c47881d81f7411097d182058c235cbfa9c307")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+82bd134789b9772d3ee9a6bbc37d1a84bc94359c")]
 [assembly: System.Reflection.AssemblyProductAttribute("HospitalDuty.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HospitalDuty.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

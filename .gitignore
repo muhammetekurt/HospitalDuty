@@ -167,3 +167,15 @@ dist/
 **/cache/
 .cache/
 **/.cache/
+
+# SQLite veritabanı dosyaları
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache dosyaları
+*.cache
+*.json
+
+# Opsiyonel: XML dosyaları (istersen sadece belirli dosyaları ignore et)
+*.xml

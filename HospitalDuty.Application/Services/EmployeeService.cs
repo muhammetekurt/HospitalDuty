@@ -1,6 +1,6 @@
 using AutoMapper;
 using HospitalDuty.Application.Abstractions;
-using HospitalDuty.Application.DTOs.Employee;
+using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;

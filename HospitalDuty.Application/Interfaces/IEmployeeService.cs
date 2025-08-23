@@ -1,4 +1,4 @@
-using HospitalDuty.Application.DTOs.Employee;
+using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using System;

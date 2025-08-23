@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using DomainRole = HospitalDuty.Domain.Enums.Role;
 
-namespace HospitalDuty.Application.DTOs.Employee
+namespace HospitalDuty.Application.DTOs.EmployeeDTOs
 {
-    public class EmployeeDto
+    public class UpdateEmployeeDto
     {
-        public Guid Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -16,3 +14,4 @@ namespace HospitalDuty.Application.DTOs.Employee
         public Guid DepartmentId { get; set; }
     }
 }
+

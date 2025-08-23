@@ -24,6 +24,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<IEmployeeRepository, HospitalDuty.Infrastructure.Repository.EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
+builder.Services.AddScoped<IHospitalService, HospitalService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.WebHost.UseUrls("https://localhost:5000");
