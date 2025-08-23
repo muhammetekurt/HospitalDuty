@@ -1,8 +1,3 @@
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.csproj.AssemblyReference.cache
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.AssemblyInfoInputs.cache
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.AssemblyInfo.cs
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.csproj.CoreCompileInputs.cache
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/bin/Debug/net9.0/HospitalDuty.Infrastructure.deps.json
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/bin/Debug/net9.0/HospitalDuty.Infrastructure.runtimeconfig.json
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/bin/Debug/net9.0/HospitalDuty.Infrastructure.dll
@@ -11,10 +6,15 @@
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/bin/Debug/net9.0/HospitalDuty.Domain.dll
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/bin/Debug/net9.0/HospitalDuty.Application.pdb
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/bin/Debug/net9.0/HospitalDuty.Domain.pdb
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.csproj.AssemblyReference.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.AssemblyInfoInputs.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.AssemblyInfo.cs
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.sourcelink.json
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/Hospital.1F395472.Up2Date
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.dll
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/refint/HospitalDuty.Infrastructure.dll
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.pdb
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.genruntimeconfig.cache
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/ref/HospitalDuty.Infrastructure.dll
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Infrastructure/obj/Debug/net9.0/HospitalDuty.Infrastructure.sourcelink.json

@@ -9,8 +9,10 @@ public class Department
     public string Name { get; set; } = string.Empty;
 
     public Guid HospitalId { get; set; }
+    public Hospital Hospital { get; set; } = default!;
 
-    public Guid ManagerId { get; set; }
+    public Guid? ManagerId { get; set; }
+    public Employee? Manager { get; set; }
 
     public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     public ICollection<Shift> Shifts { get; set; } = new List<Shift>();

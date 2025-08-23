@@ -16,5 +16,9 @@ public class Employee
     public Role Role { get; set; } = Role.Staff;
 
     public Guid DepartmentId { get; set; }
+    public Department Department { get; set; } = default!;
+
+    public Guid HospitalId { get; set; }
+    public Hospital Hospital { get; set; } = default!;
     public ICollection<Shift> Shifts { get; set; } = new List<Shift>();
 }

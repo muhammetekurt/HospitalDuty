@@ -5,11 +5,16 @@ namespace HospitalDuty.Domain.Entities;
 
 public class Shift
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public int Id { get; set; }
 
     public Guid DepartmentId { get; set; }
+    public Department Department { get; set; } = default!;
 
     public Guid EmployeeId { get; set; }
+    public Employee Employee { get; set; } = default!;
+
+    public Guid HospitalId { get; set; }
+    public Hospital Hospital { get; set; } = default!;
 
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }

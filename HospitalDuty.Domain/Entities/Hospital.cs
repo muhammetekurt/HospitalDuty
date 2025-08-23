@@ -12,7 +12,9 @@ public class Hospital
     public string Address { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Website { get; set; } = string.Empty;
-    public Guid DirectorId { get; set; }
+    public Guid? DirectorId { get; set; }
+    public Employee? Director { get; set; }
     public ICollection<Department> Departments { get; set; } = new List<Department>();
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+    public ICollection<Shift> Shifts { get; set; } = new List<Shift>();
 }
-

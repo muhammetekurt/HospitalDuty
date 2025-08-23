@@ -5,8 +5,8 @@
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.AssemblyInfoInputs.cache
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.AssemblyInfo.cs
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.csproj.CoreCompileInputs.cache
+/Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.sourcelink.json
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.dll
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/refint/HospitalDuty.Domain.dll
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.pdb
 /Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/ref/HospitalDuty.Domain.dll
-/Users/mami/Desktop/HospitalDuty/HospitalDuty.Domain/obj/Debug/net9.0/HospitalDuty.Domain.sourcelink.json
