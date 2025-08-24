@@ -42,7 +42,42 @@ public class AuthService : IAuthService
             Id = Guid.Parse(user.Id),
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            ApplicationUserId = user.Id
+            ApplicationUserId = user.Id,
+            Email = dto.Email
+        };
+
+        await _employeeService.CreateAsync(employee);
+
+        return true;
+    }
+
+    public async Task<bool> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId)
+    {
+        var exists = await _userManager.FindByEmailAsync(dto.Email);
+        if (exists != null) return false;
+
+        var user = new ApplicationUser
+        {
+            UserName = dto.Email,
+            Email = dto.Email,
+            FullName = dto.FullName,
+            PhoneNumber = dto.PhoneNumber
+        };
+
+        var result = await _userManager.CreateAsync(user, dto.Password);
+        if (!result.Succeeded) return false;
+
+        var creatorEmployee = await _employeeService.GetByIdAsync(Guid.Parse(creatorUserId));
+        if (creatorEmployee == null) return false;
+
+        var employee = new CreateEmployeeDto
+        {
+            Id = Guid.Parse(user.Id),
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            HospitalId = creatorEmployee.HospitalId,
+            ApplicationUserId = user.Id,
+            Email = dto.Email
         };
 
         await _employeeService.CreateAsync(employee);

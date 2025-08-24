@@ -128,6 +128,15 @@ app.MapControllers();
 //     var roleMgr = sp.GetRequiredService<RoleManager<IdentityRole>>();
 //     await IdentitySeed.SeedRolesAndAdminAsync(userMgr, roleMgr);
 // }
+//v2:
+// using (var scope = app.Services.CreateScope())
+// {
+//     var sp = scope.ServiceProvider;
+//     var userMgr = sp.GetRequiredService<UserManager<ApplicationUser>>();
+//     var roleMgr = sp.GetRequiredService<RoleManager<IdentityRole>>();
+//     var employeeService = sp.GetRequiredService<IEmployeeService>();
 
+//     await IdentitySeed.SeedRolesAndAdminAsync(userMgr, roleMgr, employeeService);
+// }
 app.Run();
 

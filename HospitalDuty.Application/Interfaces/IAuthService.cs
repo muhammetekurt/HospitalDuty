@@ -7,4 +7,5 @@ public interface IAuthService
 {
     Task<bool> RegisterAsync(RegisterDto dto);
     Task<TokenDto?> LoginAsync(LoginDto dto);
+    Task<bool> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId);
 }
