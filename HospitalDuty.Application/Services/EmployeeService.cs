@@ -4,6 +4,7 @@ using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,10 +15,13 @@ namespace HospitalDuty.Application.Services
     {
         private readonly IEmployeeRepository _context;
         private readonly IMapper _mapper;
-        public EmployeeService(IEmployeeRepository context, IMapper mapper)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public EmployeeService(IEmployeeRepository context, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
@@ -51,20 +55,62 @@ namespace HospitalDuty.Application.Services
             return _mapper.Map<EmployeeDto>(employee);
         }
 
-        public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto employeeDto)
+        public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto dto)
         {
-            var existingEmployee = await _context.GetByIdAsync(id);
-            
-            if (existingEmployee == null) return null;
-                
-            _mapper.Map(employeeDto, existingEmployee);
-            var result = await _context.UpdateAsync(existingEmployee);
-            return result ? _mapper.Map<EmployeeDto>(existingEmployee) : null;
+            var employee = await _context.GetByIdAsync(id);
+            if (employee == null) return null;
+
+            // Employee entity alanlarını güncelle
+            employee.FirstName = dto.FirstName;
+            employee.LastName = dto.LastName;
+            employee.DepartmentId = dto.DepartmentId;
+            employee.HospitalId = dto.HospitalId;
+
+            await _context.UpdateAsync(employee);
+
+            // IdentityUser güncelle
+            if (!string.IsNullOrEmpty(employee.ApplicationUserId))
+            {
+                var user = await _userManager.FindByIdAsync(employee.ApplicationUserId);
+                if (user != null)
+                {
+                    if (!string.IsNullOrEmpty(dto.Email)) user.Email = dto.Email;
+                    if (!string.IsNullOrEmpty(dto.Email)) user.Email = dto.Email;
+                    if (!string.IsNullOrEmpty(dto.FirstName) && !string.IsNullOrEmpty(dto.LastName)) user.FullName = $"{dto.FirstName} {dto.LastName}";
+                    if (!string.IsNullOrEmpty(dto.PhoneNumber)) user.PhoneNumber = dto.PhoneNumber;
+                    await _userManager.UpdateAsync(user);
+
+                    // Roller
+                    if (dto.Roles != null && dto.Roles.Any())
+                    {
+                        var currentRoles = await _userManager.GetRolesAsync(user);
+                        var rolesToRemove = currentRoles.Except(dto.Roles).ToList();
+                        var rolesToAdd = dto.Roles.Except(currentRoles).ToList();
+
+                        if (rolesToRemove.Any()) await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                        if (rolesToAdd.Any()) await _userManager.AddToRolesAsync(user, rolesToAdd);
+                    }
+                }
+            }
+
+            return _mapper.Map<EmployeeDto>(employee);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            return await _context.DeleteAsync(id);
+            var employee = await _context.GetByIdAsync(id);
+            if (employee == null) return false;
+
+            // IdentityUser sil
+            if (!string.IsNullOrEmpty(employee.ApplicationUserId))
+            {
+                var user = await _userManager.FindByIdAsync(employee.ApplicationUserId);
+                if (user != null) await _userManager.DeleteAsync(user);
+            }
+
+            // Employee sil
+            await _context.DeleteAsync(id);
+            return true;
         }
     }
 }
