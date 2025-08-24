@@ -2,6 +2,7 @@ using HospitalDuty.Application.Abstractions;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using HospitalDuty.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,35 +13,47 @@ namespace HospitalDuty.Infrastructure.Repository
     public class EmployeeRepository : IEmployeeRepository
     {
         private readonly HospitalDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public EmployeeRepository(HospitalDbContext context)
+        public EmployeeRepository(HospitalDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            return await _context.Employees.ToListAsync();
+            return await _context.Employees.Include(e => e.ApplicationUser).ToListAsync();
         }
 
         public async Task<Employee?> GetByIdAsync(Guid id)
         {
-            return await _context.Employees.FindAsync(id);
+            return await _context.Employees.Include(e => e.ApplicationUser).FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<Employee>> GetByDepartmentAsync(Guid departmentId)
         {
             return await _context.Employees
-                .Where(e => e.DepartmentId == departmentId)
+                .Where(e => e.DepartmentId == departmentId).Include(e => e.ApplicationUser)
                 .ToListAsync();
         }
 
-        // public async Task<IEnumerable<Employee>> GetByRoleAsync(Role role)
-        // {
-        //     return await _context.Employees
-        //         .Where(e => e.Role == role)
-        //         .ToListAsync();
-        // }
+        public async Task<IEnumerable<Employee>> GetByRoleAsync(Role role)
+        {
+            string roleName = role.ToString(); // Enum → string
+
+            // Belirtilen roldeki IdentityUser'ları al
+            var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
+            var userIds = usersInRole.Select(u => u.Id).ToList();
+
+            // Employee tablosundan ApplicationUserId ile eşleşenleri çek
+            var employees = await _context.Employees
+                .Include(e => e.ApplicationUser)
+                .Where(e => e.ApplicationUserId != null && userIds.Contains(e.ApplicationUserId))
+                .ToListAsync();
+
+            return employees;
+        }
 
         public async Task<bool> CreateAsync(Employee employee)
         {

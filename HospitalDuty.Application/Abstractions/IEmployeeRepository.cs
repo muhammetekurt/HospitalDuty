@@ -11,7 +11,7 @@ namespace HospitalDuty.Application.Abstractions
         Task<IEnumerable<Employee>> GetAllAsync();
         Task<Employee?> GetByIdAsync(Guid id);
         Task<IEnumerable<Employee>> GetByDepartmentAsync(Guid departmentId);
-        //Task<IEnumerable<Employee>> GetByRoleAsync(Role role);
+        Task<IEnumerable<Employee>> GetByRoleAsync(Role role);
         Task<bool> DeleteAsync(Guid id);
         Task<bool> CreateAsync(Employee employee);
         Task<bool> UpdateAsync(Employee employee);
