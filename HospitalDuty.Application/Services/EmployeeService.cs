@@ -38,11 +38,11 @@ namespace HospitalDuty.Application.Services
             return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
         }
 
-        public async Task<IEnumerable<EmployeeDto>> GetByRoleAsync(Role role)
-        {
-            var employees = await _context.GetByRoleAsync(role);
-            return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
-        }
+        // public async Task<IEnumerable<EmployeeDto>> GetByRoleAsync(Role role)
+        // {
+        //     var employees = await _context.GetByRoleAsync(role);
+        //     return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        // }
 
         public async Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto)
         {

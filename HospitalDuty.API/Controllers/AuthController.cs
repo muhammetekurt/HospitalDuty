@@ -50,10 +50,8 @@ public class AuthController : ControllerBase
             Id = Guid.Parse(user.Id),
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            DepartmentId = new Guid("d1111111-1111-1111-1111-111111111111"),
-            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
+            //DepartmentId = new Guid("d1111111-1111-1111-1111-111111111111"),
+            //HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
             ApplicationUserId = user.Id
         };
 

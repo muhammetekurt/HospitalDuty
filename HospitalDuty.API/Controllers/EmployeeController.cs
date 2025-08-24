@@ -56,15 +56,15 @@ public class EmployeeController : ControllerBase
     /// <summary>
     /// Returns Employees by roleId
     /// </summary>
-    [HttpGet("role/{role}")]
-    public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetByRole(Role role)
-    {
-        var employees = await _employeeService.GetByRoleAsync(role);
-        if (employees == null || !employees.Any())
-            return NotFound();
+    // [HttpGet("role/{role}")]
+    // public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetByRole(Role role)
+    // {
+    //     var employees = await _employeeService.GetByRoleAsync(role);
+    //     if (employees == null || !employees.Any())
+    //         return NotFound();
 
-        return Ok(employees);
-    }
+    //     return Ok(employees);
+    // }
 
     /// <summary>
     /// Creates a new Employee

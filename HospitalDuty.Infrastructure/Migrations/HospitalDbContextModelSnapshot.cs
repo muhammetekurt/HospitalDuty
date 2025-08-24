@@ -145,7 +145,7 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("DepartmentId")
+                    b.Property<Guid?>("DepartmentId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -156,23 +156,12 @@ namespace HospitalDuty.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("HospitalId")
+                    b.Property<Guid?>("HospitalId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ProfileImage")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -470,15 +459,11 @@ namespace HospitalDuty.Infrastructure.Migrations
 
                     b.HasOne("HospitalDuty.Domain.Entities.Department", "Department")
                         .WithMany("Employees")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DepartmentId");
 
                     b.HasOne("HospitalDuty.Domain.Entities.Hospital", "Hospital")
                         .WithMany("Employees")
-                        .HasForeignKey("HospitalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("HospitalId");
 
                     b.Navigation("ApplicationUser");
 

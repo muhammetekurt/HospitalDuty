@@ -101,7 +101,7 @@ public class DepartmentController : ControllerBase
     [HttpGet("me")]
     public IActionResult Me() => Ok("Authenticated!");
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SystemAdmin")]
     [HttpPost("admin-only")]
     public IActionResult AdminOnly() => Ok("Only admin can see this.");
 
