@@ -4,6 +4,8 @@ using System.Text;
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Domain.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -74,6 +76,19 @@ public class AuthController : ControllerBase
 
         return Ok(new { token });
     }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var fullName = User.FindFirstValue(ClaimTypes.Name); // FullName'i claim olarak eklediysen
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        var roles = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
+
+        return Ok(new { userId, fullName, email, roles });
+    }
+
 
     private string GenerateJwt(ApplicationUser user, IList<string> roles)
     {

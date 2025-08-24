@@ -179,3 +179,7 @@ dist/
 
 # Opsiyonel: XML dosyaları (istersen sadece belirli dosyaları ignore et)
 *.xml
+
+# Ignore AssemblyInfo files
+**/Properties/AssemblyInfo.cs
+**/AssemblyInfo.cs
