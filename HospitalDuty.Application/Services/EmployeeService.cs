@@ -47,6 +47,7 @@ namespace HospitalDuty.Application.Services
 
                 var dto = _mapper.Map<EmployeeDto>(emp);
 
+                dto.FullName = emp.ApplicationUser?.FullName;
                 dto.Email = emp.ApplicationUser?.Email;
                 dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
                 dto.Roles = roles;
@@ -75,6 +76,7 @@ namespace HospitalDuty.Application.Services
             var dto = _mapper.Map<EmployeeDto>(employee);
 
             // IdentityUser alanlarını ekle
+            dto.FullName = employee.ApplicationUser?.FullName;
             dto.Email = employee.ApplicationUser?.Email;
             dto.PhoneNumber = employee.ApplicationUser?.PhoneNumber;
             dto.Roles = roles;
@@ -100,7 +102,7 @@ namespace HospitalDuty.Application.Services
 
                 var dto = _mapper.Map<EmployeeDto>(emp);
 
-                // IdentityUser alanlarını ekle
+                dto.FullName = emp.ApplicationUser?.FullName;
                 dto.Email = emp.ApplicationUser?.Email;
                 dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
                 dto.Roles = roles;
@@ -130,7 +132,7 @@ namespace HospitalDuty.Application.Services
 
                 var dto = _mapper.Map<EmployeeDto>(emp);
 
-                // IdentityUser alanlarını ekle
+                dto.FullName = emp.ApplicationUser?.FullName;
                 dto.Email = emp.ApplicationUser?.Email;
                 dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
                 dto.Roles = roles;

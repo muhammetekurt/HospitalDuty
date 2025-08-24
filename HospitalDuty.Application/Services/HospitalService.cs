@@ -12,11 +12,16 @@ public class HospitalService : IHospitalService
 {
 
     private readonly IHospitalRepository _hospitalRepository;
+    private readonly IDepartmentRepository _departmentRepository;
+    private readonly IEmployeeService _employeeService;
+
     private readonly IMapper _mapper;
 
-    public HospitalService(IHospitalRepository hospitalRepository, IMapper mapper)
+    public HospitalService(IHospitalRepository hospitalRepository, IDepartmentRepository departmentRepository, IEmployeeService employeeService, IMapper mapper)
     {
         _hospitalRepository = hospitalRepository;
+        _departmentRepository = departmentRepository;
+        _employeeService = employeeService;
         _mapper = mapper;
     }
 
@@ -60,7 +65,25 @@ public class HospitalService : IHospitalService
 
     public async Task<bool> DeleteAsync(Guid id)
     {
+
+        var employees = await _employeeService.GetAllAsync();
+        var hospitalEmployees = employees.Where(e => e.HospitalId == id).ToList();
+        foreach (var emp in hospitalEmployees)
+        {
+            await _employeeService.DeleteAsync(emp.Id); // IdentityUser’ı da siler
+        }
+
+        // 2️⃣ Hospital’a bağlı tüm Department’ları al ve sil
+        var departments = await _departmentRepository.GetByHospitalAsync(id);
+        foreach (var dept in departments)
+        {
+            await _departmentRepository.DeleteAsync(dept.Id);
+        }
+
+        // 3️⃣ Hospital’u sil
         return await _hospitalRepository.DeleteAsync(id);
+
+        //return await _hospitalRepository.DeleteAsync(id);
     }
 
 }

@@ -122,23 +122,23 @@ public class AuthController : ControllerBase
         _employeeService = employeeService;
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto dto)
-    {
-        var result = await _authService.RegisterAsync(dto);
-        if (!result) return BadRequest("Registration failed.");
-        return Ok(new { Message = "User created successfully." });
-    }
+    //şimdilik kendi kendine kayıt yok
+    // [HttpPost("register")]
+    // public async Task<IActionResult> Register(RegisterDto dto)
+    // {
+    //     var result = await _authService.RegisterAsync(dto);
+    //     if (!result) return BadRequest("Registration failed.");
+    //     return Ok(new { Message = "User created successfully." });
+    // }
 
 
     [HttpPost("register-by-admin")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SystemAdmin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SystemAdmin, HospitalDirector")]
     public async Task<IActionResult> RegisterByAdmin(RegisterDto dto)
     {
         var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await _authService.CreateWithCreatorAsync(dto, creatorUserId);
-
-        if (!result) return BadRequest("Creation failed.");
+        if (result == null) return BadRequest("Creation failed.");
         return Ok(new { Message = "User created successfully." });
     }
 

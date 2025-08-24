@@ -29,7 +29,7 @@ public static class IdentitySeed
                 UserName = adminEmail,
                 Email = adminEmail,
                 FullName = "System Admin",
-                PhoneNumber = "0000000000"
+                PhoneNumber = "5554443322"
             };
             await userManager.CreateAsync(admin, "123456ok");  // Güçlü şifre
             await userManager.AddToRoleAsync(admin, Role.SystemAdmin.ToString());
@@ -39,8 +39,7 @@ public static class IdentitySeed
                 FirstName = "System",
                 LastName = "Admin",
                 ApplicationUserId = admin.Id,
-                DepartmentId = Guid.Parse("d1111111-1111-1111-1111-111111111111"),
-                HospitalId = Guid.Parse("11111111-1111-1111-1111-111111111111")
+                Email = adminEmail
             };
             await employeeService.CreateAsync(employee);
         }
