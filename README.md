@@ -5,9 +5,6 @@
 
 <img width="1315" height="908" alt="Ekran Resmi 2025-08-24 00 09 15" src="https://github.com/user-attachments/assets/76ffe83f-f803-429e-977f-809d9c7d8ad3" />
 
-<img width="1414" height="766" alt="HospitalDuty db - Departments" src="https://github.com/user-attachments/assets/6e303901-bdda-46ea-ba34-6c659effee3c" />
-
-
 # Branch Rules
 
 Bu **README** dosyası, proje üzerinde branch açma, isimlendirme ve Pull Request kurallarını tanımlar.
