@@ -120,7 +120,7 @@ public class EmployeeController : ControllerBase
     /// <summary>
     /// Deletes an Employee by Id
     /// </summary>
-    [Authorize(Roles = "SystemAdmin")]
+    [Authorize(Roles = "SystemAdmin, HospitalDirector, DepartmentManager")]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete(Guid id)
     {
