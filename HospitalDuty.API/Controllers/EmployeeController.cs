@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Application.Interfaces;
 using HospitalDuty.Application.Services;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +43,28 @@ public class EmployeeController : ControllerBase
 
         return Ok(employee);
     }
+
+    /// <summary>
+    /// Returns current logged-in Employee info
+    /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpGet("my-infos")]
+    public async Task<ActionResult<EmployeeDto>> GetMyInfos()
+    {
+        // Token içindeki Identity User Id'yi çek
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        // UserId üzerinden Employee bul
+        var employee = await _employeeService.GetByIdAsync(Guid.Parse(userId));
+        if (employee == null)
+            return NotFound("Employee not found for current user.");
+
+        return Ok(employee);
+    }
+
     /// <summary>
     /// Returns Employees by departmentId
     /// </summary>
@@ -68,24 +92,25 @@ public class EmployeeController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new Employee
+    /// Creates a new Employee //KAYITLAR AUTH TARAFINDAN ALINIYOR O YÜZDEN İPTAL
     /// </summary>
-    [HttpPost]
-    public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto employeeDto)
-    {
-        var employee = await _employeeService.CreateAsync(employeeDto);
-        if (employee == null)
-            return BadRequest();
+    // [HttpPost]
+    // public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto employeeDto)
+    // {
+    //     var employee = await _employeeService.CreateAsync(employeeDto);
+    //     if (employee == null)
+    //         return BadRequest();
 
-        return CreatedAtAction(nameof(GetById), new { id = employee.Id }, employee);
-    }
+    //     return CreatedAtAction(nameof(GetById), new { id = employee.Id }, employee);
+    // }
+
     /// <summary>
     /// Updates an existing Employee
     /// </summary>
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<EmployeeDto>> Update(Guid id, UpdateEmployeeDto employeeDto)
     {
-        var employee = await _employeeService.UpdateAsync(id, employeeDto);
+        var employee = await _employeeService.UpdateAsync(id, employeeDto, User); //User: CurrentEmployee
         if (employee == null)
             return NotFound();
 

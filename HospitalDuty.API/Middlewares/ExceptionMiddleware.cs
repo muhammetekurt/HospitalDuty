@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using System.Net;
 using System.Text.Json;
 using HospitalDuty.Application.Exceptions;
@@ -41,10 +42,13 @@ public class ExceptionMiddleware
             _ => HttpStatusCode.InternalServerError
         };
 
+        // Inner exception varsa onu da al
+        string message = exception.InnerException?.Message ?? exception.Message;
+
         var response = new
         {
             StatusCode = (int)statusCode,
-            Message = exception.Message
+            Message = message
         };
 
         var json = JsonSerializer.Serialize(response);

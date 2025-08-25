@@ -7,6 +7,7 @@ using HospitalDuty.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HospitalDuty.Application.Services
@@ -150,42 +151,62 @@ namespace HospitalDuty.Application.Services
             return _mapper.Map<EmployeeDto>(employee);
         }
 
-        public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto dto)
+        public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto dto, ClaimsPrincipal user)
         {
             var employee = await _context.GetByIdAsync(id);
             if (employee == null) return null;
 
-            // Employee entity alanlarını güncelle
+            // Kullanıcı rollerini al
+            var userRoles = user.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            bool isPrivileged = userRoles.Contains("SystemAdmin")
+                             || userRoles.Contains("HospitalDirector")
+                             || userRoles.Contains("DepartmentLeader");
+
+            // ---------------------
+            // Employee update
+            // ---------------------
             employee.FirstName = dto.FirstName;
             employee.LastName = dto.LastName;
-            employee.DepartmentId = dto.DepartmentId;
-            employee.HospitalId = dto.HospitalId;
             employee.Email = dto.Email;
 
+            if (isPrivileged) // sadece admin roller department/hospital değiştirebilir
+            {
+                employee.DepartmentId = dto.DepartmentId;
+                employee.HospitalId = dto.HospitalId;
+            }
 
             await _context.UpdateAsync(employee);
 
-            // IdentityUser güncelle
+            // ---------------------
+            // Identity update
+            // ---------------------
             if (!string.IsNullOrEmpty(employee.ApplicationUserId))
             {
-                var user = await _userManager.FindByIdAsync(employee.ApplicationUserId);
-                if (user != null)
+                var appUser = await _userManager.FindByIdAsync(employee.ApplicationUserId);
+                if (appUser != null)
                 {
-                    if (!string.IsNullOrEmpty(dto.Email)) user.Email = dto.Email;
-                    if (!string.IsNullOrEmpty(dto.Email)) user.Email = dto.Email;
-                    if (!string.IsNullOrEmpty(dto.FirstName) && !string.IsNullOrEmpty(dto.LastName)) user.FullName = $"{dto.FirstName} {dto.LastName}";
-                    if (!string.IsNullOrEmpty(dto.PhoneNumber)) user.PhoneNumber = dto.PhoneNumber;
-                    await _userManager.UpdateAsync(user);
+                    if (!string.IsNullOrEmpty(dto.Email)) appUser.Email = dto.Email;
+                    if (!string.IsNullOrEmpty(dto.FirstName) && !string.IsNullOrEmpty(dto.LastName))
+                        appUser.FullName = $"{dto.FirstName} {dto.LastName}";
+                    if (!string.IsNullOrEmpty(dto.PhoneNumber)) appUser.PhoneNumber = dto.PhoneNumber;
 
-                    // Roller
-                    if (dto.Roles != null && dto.Roles.Any())
+                    await _userManager.UpdateAsync(appUser);
+
+                    // Roller sadece admin roller tarafından değiştirilebilir
+                    if (isPrivileged && dto.Roles != null && dto.Roles.Any())
                     {
-                        var currentRoles = await _userManager.GetRolesAsync(user);
+                        var currentRoles = await _userManager.GetRolesAsync(appUser);
                         var rolesToRemove = currentRoles.Except(dto.Roles).ToList();
                         var rolesToAdd = dto.Roles.Except(currentRoles).ToList();
 
-                        if (rolesToRemove.Any()) await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-                        if (rolesToAdd.Any()) await _userManager.AddToRolesAsync(user, rolesToAdd);
+                        if (rolesToRemove.Any())
+                            await _userManager.RemoveFromRolesAsync(appUser, rolesToRemove);
+                        if (rolesToAdd.Any())
+                            await _userManager.AddToRolesAsync(appUser, rolesToAdd);
                     }
                 }
             }

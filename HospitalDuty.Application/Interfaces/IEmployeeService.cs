@@ -3,6 +3,7 @@ using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HospitalDuty.Application.Interfaces
@@ -15,6 +16,6 @@ namespace HospitalDuty.Application.Interfaces
         Task<IEnumerable<EmployeeDto>> GetByRoleAsync(Role role);
         Task<bool> DeleteAsync(Guid id);
         Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto);
-        Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto employeeDto);
+        Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto employeeDto, ClaimsPrincipal user);
     }
 }
