@@ -1,9 +1,7 @@
 
-<img width="1315" height="845" alt="Ekran Resmi 2025-08-24 00 08 45" src="https://github.com/user-attachments/assets/9fa20fe0-8c2a-414a-b124-7a0db4a7b7a0" />
+<img width="1153" height="807" alt="Ekran Resmi 2025-08-26 22 32 10" src="https://github.com/user-attachments/assets/0397bdb0-8f5a-4dd4-b91e-a21bf2d018d3" />
 
-<img width="1315" height="835" alt="Ekran Resmi 2025-08-24 00 09 06" src="https://github.com/user-attachments/assets/3d30e293-e321-48a8-922d-e60fa1bbe06b" />
-
-<img width="1315" height="908" alt="Ekran Resmi 2025-08-24 00 09 15" src="https://github.com/user-attachments/assets/76ffe83f-f803-429e-977f-809d9c7d8ad3" />
+<img width="1015" height="956" alt="Ekran Resmi 2025-08-26 22 32 39" src="https://github.com/user-attachments/assets/24d9cfd1-487d-47f8-9a69-e3ca31500d60" />
 
 # Branch Rules
 
