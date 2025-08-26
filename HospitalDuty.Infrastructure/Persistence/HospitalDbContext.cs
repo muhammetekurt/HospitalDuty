@@ -38,7 +38,7 @@ public class HospitalDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(e => e.Hospital)
             .WithMany(h => h.Employees)
             .HasForeignKey(e => e.HospitalId);
-        
+
         modelBuilder.Entity<Employee>()
             .HasOne(e => e.ApplicationUser)
             .WithOne(u => u.Employee)

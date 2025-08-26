@@ -2,6 +2,7 @@ using System;
 using HospitalDuty.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using HospitalDuty.Application.DTOs.HospitalDTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalDuty.API.Controllers;
 
@@ -83,6 +84,7 @@ public class HospitalController : ControllerBase
     /// <summary>
     /// Deletes a Hospital by Id
     /// </summary>
+    [Authorize(Roles = "SystemAdmin")]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete(Guid id)
     {

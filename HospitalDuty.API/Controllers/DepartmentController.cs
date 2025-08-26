@@ -86,6 +86,7 @@ public class DepartmentController : ControllerBase
     /// <summary>
     /// Deletes a Department by Id
     /// </summary>
+    [Authorize(Roles = "SystemAdmin, HospitalDirector")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -93,17 +94,6 @@ public class DepartmentController : ControllerBase
         if (!result) return NotFound();
         return NoContent();
     }
-
-    //
-
-
-    [Authorize] // login zorunlu
-    [HttpGet("me")]
-    public IActionResult Me() => Ok("Authenticated!");
-
-    [Authorize(Roles = "SystemAdmin")]
-    [HttpPost("admin-only")]
-    public IActionResult AdminOnly() => Ok("Only admin can see this.");
 
 
 }

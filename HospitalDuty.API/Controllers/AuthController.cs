@@ -69,4 +69,8 @@ public class AuthController : ControllerBase
         if (employee == null) return NotFound();
         return Ok(employee);
     }
+
+    // [Authorize(Roles = "SystemAdmin")]
+    // [HttpPost("admin-only")]
+    // public IActionResult AdminOnly() => Ok("Only admin can see this.");
 }
