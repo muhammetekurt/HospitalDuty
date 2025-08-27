@@ -52,6 +52,7 @@ namespace HospitalDuty.Application.Services
                 dto.Email = emp.ApplicationUser?.Email;
                 dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
                 dto.Roles = roles;
+                dto.Department = emp.Department != null ? emp.Department.Name : string.Empty;
 
                 employeeDtos.Add(dto);
             }
@@ -81,6 +82,7 @@ namespace HospitalDuty.Application.Services
             dto.Email = employee.ApplicationUser?.Email;
             dto.PhoneNumber = employee.ApplicationUser?.PhoneNumber;
             dto.Roles = roles;
+            dto.Department = employee.Department != null ? employee.Department.Name : string.Empty;
 
             return dto;
         }
@@ -107,6 +109,7 @@ namespace HospitalDuty.Application.Services
                 dto.Email = emp.ApplicationUser?.Email;
                 dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
                 dto.Roles = roles;
+                dto.Department = emp.Department != null ? emp.Department.Name : string.Empty;
 
                 employeeDtos.Add(dto);
             }
@@ -137,6 +140,7 @@ namespace HospitalDuty.Application.Services
                 dto.Email = emp.ApplicationUser?.Email;
                 dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
                 dto.Roles = roles;
+                dto.Department = emp.Department != null ? emp.Department.Name : string.Empty;
 
                 employeeDtos.Add(dto);
             }

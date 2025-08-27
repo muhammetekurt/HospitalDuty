@@ -23,18 +23,18 @@ namespace HospitalDuty.Infrastructure.Repository
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            return await _context.Employees.Include(e => e.ApplicationUser).ToListAsync();
+            return await _context.Employees.Include(e => e.ApplicationUser).Include(e => e.Department).ToListAsync();
         }
 
         public async Task<Employee?> GetByIdAsync(Guid id)
         {
-            return await _context.Employees.Include(e => e.ApplicationUser).FirstOrDefaultAsync(e => e.Id == id);
+            return await _context.Employees.Include(e => e.ApplicationUser).Include(e => e.Department).FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<Employee>> GetByDepartmentAsync(Guid departmentId)
         {
             return await _context.Employees
-                .Where(e => e.DepartmentId == departmentId).Include(e => e.ApplicationUser)
+                .Where(e => e.DepartmentId == departmentId).Include(e => e.ApplicationUser).Include(e => e.Department)
                 .ToListAsync();
         }
 
@@ -48,7 +48,7 @@ namespace HospitalDuty.Infrastructure.Repository
 
             // Employee tablosundan ApplicationUserId ile eşleşenleri çek
             var employees = await _context.Employees
-                .Include(e => e.ApplicationUser)
+                .Include(e => e.ApplicationUser).Include(e => e.Department)
                 .Where(e => e.ApplicationUserId != null && userIds.Contains(e.ApplicationUserId))
                 .ToListAsync();
 
