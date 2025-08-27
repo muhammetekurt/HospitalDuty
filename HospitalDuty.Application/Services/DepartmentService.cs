@@ -11,10 +11,13 @@ public class DepartmentService : IDepartmentService
 {
     private readonly IDepartmentRepository _context;
     private readonly IMapper _mapper;
-    public DepartmentService(IDepartmentRepository context, IMapper mapper)
+    private readonly IEmployeeService _employeeService;
+
+    public DepartmentService(IDepartmentRepository context, IMapper mapper, IEmployeeService employeeService)
     {
         _context = context;
         _mapper = mapper;
+        _employeeService = employeeService;
     }
 
     public async Task<DepartmentDto?> GetByIdAsync(Guid id)
@@ -59,6 +62,13 @@ public class DepartmentService : IDepartmentService
 
     public async Task<bool> DeleteAsync(Guid id)
     {
+        var employees = await _employeeService.GetAllAsync();
+        var departmentEmployees = employees.Where(e => e.DepartmentId == id).ToList();
+        foreach (var emp in departmentEmployees)
+        {
+            await _employeeService.DeleteAsync(emp.Id); // IdentityUser’ı da siler
+        }
+
         return await _context.DeleteAsync(id);
     }
 }

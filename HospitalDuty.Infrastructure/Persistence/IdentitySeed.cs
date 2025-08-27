@@ -11,13 +11,13 @@ public static class IdentitySeed
                                                     IEmployeeService employeeService)
     {
         // 1️⃣ Roller
-        // foreach(var roleName in Enum.GetNames(typeof(Role)))
-        // {
-        //     if(!await roleManager.RoleExistsAsync(roleName))
-        //     {
-        //         await roleManager.CreateAsync(new IdentityRole(roleName));
-        //     }
-        // }
+        foreach(var roleName in Enum.GetNames(typeof(Role)))
+        {
+            if(!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
 
         // 2️⃣ Sistem Admin
         var adminEmail = "admin@hospital.com";

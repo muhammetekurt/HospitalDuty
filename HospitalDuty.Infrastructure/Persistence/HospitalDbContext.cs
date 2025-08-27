@@ -18,48 +18,59 @@ public class HospitalDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Hospital>()
+                .HasMany(h => h.Departments)
+                .WithOne(d => d.Hospital)
+                .HasForeignKey(d => d.HospitalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        // -------------------------
+        // Hospital → Employees (1-N)
+        // -------------------------
+        modelBuilder.Entity<Hospital>()
+            .HasMany(h => h.Employees)
+            .WithOne(e => e.Hospital)
+            .HasForeignKey(e => e.HospitalId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // -------------------------
+        // Hospital → Director (1-1 nullable)
+        // (Director zaten bir Employee, silinince cascade ile gidecek.
+        // Bu yüzden FK'de SetNull diyoruz, problem çıkmasın.)
+        // -------------------------
+        modelBuilder.Entity<Hospital>()
             .HasOne(h => h.Director)
             .WithMany()
             .HasForeignKey(h => h.DirectorId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<Employee>()
-            .HasOne(e => e.Department)
-            .WithMany(d => d.Employees)
-            .HasForeignKey(e => e.DepartmentId);
+        // -------------------------
+        // Department → Employees (1-N)
+        // -------------------------
+        modelBuilder.Entity<Department>()
+            .HasMany(d => d.Employees)
+            .WithOne(e => e.Department)
+            .HasForeignKey(e => e.DepartmentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // -------------------------
+        // Department → Manager (1-1 nullable)
+        // (Manager da Employee, silinince cascade ile gider.
+        // O yüzden SetNull yapıyoruz.)
+        // -------------------------
         modelBuilder.Entity<Department>()
             .HasOne(d => d.Manager)
             .WithMany()
             .HasForeignKey(d => d.ManagerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
+        // -------------------------
+        // Employee → Shifts (1-N)
+        // -------------------------
         modelBuilder.Entity<Employee>()
-            .HasOne(e => e.Hospital)
-            .WithMany(h => h.Employees)
-            .HasForeignKey(e => e.HospitalId);
-
-        modelBuilder.Entity<Employee>()
-            .HasOne(e => e.ApplicationUser)
-            .WithOne(u => u.Employee)
-            .HasForeignKey<Employee>(e => e.ApplicationUserId)
+            .HasMany(e => e.Shifts)
+            .WithOne(s => s.Employee)
+            .HasForeignKey(s => s.EmployeeId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Shift>()
-            .HasOne(s => s.Hospital)
-            .WithMany(h => h.Shifts)
-            .HasForeignKey(s => s.HospitalId);
-
-        modelBuilder.Entity<Shift>()
-            .HasOne(s => s.Employee)
-            .WithMany(e => e.Shifts)
-            .HasForeignKey(s => s.EmployeeId);
-
-        modelBuilder.Entity<Shift>()
-            .HasOne(s => s.Department)
-            .WithMany(d => d.Shifts)
-            .HasForeignKey(s => s.DepartmentId);
-
-        modelBuilder.Seed();
+//        modelBuilder.Seed();
     }
 }

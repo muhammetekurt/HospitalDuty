@@ -117,32 +117,6 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.HasIndex("ManagerId");
 
                     b.ToTable("Departments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("d1111111-1111-1111-1111-111111111111"),
-                            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "Acil Servis"
-                        },
-                        new
-                        {
-                            Id = new Guid("d2222222-2222-2222-2222-222222222222"),
-                            HospitalId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "Kardiyoloji"
-                        },
-                        new
-                        {
-                            Id = new Guid("d3333333-3333-3333-3333-333333333333"),
-                            HospitalId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Name = "Nöroloji"
-                        },
-                        new
-                        {
-                            Id = new Guid("d4444444-4444-4444-4444-444444444444"),
-                            HospitalId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Name = "Ortopedi"
-                        });
                 });
 
             modelBuilder.Entity("HospitalDuty.Domain.Entities.Employee", b =>
@@ -220,52 +194,6 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.HasIndex("DirectorId");
 
                     b.ToTable("Hospitals");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Address = "Üniversiteler Mahallesi, Bilkent Blv. No:1",
-                            City = "Ankara",
-                            District = "Çankaya",
-                            Email = "info@ankarashehir.saglik.gov.tr",
-                            Name = "Ankara Şehir Hastanesi",
-                            Phone = "0312-552-6000",
-                            Website = "www.ankarashehir.saglik.gov.tr"
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Address = "Sıhhiye Kampüsü",
-                            City = "Ankara",
-                            District = "Altındağ",
-                            Email = "info@hacettepe.edu.tr",
-                            Name = "Hacettepe Üniversitesi Hastanesi",
-                            Phone = "0312-305-1010",
-                            Website = "www.hastaneler.hacettepe.edu.tr"
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Address = "Emniyet Mahallesi, Muammer Yaşar Bostancı Cad.",
-                            City = "Ankara",
-                            District = "Yenimahalle",
-                            Email = "info@gazi.edu.tr",
-                            Name = "Gazi Üniversitesi Hastanesi",
-                            Phone = "0312-202-5252",
-                            Website = "www.tip.gazi.edu.tr"
-                        },
-                        new
-                        {
-                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
-                            Address = "Talatpaşa Bulvarı No:44",
-                            City = "Ankara",
-                            District = "Altındağ",
-                            Email = "info@numune.saglik.gov.tr",
-                            Name = "Ankara Numune Hastanesi",
-                            Phone = "0312-508-4000",
-                            Website = "www.numune.saglik.gov.tr"
-                        });
                 });
 
             modelBuilder.Entity("HospitalDuty.Domain.Entities.Shift", b =>
@@ -446,7 +374,7 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.HasOne("HospitalDuty.Domain.Entities.Employee", "Manager")
                         .WithMany()
                         .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Hospital");
 
@@ -457,16 +385,17 @@ namespace HospitalDuty.Infrastructure.Migrations
                 {
                     b.HasOne("HospitalDuty.Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Employee")
-                        .HasForeignKey("HospitalDuty.Domain.Entities.Employee", "ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("HospitalDuty.Domain.Entities.Employee", "ApplicationUserId");
 
                     b.HasOne("HospitalDuty.Domain.Entities.Department", "Department")
                         .WithMany("Employees")
-                        .HasForeignKey("DepartmentId");
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("HospitalDuty.Domain.Entities.Hospital", "Hospital")
                         .WithMany("Employees")
-                        .HasForeignKey("HospitalId");
+                        .HasForeignKey("HospitalId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ApplicationUser");
 
@@ -480,7 +409,7 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.HasOne("HospitalDuty.Domain.Entities.Employee", "Director")
                         .WithMany()
                         .HasForeignKey("DirectorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Director");
                 });
