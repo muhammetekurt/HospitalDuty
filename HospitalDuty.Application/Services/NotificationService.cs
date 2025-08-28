@@ -12,10 +12,10 @@ public class NotificationService : INotificationService
         _emailService = emailService;
     }
 
-    public async Task<bool> SendWelcomeEmail(string userEmail, string fullName)
+    public async Task<bool> SendWelcomeEmail(string userEmail, string fullName, string password)
     {
-        var subject = "Hoşgeldin!";
-        var body = $"<h1>Merhaba {fullName}</h1><p>Hesabın başarıyla oluşturuldu.</p>";
+        var subject = "Hastane Nöbet Sistemine Hoş Geldin!";
+        var body = $"Merhaba {fullName},<br/><br/><p>Hesabın başarıyla oluşturuldu.</p><br/><p><strong>Geçici Şifreniz:</strong> {password}</p>";
         await _emailService.SendEmailAsync(userEmail, "", subject, body);
         return true;
     }

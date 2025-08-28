@@ -8,5 +8,5 @@ public interface IAuthService
 {
     Task<bool> RegisterAsync(RegisterDto dto);
     Task<TokenDto?> LoginAsync(LoginDto dto);
-    Task<ApplicationUser?> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId);
+    Task<ApplicationUser?> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId, string password);
 }

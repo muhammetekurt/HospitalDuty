@@ -43,12 +43,13 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> RegisterByAdmin(RegisterDto dto)
     {
         var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var result = await _authService.CreateWithCreatorAsync(dto, creatorUserId);
+        string password = CreatePassword(8);
+        var result = await _authService.CreateWithCreatorAsync(dto, creatorUserId, password);
         var fullName = $"{dto.FirstName} {dto.LastName}";
         if (result == null) return BadRequest("Creation failed.");
         // Send welcome email
         //await _emailService.SendEmailAsync(dto.Email, "", "Welcome to HospitalDuty", "Thank you for registering!");
-        await _notificationService.SendWelcomeEmail(dto.Email, fullName);
+        await _notificationService.SendWelcomeEmail(dto.Email, fullName, password);
 
         return Ok(new { Message = "User created successfully." });
     }
@@ -76,6 +77,19 @@ public class AuthController : ControllerBase
         var employee = await _employeeService.GetByIdAsync(Guid.Parse(userId));
         if (employee == null) return NotFound();
         return Ok(employee);
+    }
+
+    [HttpGet("create-password")]
+    public string CreatePassword(int length)
+    {
+        const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder res = new StringBuilder();
+        Random rnd = new Random();
+        while (0 < length--)
+        {
+            res.Append(valid[rnd.Next(valid.Length)]);
+        }
+        return res.ToString();
     }
 
     // [Authorize(Roles = "SystemAdmin")]

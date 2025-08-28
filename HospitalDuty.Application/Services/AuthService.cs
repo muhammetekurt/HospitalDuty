@@ -35,7 +35,7 @@ public class AuthService : IAuthService
             PhoneNumber = dto.PhoneNumber
         };
 
-        var result = await _userManager.CreateAsync(user, dto.Password);
+        var result = await _userManager.CreateAsync(user, "password12");
         if (!result.Succeeded) return false;
 
         var employee = new CreateEmployeeDto
@@ -52,7 +52,7 @@ public class AuthService : IAuthService
         return true;
     }
 
-    public async Task<ApplicationUser> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId)
+    public async Task<ApplicationUser> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId, string password)
     {
         var creator = await _userManager.FindByIdAsync(creatorUserId);
         if (creator == null)
@@ -102,7 +102,7 @@ public class AuthService : IAuthService
         }
 
         // 5️⃣ Kullanıcıyı Identity'ye ekle
-        var result = await _userManager.CreateAsync(user, dto.Password);
+        var result = await _userManager.CreateAsync(user, password);
         if (!result.Succeeded)
             throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
@@ -175,4 +175,5 @@ public class AuthService : IAuthService
             _ => throw new Exception("Cannot determine role for new user")
         };
     }
+    
 }

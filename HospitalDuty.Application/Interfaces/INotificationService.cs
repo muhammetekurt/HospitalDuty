@@ -5,5 +5,5 @@ namespace HospitalDuty.Application.Interfaces;
 
 public interface INotificationService
 {
-    public Task<bool> SendWelcomeEmail(string userEmail, string fullName);
+    public Task<bool> SendWelcomeEmail(string userEmail, string fullName, string password);
 }
