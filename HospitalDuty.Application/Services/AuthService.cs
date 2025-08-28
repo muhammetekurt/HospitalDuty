@@ -58,6 +58,15 @@ public class AuthService : IAuthService
         if (creator == null)
             throw new Exception("Creator not found");
 
+
+        var existingEmailUser = await _userManager.FindByEmailAsync(dto.Email);
+        if (existingEmailUser != null)
+            throw new Exception("Email already exists");
+
+        var existingPhoneUser = _userManager.Users.FirstOrDefault(u => u.PhoneNumber == dto.PhoneNumber);
+        if (existingPhoneUser != null)
+            throw new Exception("Phone number already exists");
+
         // 2️⃣ Creator rolünü al
         var creatorRoles = await _userManager.GetRolesAsync(creator);
         var creatorRole = creatorRoles.FirstOrDefault();
@@ -108,7 +117,6 @@ public class AuthService : IAuthService
 
         // 6️⃣ Rol ekle (DTO üzerinden veya otomatik)
         string newUserRole = (dto.Role?.ToString()) ?? DetermineRoleByCreator(creatorRole);
-
         await _userManager.AddToRoleAsync(user, newUserRole);
 
         // 7️⃣ Employee tablosuna ekle
@@ -122,7 +130,7 @@ public class AuthService : IAuthService
             DepartmentId = user.DepartmentId,
             Email = user.Email
         };
-
+        
         await _employeeService.CreateAsync(employeeDto);
 
         return user;
@@ -175,5 +183,5 @@ public class AuthService : IAuthService
             _ => throw new Exception("Cannot determine role for new user")
         };
     }
-    
+
 }
