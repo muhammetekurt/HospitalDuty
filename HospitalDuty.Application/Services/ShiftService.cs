@@ -11,11 +11,13 @@ public class ShiftService : IShiftService
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IMapper _mapper;
+    private readonly IEmployeeService _employeeService;
 
-    public ShiftService(IShiftRepository shiftRepository, IMapper mapper)
+    public ShiftService(IShiftRepository shiftRepository, IMapper mapper, IEmployeeService employeeService)
     {
         _shiftRepository = shiftRepository;
         _mapper = mapper;
+        _employeeService = employeeService;
     }
 
     public async Task<ShiftDto> GetShiftByIdAsync(int id)
@@ -59,9 +61,15 @@ public class ShiftService : IShiftService
         return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
     }
 
-    public async Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto)
+    public async Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto, string creatorUserId)
     {
+        var creatorEmployee = await _employeeService.GetByIdAsync(Guid.Parse(creatorUserId));
+        if (creatorEmployee == null) throw new Exception("Creator not found");
+
         var shift = _mapper.Map<Shift>(createShiftDto);
+        shift.HospitalId = creatorEmployee.HospitalId;
+        shift.DepartmentId = creatorEmployee.DepartmentId;
+        
         var createdShift = await _shiftRepository.CreateShiftAsync(shift);
         return _mapper.Map<ShiftDto>(createdShift);
     }

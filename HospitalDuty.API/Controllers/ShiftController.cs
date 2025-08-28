@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using HospitalDuty.Application.DTOs.ShiftDTOs;
 using HospitalDuty.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -92,8 +93,23 @@ public class ShiftController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateShift([FromBody] CreateShiftDto createShiftDto)
     {
-        var shift = await _shiftService.CreateShiftAsync(createShiftDto);
-        return CreatedAtAction(nameof(GetShiftById), new { id = shift.Id }, shift);
+        var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var shift = await _shiftService.CreateShiftAsync(createShiftDto, creatorUserId);
+        var shiftDto = new ShiftDto
+        {
+            Id = shift.Id,
+            EmployeeId = shift.EmployeeId,
+            DepartmentId = shift.DepartmentId,
+            HospitalId = shift.HospitalId,
+            StartTime = shift.StartTime,
+            EndTime = shift.EndTime,
+            ShiftType = shift.ShiftType,
+            Notes = shift.Notes
+        };
+
+    return Ok(shiftDto);
+
     }
 
     /// <summary>

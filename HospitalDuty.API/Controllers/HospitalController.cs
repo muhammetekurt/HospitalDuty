@@ -62,7 +62,7 @@ public class HospitalController : ControllerBase
         if (createdHospital == null)
             return BadRequest();
 
-        return CreatedAtAction(nameof(GetById), new { id = createdHospital.Id }, createdHospital);
+        return Ok(createdHospital);
     }
 
     /// <summary>
@@ -71,9 +71,6 @@ public class HospitalController : ControllerBase
     [HttpPut]
     public async Task<ActionResult> Update(Guid id, UpdateHospitalDto hospitalDto)
     {
-        if (id != hospitalDto.Id)
-            return BadRequest();
-
         var result = await _hospitalService.UpdateAsync(id, hospitalDto);
         if (!result)
             return NotFound();

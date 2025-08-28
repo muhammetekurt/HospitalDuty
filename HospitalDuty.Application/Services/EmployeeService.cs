@@ -148,7 +148,7 @@ namespace HospitalDuty.Application.Services
             return employeeDtos;
         }
 
-        public async Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto)
+        public async Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto) //kullanımda değil
         {
             var employee = _mapper.Map<Employee>(employeeDto);
             await _context.CreateAsync(employee);

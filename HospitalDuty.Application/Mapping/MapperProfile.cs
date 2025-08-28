@@ -24,7 +24,7 @@ namespace HospitalDuty.Application.Mapping
             CreateMap<CreateDepartmentDto, Department>();
             CreateMap<UpdateDepartmentDto, Department>();
 
-            CreateMap<Shift, ShiftDto>();
+            CreateMap<Shift, ShiftDto>().ForMember(sh => sh.EmployeeName, opt => opt.MapFrom(src => src.Employee.FirstName + " " + src.Employee.LastName));
             CreateMap<CreateShiftDto, Shift>();
             CreateMap<UpdateShiftDto, Shift>();
 

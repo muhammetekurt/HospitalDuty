@@ -52,39 +52,6 @@ public class AuthService : IAuthService
         return true;
     }
 
-    // public async Task<ApplicationUser?> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId)
-    // {
-    //     var exists = await _userManager.FindByEmailAsync(dto.Email);
-    //     if (exists != null) return null;
-
-    //     var user = new ApplicationUser
-    //     {
-    //         UserName = dto.Email,
-    //         Email = dto.Email,
-    //         FullName = dto.FullName,
-    //         PhoneNumber = dto.PhoneNumber
-    //     };
-
-    //     var result = await _userManager.CreateAsync(user, dto.Password);
-    //     if (!result.Succeeded) return null;
-
-    //     var creatorEmployee = await _employeeService.GetByIdAsync(Guid.Parse(creatorUserId));
-    //     if (creatorEmployee == null) return null;
-
-    //     var employee = new CreateEmployeeDto
-    //     {
-    //         Id = Guid.Parse(user.Id),
-    //         FirstName = dto.FirstName,
-    //         LastName = dto.LastName,
-    //         HospitalId = creatorEmployee.HospitalId,
-    //         ApplicationUserId = user.Id,
-    //         Email = dto.Email
-    //     };
-
-    //     await _employeeService.CreateAsync(employee);
-
-    //     return user;
-    // }
     public async Task<ApplicationUser> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId)
     {
         var creator = await _userManager.FindByIdAsync(creatorUserId);

@@ -12,7 +12,7 @@ public interface IShiftService
     Task<IEnumerable<ShiftDto>> GetShiftByEmployeeIdAsync(Guid employeeId);
     Task<IEnumerable<ShiftDto>> GetShiftByDateAsync(DateTime date);
     Task<IEnumerable<ShiftDto>> GetShiftByDateRangeAsync(DateTime startDate, DateTime endDate);
-    Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto);
+    Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto, string creatorUserId);
     Task<bool> UpdateShiftAsync(int id, UpdateShiftDto updateShiftDto);
     Task<bool> DeleteShiftAsync(int id);
 }
