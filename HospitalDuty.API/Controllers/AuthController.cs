@@ -18,11 +18,15 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IEmployeeService _employeeService;
+    private readonly IEmailService _emailService;
+    private readonly INotificationService _notificationService;
 
-    public AuthController(IAuthService authService, IEmployeeService employeeService)
+    public AuthController(IAuthService authService, IEmployeeService employeeService, IEmailService emailService, INotificationService notificationService)
     {
         _authService = authService;
         _employeeService = employeeService;
+        _emailService = emailService;
+        _notificationService = notificationService;
     }
 
     //şimdilik kendi kendine kayıt yok
@@ -40,10 +44,14 @@ public class AuthController : ControllerBase
     {
         var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = await _authService.CreateWithCreatorAsync(dto, creatorUserId);
+        var fullName = $"{dto.FirstName} {dto.LastName}";
         if (result == null) return BadRequest("Creation failed.");
+        // Send welcome email
+        //await _emailService.SendEmailAsync(dto.Email, "", "Welcome to HospitalDuty", "Thank you for registering!");
+        await _notificationService.SendWelcomeEmail(dto.Email, fullName);
+
         return Ok(new { Message = "User created successfully." });
     }
-
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
