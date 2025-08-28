@@ -100,6 +100,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<INotificationService, NotificationService>();
+
 builder.WebHost.UseUrls("https://localhost:5000");
 
 var app = builder.Build();

@@ -22,7 +22,7 @@ public class AuthService : IAuthService
         _config = config;
     }
 
-    public async Task<bool> RegisterAsync(RegisterDto dto)
+    public async Task<bool> RegisterAsync(RegisterDto dto) //KULLANIMDA DEĞİL - SELF REGISTER YOK
     {
         var exists = await _userManager.FindByEmailAsync(dto.Email);
         if (exists != null) return false;
