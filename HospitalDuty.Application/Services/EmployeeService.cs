@@ -25,127 +25,48 @@ namespace HospitalDuty.Application.Services
             _userManager = userManager;
         }
 
-        // public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
-        // {
-        //     var employees = await _context.GetAllAsync();
-        //     return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
-        // }
         public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
         {
-            var employees = await _context.GetAllAsync(); // Employee + ApplicationUser ilişkisi çekiliyor
+            var employees = await _context.GetAllAsync();
             var employeeDtos = new List<EmployeeDto>();
 
             foreach (var emp in employees)
             {
-                // Roller
-                List<string> roles = new();
-                if (!string.IsNullOrEmpty(emp.ApplicationUserId))
-                {
-                    var user = await _userManager.FindByIdAsync(emp.ApplicationUserId);
-                    if (user != null)
-                        roles = (await _userManager.GetRolesAsync(user)).ToList();
-                }
-
-                var dto = _mapper.Map<EmployeeDto>(emp);
-
-                dto.FullName = emp.ApplicationUser?.FullName;
-                dto.Email = emp.ApplicationUser?.Email;
-                dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
-                dto.Roles = roles;
-                dto.Department = emp.Department != null ? emp.Department.Name : string.Empty;
-
-                employeeDtos.Add(dto);
+                employeeDtos.Add(await MapToDtoWithRoles(emp));
             }
 
             return employeeDtos;
         }
-
-
         public async Task<EmployeeDto?> GetByIdAsync(Guid id)
         {
-            var employee = await _context.GetByIdAsync(id); // Employee + ApplicationUser ilişkisi çekiliyor
+            var employee = await _context.GetByIdAsync(id);
             if (employee == null) return null;
 
-            // Roller
-            List<string> roles = new();
-            if (!string.IsNullOrEmpty(employee.ApplicationUserId))
-            {
-                var user = await _userManager.FindByIdAsync(employee.ApplicationUserId);
-                if (user != null)
-                    roles = (await _userManager.GetRolesAsync(user)).ToList();
-            }
-
-            var dto = _mapper.Map<EmployeeDto>(employee);
-
-            // IdentityUser alanlarını ekle
-            dto.FullName = employee.ApplicationUser?.FullName;
-            dto.Email = employee.ApplicationUser?.Email;
-            dto.PhoneNumber = employee.ApplicationUser?.PhoneNumber;
-            dto.Roles = roles;
-            dto.Department = employee.Department != null ? employee.Department.Name : string.Empty;
-
-            return dto;
+            return await MapToDtoWithRoles(employee);
         }
-
         public async Task<IEnumerable<EmployeeDto>> GetByDepartmentAsync(Guid departmentId)
         {
-            var employees = await _context.GetByDepartmentAsync(departmentId); // Employee + ApplicationUser ilişkisi
-            var employeeDtos = new List<EmployeeDto>();
+            var employees = await _context.GetByDepartmentAsync(departmentId);
+            var dtos = new List<EmployeeDto>();
 
             foreach (var emp in employees)
             {
-                // Roller
-                List<string> roles = new();
-                if (!string.IsNullOrEmpty(emp.ApplicationUserId))
-                {
-                    var user = await _userManager.FindByIdAsync(emp.ApplicationUserId);
-                    if (user != null)
-                        roles = (await _userManager.GetRolesAsync(user)).ToList();
-                }
-
-                var dto = _mapper.Map<EmployeeDto>(emp);
-
-                dto.FullName = emp.ApplicationUser?.FullName;
-                dto.Email = emp.ApplicationUser?.Email;
-                dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
-                dto.Roles = roles;
-                dto.Department = emp.Department != null ? emp.Department.Name : string.Empty;
-
-                employeeDtos.Add(dto);
+                dtos.Add(await MapToDtoWithRoles(emp));
             }
 
-            return employeeDtos;
-
+            return dtos;
         }
-
         public async Task<IEnumerable<EmployeeDto>> GetByRoleAsync(Role role)
         {
             var employees = await _context.GetByRoleAsync(role);
-            var employeeDtos = new List<EmployeeDto>();
+            var dtos = new List<EmployeeDto>();
 
             foreach (var emp in employees)
             {
-                // Roller
-                List<string> roles = new();
-                if (!string.IsNullOrEmpty(emp.ApplicationUserId))
-                {
-                    var user = await _userManager.FindByIdAsync(emp.ApplicationUserId);
-                    if (user != null)
-                        roles = (await _userManager.GetRolesAsync(user)).ToList();
-                }
-
-                var dto = _mapper.Map<EmployeeDto>(emp);
-
-                dto.FullName = emp.ApplicationUser?.FullName;
-                dto.Email = emp.ApplicationUser?.Email;
-                dto.PhoneNumber = emp.ApplicationUser?.PhoneNumber;
-                dto.Roles = roles;
-                dto.Department = emp.Department != null ? emp.Department.Name : string.Empty;
-
-                employeeDtos.Add(dto);
+                dtos.Add(await MapToDtoWithRoles(emp));
             }
 
-            return employeeDtos;
+            return dtos;
         }
 
         public async Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto) //kullanımda değil
@@ -234,5 +155,24 @@ namespace HospitalDuty.Application.Services
             await _context.DeleteAsync(id);
             return true;
         }
+
+        private async Task<EmployeeDto> MapToDtoWithRoles(Employee employee)
+        {
+            var dto = _mapper.Map<EmployeeDto>(employee);
+            if (!string.IsNullOrEmpty(employee.ApplicationUserId))
+            {
+                var user = await _userManager.FindByIdAsync(employee.ApplicationUserId);
+                if (user != null)
+                {
+                    dto.FullName = user.FullName;
+                    dto.Email = user.Email;
+                    dto.PhoneNumber = user.PhoneNumber;
+                    dto.Roles = (await _userManager.GetRolesAsync(user)).ToList();
+                }
+            }
+            dto.Department = employee.Department?.Name ?? string.Empty;
+            return dto;
+        }
+
     }
 }
