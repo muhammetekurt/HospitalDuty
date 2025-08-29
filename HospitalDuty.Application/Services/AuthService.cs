@@ -191,6 +191,9 @@ public class AuthService : IAuthService
         if (user == null) return false;
 
         var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+        if (result.Succeeded)
+            _notificationService.SendPasswordChangeNotification(user.Email, user.FullName);
+
         return result.Succeeded;
     }
 

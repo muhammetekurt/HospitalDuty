@@ -26,4 +26,12 @@ public class NotificationService : INotificationService
         await _emailService.SendEmailAsync(userEmail, "", subject, body);
         return true;
     }
+    public async Task<bool> SendPasswordChangeNotification(string userEmail, string fullName)
+    {
+        var subject = "Hastane Nöbet Sistemi - Şifre Değişikliği Bildirimi";
+        var body = $"Merhaba {fullName},<br/><br/><p>Hesabınızın şifresi başarıyla değiştirildi. Eğer bu işlemi siz yapmadıysanız, lütfen hemen bizimle iletişime geçin.</p>";
+        await _emailService.SendEmailAsync(userEmail, "", subject, body);
+        return true;
+    }
+
 }
