@@ -1,7 +1,7 @@
 using System;
 using HospitalDuty.Application.DTOs.DepartmentDTOs;
 
-namespace HospitalDuty.Application.Interfaces;
+namespace HospitalDuty.Application.Contracts.Services;
 
 public interface IDepartmentService
 {

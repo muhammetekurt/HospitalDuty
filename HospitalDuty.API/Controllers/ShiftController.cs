@@ -1,7 +1,7 @@
 using System;
 using System.Security.Claims;
 using HospitalDuty.Application.DTOs.ShiftDTOs;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalDuty.API.Controllers;

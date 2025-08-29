@@ -1,7 +1,7 @@
 using System;
 using HospitalDuty.Application.DTOs.DepartmentDTOs;
 using HospitalDuty.Application.DTOs.HospitalDTOs;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 

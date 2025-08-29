@@ -1,5 +1,5 @@
 using System;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 
 namespace HospitalDuty.Application.Services;
 

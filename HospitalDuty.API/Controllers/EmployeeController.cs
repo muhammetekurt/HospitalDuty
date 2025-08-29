@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
-using HospitalDuty.Application.Interfaces;
-using HospitalDuty.Application.Services;
+using HospitalDuty.Application.Contracts.Services;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

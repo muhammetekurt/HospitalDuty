@@ -1,4 +1,4 @@
-using HospitalDuty.Application.Abstractions;
+using HospitalDuty.Application.Contracts.Persistence;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using HospitalDuty.Infrastructure.Persistence;

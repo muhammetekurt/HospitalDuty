@@ -1,7 +1,7 @@
 using System;
 using HospitalDuty.Domain.Entities;
 
-namespace HospitalDuty.Application.Abstractions;
+namespace HospitalDuty.Application.Contracts.Persistence;
 
 public interface IShiftRepository
 {

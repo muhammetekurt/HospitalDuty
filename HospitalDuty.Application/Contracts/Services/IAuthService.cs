@@ -2,7 +2,7 @@ using System;
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Domain.Entities;
 
-namespace HospitalDuty.Application.Interfaces;
+namespace HospitalDuty.Application.Contracts.Services;
 
 public interface IAuthService
 {
