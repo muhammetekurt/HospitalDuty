@@ -70,6 +70,22 @@ public class AuthController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // token’dan user id alır
+        if (userId == null) return Unauthorized();
+
+        var result = await _authService.ChangePasswordAsync(userId, dto);
+
+        if (!result)
+            return BadRequest("Password change failed.");
+
+        return Ok("Password changed successfully.");
+    }
+
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
