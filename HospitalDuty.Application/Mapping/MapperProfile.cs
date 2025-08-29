@@ -5,6 +5,7 @@ using HospitalDuty.Application.DTOs.EmployeeDTOs;
 using HospitalDuty.Application.DTOs.HospitalDTOs;
 using HospitalDuty.Application.DTOs.DepartmentDTOs;
 using HospitalDuty.Application.DTOs.ShiftDTOs;
+using HospitalDuty.Application.DTOs.ShiftPreferenceDTOs;
 
 namespace HospitalDuty.Application.Mapping
 {
@@ -28,7 +29,10 @@ namespace HospitalDuty.Application.Mapping
             CreateMap<CreateShiftDto, Shift>();
             CreateMap<UpdateShiftDto, Shift>();
 
-
+            CreateMap<ShiftPreference, ShiftPreferenceDto>();
+            CreateMap<CreateShiftPreferenceDto, ShiftPreference>()
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Dates.FirstOrDefault()));
+            //CreateMap<UpdateShiftPreferenceDto, ShiftPreference>();
         }
     }
 }

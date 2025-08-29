@@ -235,6 +235,36 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.ToTable("Shifts");
                 });
 
+            modelBuilder.Entity("HospitalDuty.Domain.Entities.ShiftPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DepartmentName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PreferenceType")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("ShiftPreference");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -441,6 +471,17 @@ namespace HospitalDuty.Infrastructure.Migrations
                     b.Navigation("Hospital");
                 });
 
+            modelBuilder.Entity("HospitalDuty.Domain.Entities.ShiftPreference", b =>
+                {
+                    b.HasOne("HospitalDuty.Domain.Entities.Employee", "Employee")
+                        .WithMany("ShiftPreferences")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -506,6 +547,8 @@ namespace HospitalDuty.Infrastructure.Migrations
 
             modelBuilder.Entity("HospitalDuty.Domain.Entities.Employee", b =>
                 {
+                    b.Navigation("ShiftPreferences");
+
                     b.Navigation("Shifts");
                 });
 
