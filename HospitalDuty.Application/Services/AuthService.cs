@@ -14,12 +14,14 @@ public class AuthService : IAuthService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmployeeService _employeeService;
     private readonly IConfiguration _config;
+    private readonly INotificationService _notificationService;
 
-    public AuthService(UserManager<ApplicationUser> userManager, IEmployeeService employeeService, IConfiguration config)
+    public AuthService(UserManager<ApplicationUser> userManager, IEmployeeService employeeService, IConfiguration config, INotificationService notificationService)
     {
         _userManager = userManager;
         _employeeService = employeeService;
         _config = config;
+        _notificationService = notificationService;
     }
 
     public async Task<bool> RegisterAsync(RegisterDto dto) //KULLANIMDA DEĞİL - SELF REGISTER YOK
@@ -190,6 +192,19 @@ public class AuthService : IAuthService
 
         var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
         return result.Succeeded;
+    }
+
+    public async Task<(bool Success, string Message)> ForgotPasswordAsync(string email, string newPassword)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+            return (false, "User not found.");
+        
+        await _userManager.RemovePasswordAsync(user);
+        await _userManager.AddPasswordAsync(user, newPassword);
+        await _notificationService.SendPasswordResetEmail(email, user.FullName, newPassword);
+
+        return (true, "Password reset successfully and new password sent your e-mail address.");
     }
 
 }

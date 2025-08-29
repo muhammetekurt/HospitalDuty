@@ -84,6 +84,16 @@ public class AuthController : ControllerBase
         return Ok("Password changed successfully.");
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+    {
+        var newPassword = CreatePassword(8);
+        var result = await _authService.ForgotPasswordAsync(dto.Email, newPassword);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
+    }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("me")]
