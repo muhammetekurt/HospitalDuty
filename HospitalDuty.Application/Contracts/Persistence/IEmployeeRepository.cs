@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HospitalDuty.Application.Abstractions
+namespace HospitalDuty.Application.Contracts.Persistence
 {
     public interface IEmployeeRepository
     {

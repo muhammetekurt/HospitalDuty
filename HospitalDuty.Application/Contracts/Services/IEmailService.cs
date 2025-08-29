@@ -1,6 +1,6 @@
 using System;
 
-namespace HospitalDuty.Application.Interfaces;
+namespace HospitalDuty.Application.Contracts.Services;
 
 public interface IEmailService
 {

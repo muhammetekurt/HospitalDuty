@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Text;
 using HospitalDuty.API.Middlewares;
-using HospitalDuty.Application.Abstractions;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
+using HospitalDuty.Application.Contracts.Persistence;
 using HospitalDuty.Application.Services;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Infrastructure.Persistence;
@@ -88,7 +88,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddScoped<IEmployeeRepository, HospitalDuty.Infrastructure.Repository.EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
 builder.Services.AddScoped<IHospitalService, HospitalService>();

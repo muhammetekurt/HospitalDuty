@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 
 public static class IdentitySeed
 {

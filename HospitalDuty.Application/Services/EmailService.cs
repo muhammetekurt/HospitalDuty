@@ -2,7 +2,7 @@ using System;
 using MailKit.Net.Smtp;
 using MimeKit;
 using Microsoft.Extensions.Options;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 using HospitalDuty.Domain.Entities;
 
 namespace HospitalDuty.Application.Services;

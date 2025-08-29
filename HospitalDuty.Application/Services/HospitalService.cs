@@ -1,9 +1,9 @@
 
 using System;
 using AutoMapper;
-using HospitalDuty.Application.Abstractions;
+using HospitalDuty.Application.Contracts.Persistence;
 using HospitalDuty.Application.DTOs.HospitalDTOs;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 using HospitalDuty.Domain.Entities;
 
 namespace HospitalDuty.Application.Services;

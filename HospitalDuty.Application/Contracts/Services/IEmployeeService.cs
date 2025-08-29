@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace HospitalDuty.Application.Interfaces
+namespace HospitalDuty.Application.Contracts.Services
 {
     public interface IEmployeeService
     {

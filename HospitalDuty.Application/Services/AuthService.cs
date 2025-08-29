@@ -1,5 +1,5 @@
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 using Microsoft.AspNetCore.Identity;

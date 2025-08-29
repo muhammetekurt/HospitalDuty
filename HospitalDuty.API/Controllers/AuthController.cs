@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using HospitalDuty.Application.DTOs.EmployeeDTOs;
-using HospitalDuty.Application.Interfaces;
+using HospitalDuty.Application.Contracts.Services;
 using HospitalDuty.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

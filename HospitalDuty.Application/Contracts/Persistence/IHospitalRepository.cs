@@ -2,7 +2,7 @@ using System;
 using HospitalDuty.Domain.Entities;
 using HospitalDuty.Domain.Enums;
 
-namespace HospitalDuty.Application.Abstractions;
+namespace HospitalDuty.Application.Contracts.Persistence;
 
 public interface IHospitalRepository
 {
