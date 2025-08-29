@@ -183,3 +183,7 @@ dist/
 # Ignore AssemblyInfo files
 **/Properties/AssemblyInfo.cs
 **/AssemblyInfo.cs
+
+# cache.json için
+cache.json
+**/cache.json

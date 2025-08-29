@@ -130,7 +130,7 @@ public class AuthService : IAuthService
             DepartmentId = user.DepartmentId,
             Email = user.Email
         };
-        
+
         await _employeeService.CreateAsync(employeeDto);
 
         return user;
@@ -182,6 +182,14 @@ public class AuthService : IAuthService
             nameof(Role.DepartmentManager) => nameof(Role.DepartmentLeader),
             _ => throw new Exception("Cannot determine role for new user")
         };
+    }
+    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+
+        var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+        return result.Succeeded;
     }
 
 }
