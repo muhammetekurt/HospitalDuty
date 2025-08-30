@@ -110,5 +110,29 @@ namespace HospitalDuty.API.Controllers
             var result = await _service.GetUnavailableEmployeesByDateAsync(date);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Deletes shift preferences for a specific employee.
+        /// </summary>
+        [HttpDelete("employee/{employeeId}")]
+        public async Task<IActionResult> DeletePreferencesByEmployee(Guid employeeId)
+        {
+            var result = await _service.DeletePreferencesByEmployeeAsync(employeeId);
+            if (result)
+                return Ok(new { Message = "Shift preferences deleted successfully." });
+            return NotFound("No shift preferences found for this employee.");
+        }
+
+        /// <summary>
+        /// Deletes a specific shift preference by ID.
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePreference(Guid id)
+        {
+            var result = await _service.DeletePreferenceAsync(id);
+            if (result)
+                return Ok(new { Message = "Shift preference deleted successfully." });
+            return NotFound("Shift preference not found.");
+        }
     }
 }

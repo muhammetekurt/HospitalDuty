@@ -11,4 +11,6 @@ public interface IShiftPreferenceRepository
     Task<IEnumerable<ShiftPreference>> GetAllAsync();
     Task<IEnumerable<ShiftPreference>> GetByMonthAsync(int month);
     Task<IEnumerable<ShiftPreference>> GetByEmployeeAndMonthAsync(Guid employeeId, int month);
+    Task<bool> DeletePreferencesByEmployeeAsync(Guid employeeId);
+    Task<bool> DeletePreferenceAsync(Guid id);
 }

@@ -119,5 +119,15 @@ namespace HospitalDuty.Application.Services
             return allEmployees.Where(e => unavailableIds.Contains(e.Id));
         }
 
+        public async Task<bool> DeletePreferencesByEmployeeAsync(Guid employeeId)
+        {
+            return await _repository.DeletePreferencesByEmployeeAsync(employeeId);
+        }
+
+        public async Task<bool> DeletePreferenceAsync(Guid id)
+        {
+            return await _repository.DeletePreferenceAsync(id);
+        }
+
     }
 }

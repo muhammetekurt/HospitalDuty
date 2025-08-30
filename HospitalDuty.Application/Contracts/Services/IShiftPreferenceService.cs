@@ -18,4 +18,6 @@ public interface IShiftPreferenceService
     Task<IEnumerable<EmployeeDto>> GetAvailableEmployeesByMonthAsync(int month);
     Task<IEnumerable<EmployeeDto>> GetUnavailableEmployeesByDateAsync(DateTime date);
     Task<IEnumerable<EmployeeDto>> GetUnavailableEmployeesByMonthAsync(int month);
+    Task<bool> DeletePreferencesByEmployeeAsync(Guid employeeId);
+    Task<bool> DeletePreferenceAsync(Guid id);
 }

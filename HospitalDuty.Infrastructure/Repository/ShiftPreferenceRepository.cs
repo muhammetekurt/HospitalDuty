@@ -66,5 +66,20 @@ namespace HospitalDuty.Infrastructure.Repository
                 .Where(x => x.Date.Month == month && x.PreferenceType == PreferenceType.Preferred)
                 .ToListAsync();
         }
+
+        public async Task<bool> DeletePreferencesByEmployeeAsync(Guid employeeId)
+        {
+            var preferences = await _context.ShiftPreference.Where(x => x.EmployeeId == employeeId).ToListAsync();
+            _context.ShiftPreference.RemoveRange(preferences);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> DeletePreferenceAsync(Guid id)
+        {
+            var preference = await _context.ShiftPreference.FindAsync(id);
+            if (preference == null) return false;
+            _context.ShiftPreference.Remove(preference);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
