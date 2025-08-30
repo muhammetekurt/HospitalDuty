@@ -92,12 +92,18 @@ namespace HospitalDuty.API.Controllers
             var result = await _service.GetAvailableEmployeesByMonthAsync(month);
             return Ok(result);
         }
+        /// <summary>
+        /// Gets unavailable employees for a specific month.
+        /// </summary>
         [HttpGet("unavailable/month/{month}")]
         public async Task<IActionResult> GetUnavailableEmployeesByMonth(int month)
         {
             var result = await _service.GetUnavailableEmployeesByMonthAsync(month);
             return Ok(result);
         }
+        /// <summary>
+        /// Gets unavailable employees for a specific date.
+        /// </summary>
         [HttpGet("unavailable/date/{date}")]
         public async Task<IActionResult> GetUnavailableEmployeesByDate(DateTime date)
         {
