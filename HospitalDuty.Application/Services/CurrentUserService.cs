@@ -26,4 +26,8 @@ public class CurrentUserService : ICurrentUserService
 
     public bool IsInRole(string role) =>
         User?.IsInRole(role) ?? false;
+
+    // Hospital Information
+    // public string? HospitalId => User?.FindFirstValue("HospitalId");
+    // public string? DepartmentId => User?.FindFirstValue("DepartmentId");
 }

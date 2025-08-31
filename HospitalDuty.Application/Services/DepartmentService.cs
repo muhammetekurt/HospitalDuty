@@ -4,6 +4,7 @@ using HospitalDuty.Application.Contracts.Persistence;
 using HospitalDuty.Application.DTOs.DepartmentDTOs;
 using HospitalDuty.Application.Contracts.Services;
 using HospitalDuty.Domain.Entities;
+using HospitalDuty.Application.DTOs.EmployeeDTOs;
 
 namespace HospitalDuty.Application.Services;
 
@@ -41,6 +42,12 @@ public class DepartmentService : IDepartmentService
     {
         var department = await _context.GetByManagerAsync(managerId);
         return department == null ? null : _mapper.Map<DepartmentDto>(department);
+    }
+
+    public async Task<EmployeeDto?> GetManagerByDepartmentIdAsync(Guid departmentId)
+    {
+        var employee = await _context.GetManagerByDepartmentIdAsync(departmentId);
+        return employee == null ? null : _mapper.Map<EmployeeDto>(employee);
     }
 
     public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto departmentDto)

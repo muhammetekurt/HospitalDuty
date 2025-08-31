@@ -69,7 +69,6 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
     {
         //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // token’dan user id alır
-        //if (userId == null) return Unauthorized();
         var result = await _authService.ChangePasswordAsync(dto);
 
         if (!result)
