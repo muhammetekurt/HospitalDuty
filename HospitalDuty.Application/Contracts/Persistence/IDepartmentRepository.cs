@@ -9,6 +9,7 @@ public interface IDepartmentRepository
     Task<IEnumerable<Department>> GetAllAsync();
     Task<IEnumerable<Department?>> GetByHospitalAsync(Guid hospitalId);
     Task<Department?> GetByManagerAsync(Guid managerId);
+    Task<Employee?> GetManagerByDepartmentIdAsync(Guid departmentId);
     Task CreateAsync(Department department);
     Task<bool> UpdateAsync(Department department);
     Task<bool> DeleteAsync(Guid id);

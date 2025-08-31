@@ -4,6 +4,7 @@ using HospitalDuty.Application.DTOs.HospitalDTOs;
 using HospitalDuty.Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using HospitalDuty.Application.DTOs.EmployeeDTOs;
 
 namespace HospitalDuty.API.Controllers;
 
@@ -58,6 +59,19 @@ public class DepartmentController : ControllerBase
     {
         var department = await _departmentService.GetByManagerAsync(managerId);
         if (department == null) return NotFound();
+        return Ok(department);
+    }
+
+    /// <summary>
+    /// Returns Department's Manager
+    /// </summary>
+    [HttpGet("department/{departmentId}")]
+    public async Task<ActionResult<DepartmentDto>> GetManagerByDepartmentIdAsync(Guid departmentId)
+    {
+        var department = await _departmentService.GetManagerByDepartmentIdAsync(departmentId);
+        if (department == null)
+            return NotFound("Manager not found for the specified department.");
+
         return Ok(department);
     }
 

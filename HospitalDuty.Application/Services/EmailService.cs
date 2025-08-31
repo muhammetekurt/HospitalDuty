@@ -27,7 +27,6 @@ public class EmailService : IEmailService
         }
 
         message.Subject = subject;
-
         message.Body = new TextPart("html") { Text = body };
 
         using var client = new SmtpClient();

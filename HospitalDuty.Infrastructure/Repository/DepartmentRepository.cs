@@ -43,6 +43,14 @@ public class DepartmentRepository : IDepartmentRepository
         return await _context.Departments.Include(d => d.Hospital).FirstOrDefaultAsync(d => d.ManagerId == managerId);
     }
 
+    public async Task<Employee?> GetManagerByDepartmentIdAsync(Guid departmentId)
+    {
+        return await _context.Departments
+            .Where(d => d.Id == departmentId)
+            .Select(d => d.Manager)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task CreateAsync(Department department)
     {
         await _context.Departments.AddAsync(department);
