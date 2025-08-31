@@ -24,4 +24,5 @@ public class Employee
     // Identity ile birebir ilişki
     public string? ApplicationUserId { get; set; }  // string
     public ApplicationUser? ApplicationUser { get; set; }
+    public ICollection<ShiftPreference> ShiftPreferences { get; set; } = new List<ShiftPreference>();
 }

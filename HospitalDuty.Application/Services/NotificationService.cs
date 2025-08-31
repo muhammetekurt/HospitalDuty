@@ -33,5 +33,31 @@ public class NotificationService : INotificationService
         await _emailService.SendEmailAsync(userEmail, "", subject, body);
         return true;
     }
-
+    public async Task<bool> SendShiftCreatedNotification(string creatorFullName, string userEmail, string fullName, DateTime startTime, DateTime endTime)
+    {
+        var subject = "Hastane Nöbet Sistemi - Nöbet Oluşturuldu";
+        string body = $"Merhaba {fullName},<br/><br/><p>Nöbetiniz, {creatorFullName} tarafından başarıyla oluşturulmuştur. ";
+        body += $"<br/>Başlangıç saati: {startTime.ToString("dd.MM.yyyy HH:mm")} <br/>Bitiş saati: {endTime.ToString("dd.MM.yyyy HH:mm")}</p>";
+        body += $"<br/><p>Bir itirazınız varsa yöneticinizle iletişime geçebilirsiniz.</p>";
+        await _emailService.SendEmailAsync(userEmail, "", subject, body);
+        return true;
+    }
+    public async Task<bool> SendShiftUpdatedNotification(string userEmail, string fullName, DateTime startTime, DateTime endTime)
+    {
+        var subject = "Hastane Nöbet Sistemi - Nöbet Güncellendi";
+        string body = $"Merhaba {fullName},<br/><br/><p>Nöbetiniz başarıyla güncellendi.";
+        body += $"<br/>Başlangıç saati: {startTime.ToString("dd.MM.yyyy HH:mm")} <br/>Bitiş saati: {endTime.ToString("dd.MM.yyyy HH:mm")}</p>";
+        body += $"<br/><p>Bir itirazınız varsa yöneticinizle iletişime geçebilirsiniz.</p>";
+        await _emailService.SendEmailAsync(userEmail, "", subject, body);
+        return true;
+    }
+    public async Task<bool> SendShiftCanceledNotification(string creatorFullName, string userEmail, string fullName, DateTime startTime, DateTime endTime)
+    {
+        var subject = "Hastane Nöbet Sistemi - Nöbet İptal Edildi";
+        string body = $"Merhaba {fullName},<br/><br/><p>Nöbetiniz, {creatorFullName} tarafından iptal edilmiştir. ";
+        body += $"<br/>Başlangıç saati: {startTime.ToString("dd.MM.yyyy HH:mm")} <br/>Bitiş saati: {endTime.ToString("dd.MM.yyyy HH:mm")}</p>";
+        body += $"<br/><p>Bir itirazınız varsa yöneticinizle iletişime geçebilirsiniz.</p>";
+        await _emailService.SendEmailAsync(userEmail, "", subject, body);
+        return true;
+    }
 }

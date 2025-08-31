@@ -14,6 +14,8 @@ public class HospitalDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Shift> Shifts => Set<Shift>();
+    public DbSet<ShiftPreference> ShiftPreference => Set<ShiftPreference>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -71,6 +73,16 @@ public class HospitalDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(s => s.Employee)
             .HasForeignKey(s => s.EmployeeId)
             .OnDelete(DeleteBehavior.Cascade);
-//        modelBuilder.Seed();
+
+        // -------------------------
+        // Employee → ShiftPreferences (1-N)
+        // -------------------------
+        modelBuilder.Entity<Employee>()
+            .HasMany(e => e.ShiftPreferences)
+            .WithOne(sp => sp.Employee)
+            .HasForeignKey(sp => sp.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        //modelBuilder.Seed();
     }
 }
