@@ -15,14 +15,16 @@ public class ShiftService : IShiftService
     private readonly IEmployeeService _employeeService;
     private readonly IShiftPreferenceService _shiftPreferenceService;
     private readonly INotificationService _notificationService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public ShiftService(IShiftRepository shiftRepository, IMapper mapper, IEmployeeService employeeService, IShiftPreferenceService shiftPreferenceService, INotificationService notificationService)
+    public ShiftService(IShiftRepository shiftRepository, IMapper mapper, IEmployeeService employeeService, IShiftPreferenceService shiftPreferenceService, INotificationService notificationService, ICurrentUserService currentUserService)
     {
         _shiftRepository = shiftRepository;
         _mapper = mapper;
         _employeeService = employeeService;
         _shiftPreferenceService = shiftPreferenceService;
         _notificationService = notificationService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ShiftDto> GetShiftByIdAsync(int id)
@@ -143,16 +145,28 @@ public class ShiftService : IShiftService
 
     public async Task<bool> UpdateShiftAsync(int id, UpdateShiftDto updateShiftDto)
     {
+        
         var existingShift = await _shiftRepository.GetShiftByIdAsync(id);
         if (existingShift == null) return false;
 
+        if (existingShift.EmployeeId != updateShiftDto.EmployeeId)
+        {
+            var oldEmployee = await _employeeService.GetByIdAsync(existingShift.EmployeeId);
+            await _notificationService.SendShiftCanceledNotification(_currentUserService.FullName, oldEmployee.Email, oldEmployee.FullName, existingShift.StartTime, existingShift.EndTime);
+
+            var newEmployee = await _employeeService.GetByIdAsync(updateShiftDto.EmployeeId);
+            await _notificationService.SendShiftCreatedNotification(_currentUserService.FullName, newEmployee.Email, newEmployee.FullName, existingShift.StartTime, existingShift.EndTime);
+        }
+        else
+        {
+            var employee = await _employeeService.GetByIdAsync(existingShift.EmployeeId);
+            await _notificationService.SendShiftUpdatedNotification(employee.Email, employee.FullName, existingShift.StartTime, existingShift.EndTime);
+        }
         _mapper.Map(updateShiftDto, existingShift);
         var result = await _shiftRepository.UpdateShiftAsync(existingShift);
-        var employee = await _employeeService.GetByIdAsync(existingShift.EmployeeId);
-        await _notificationService.SendShiftUpdatedNotification(employee.Email, employee.FullName, existingShift.StartTime, existingShift.EndTime);
+
         return result;
     }
-
     public async Task<bool> DeleteShiftAsync(int id)
     {
         return await _shiftRepository.DeleteShiftAsync(id);
