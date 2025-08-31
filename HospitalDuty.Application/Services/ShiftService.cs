@@ -14,13 +14,15 @@ public class ShiftService : IShiftService
     private readonly IMapper _mapper;
     private readonly IEmployeeService _employeeService;
     private readonly IShiftPreferenceService _shiftPreferenceService;
+    private readonly INotificationService _notificationService;
 
-    public ShiftService(IShiftRepository shiftRepository, IMapper mapper, IEmployeeService employeeService, IShiftPreferenceService shiftPreferenceService)
+    public ShiftService(IShiftRepository shiftRepository, IMapper mapper, IEmployeeService employeeService, IShiftPreferenceService shiftPreferenceService, INotificationService notificationService)
     {
         _shiftRepository = shiftRepository;
         _mapper = mapper;
         _employeeService = employeeService;
         _shiftPreferenceService = shiftPreferenceService;
+        _notificationService = notificationService;
     }
 
     public async Task<ShiftDto> GetShiftByIdAsync(int id)
@@ -100,14 +102,16 @@ public class ShiftService : IShiftService
         // Tüm preference’ları al
         var prefs = await _shiftPreferenceService.GetPreferencesByEmployeeAndMonthAsync(
             createShiftDto.EmployeeId, createShiftDto.StartTime.Month);
-
-        // Shift aralığını kontrol et
-        var shiftDates = Enumerable.Range(0, (createShiftDto.EndTime.Date - createShiftDto.StartTime.Date).Days + 1)
-                                   .Select(d => createShiftDto.StartTime.Date.AddDays(d));
-
-        if (prefs.Any(p => shiftDates.Contains(p.Date.Date) && p.PreferenceType == PreferenceType.Unavailable))
+        if (prefs != null && prefs.Any())
         {
-            throw new Exception("Employee is unavailable for one or more dates in the selected shift range");
+            // Shift aralığını kontrol et
+            var shiftDates = Enumerable.Range(0, (createShiftDto.EndTime.Date - createShiftDto.StartTime.Date).Days + 1)
+                                    .Select(d => createShiftDto.StartTime.Date.AddDays(d));
+
+            if (prefs.Any(p => shiftDates.Contains(p.Date.Date) && p.PreferenceType == PreferenceType.Unavailable))
+            {
+                throw new Exception("Employee is unavailable for one or more dates in the selected shift range");
+            }
         }
 
         // -----------------------------
@@ -118,6 +122,21 @@ public class ShiftService : IShiftService
         shift.DepartmentId = creatorEmployee.DepartmentId;
 
         var createdShift = await _shiftRepository.CreateShiftAsync(shift);
+        
+        var employee = await _employeeService.GetByIdAsync(createShiftDto.EmployeeId);
+        if (employee == null)
+            throw new Exception("Assigned employee not found");
+
+        if (string.IsNullOrEmpty(employee.Email))
+            throw new Exception("Employee email is missing. Cannot send notification.");
+
+        await _notificationService.SendShiftCreatedNotification(
+            creatorEmployee.FirstName + " " + creatorEmployee.LastName,
+            employee.Email,
+            employee.FirstName + " " + employee.LastName,
+            createShiftDto.StartTime,
+            createShiftDto.EndTime
+        );
         return _mapper.Map<ShiftDto>(createdShift);
     }
 
@@ -129,6 +148,8 @@ public class ShiftService : IShiftService
 
         _mapper.Map(updateShiftDto, existingShift);
         var result = await _shiftRepository.UpdateShiftAsync(existingShift);
+        var employee = await _employeeService.GetByIdAsync(existingShift.EmployeeId);
+        await _notificationService.SendShiftUpdatedNotification(employee.Email, employee.FullName, existingShift.StartTime, existingShift.EndTime);
         return result;
     }
 
