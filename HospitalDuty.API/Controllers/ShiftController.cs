@@ -93,9 +93,9 @@ public class ShiftController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateShift([FromBody] CreateShiftDto createShiftDto)
     {
-        var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var shift = await _shiftService.CreateShiftAsync(createShiftDto, creatorUserId);
+        var shift = await _shiftService.CreateShiftAsync(createShiftDto);
         var shiftDto = new ShiftDto
         {
             Id = shift.Id,

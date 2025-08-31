@@ -18,14 +18,12 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IEmployeeService _employeeService;
-    private readonly IEmailService _emailService;
     private readonly INotificationService _notificationService;
 
-    public AuthController(IAuthService authService, IEmployeeService employeeService, IEmailService emailService, INotificationService notificationService)
+    public AuthController(IAuthService authService, IEmployeeService employeeService, INotificationService notificationService)
     {
         _authService = authService;
         _employeeService = employeeService;
-        _emailService = emailService;
         _notificationService = notificationService;
     }
 
@@ -42,14 +40,11 @@ public class AuthController : ControllerBase
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SystemAdmin, HospitalDirector, DepartmentManager")]
     public async Task<IActionResult> RegisterByAdmin(RegisterDto dto)
     {
-        var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //var creatorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         string password = CreatePassword(8);
-        var result = await _authService.CreateWithCreatorAsync(dto, creatorUserId, password);
+        var result = await _authService.CreateWithCreatorAsync(dto, password);
         var fullName = $"{dto.FirstName} {dto.LastName}";
         if (result == null) return BadRequest("Creation failed.");
-        // Send welcome email
-        //await _emailService.SendEmailAsync(dto.Email, "", "Welcome to HospitalDuty", "Thank you for registering!");
-        await _notificationService.SendWelcomeEmail(dto.Email, fullName, password);
 
         return Ok(new { Message = "User created successfully." });
     }
@@ -73,10 +68,9 @@ public class AuthController : ControllerBase
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // token’dan user id alır
-        if (userId == null) return Unauthorized();
-
-        var result = await _authService.ChangePasswordAsync(userId, dto);
+        //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // token’dan user id alır
+        //if (userId == null) return Unauthorized();
+        var result = await _authService.ChangePasswordAsync(dto);
 
         if (!result)
             return BadRequest("Password change failed.");

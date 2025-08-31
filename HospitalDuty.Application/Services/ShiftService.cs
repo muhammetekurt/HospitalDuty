@@ -68,38 +68,10 @@ public class ShiftService : IShiftService
         return _mapper.Map<IEnumerable<ShiftDto>>(shifts);
     }
 
-    // public async Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto, string creatorUserId)
-    // {
-    //     var creatorEmployee = await _employeeService.GetByIdAsync(Guid.Parse(creatorUserId));
-    //     if (creatorEmployee == null) throw new Exception("Creator not found");
-
-    //     var shift = _mapper.Map<Shift>(createShiftDto);
-    //     shift.HospitalId = creatorEmployee.HospitalId;
-    //     shift.DepartmentId = creatorEmployee.DepartmentId;
-
-    //     var createdShift = await _shiftRepository.CreateShiftAsync(shift);
-    //     return _mapper.Map<ShiftDto>(createdShift);
-    // }
-
-    public async Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto, string creatorUserId)
+    public async Task<ShiftDto> CreateShiftAsync(CreateShiftDto createShiftDto)
     {
-        var creatorEmployee = await _employeeService.GetByIdAsync(Guid.Parse(creatorUserId));
+        var creatorEmployee = await _employeeService.GetByIdAsync(Guid.Parse(_currentUserService.UserId));
         if (creatorEmployee == null) throw new Exception("Creator not found");
-
-        // -----------------------------
-        // 1️⃣ Çalışanın preference'larını al
-        // -----------------------------
-        // var prefs = await _shiftPreferenceService.GetPreferencesByEmployeeAndMonthAsync(
-        //     createShiftDto.EmployeeId, createShiftDto.StartTime.Month);
-
-        // // -----------------------------
-        // // 2️⃣ Tarih kontrolü
-        // // -----------------------------
-        // if (prefs.Any(p => p.Date.Date == createShiftDto.StartTime.Date
-        //                    && p.PreferenceType == PreferenceType.Unavailable))
-        // {
-        //     throw new Exception("Employee is unavailable for the selected date");
-        // }
 
         // Tüm preference’ları al
         var prefs = await _shiftPreferenceService.GetPreferencesByEmployeeAndMonthAsync(
@@ -116,9 +88,7 @@ public class ShiftService : IShiftService
             }
         }
 
-        // -----------------------------
-        // 3️⃣ Shift oluştur
-        // -----------------------------
+        // Shift oluştur
         var shift = _mapper.Map<Shift>(createShiftDto);
         shift.HospitalId = creatorEmployee.HospitalId;
         shift.DepartmentId = creatorEmployee.DepartmentId;
@@ -133,15 +103,14 @@ public class ShiftService : IShiftService
             throw new Exception("Employee email is missing. Cannot send notification.");
 
         await _notificationService.SendShiftCreatedNotification(
-            creatorEmployee.FirstName + " " + creatorEmployee.LastName,
+            creatorEmployee.FullName,
             employee.Email,
-            employee.FirstName + " " + employee.LastName,
+            employee.FullName,
             createShiftDto.StartTime,
             createShiftDto.EndTime
         );
         return _mapper.Map<ShiftDto>(createdShift);
     }
-
 
     public async Task<bool> UpdateShiftAsync(int id, UpdateShiftDto updateShiftDto)
     {

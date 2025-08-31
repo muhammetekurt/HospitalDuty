@@ -15,13 +15,15 @@ public class AuthService : IAuthService
     private readonly IEmployeeService _employeeService;
     private readonly IConfiguration _config;
     private readonly INotificationService _notificationService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AuthService(UserManager<ApplicationUser> userManager, IEmployeeService employeeService, IConfiguration config, INotificationService notificationService)
+    public AuthService(UserManager<ApplicationUser> userManager, IEmployeeService employeeService, IConfiguration config, INotificationService notificationService, ICurrentUserService currentUserService)
     {
         _userManager = userManager;
         _employeeService = employeeService;
         _config = config;
         _notificationService = notificationService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<bool> RegisterAsync(RegisterDto dto) //KULLANIMDA DEĞİL - SELF REGISTER YOK
@@ -54,9 +56,9 @@ public class AuthService : IAuthService
         return true;
     }
 
-    public async Task<ApplicationUser> CreateWithCreatorAsync(RegisterDto dto, string creatorUserId, string password)
+    public async Task<ApplicationUser> CreateWithCreatorAsync(RegisterDto dto, string password)
     {
-        var creator = await _userManager.FindByIdAsync(creatorUserId);
+        var creator = await _userManager.FindByIdAsync(_currentUserService.UserId);
         if (creator == null)
             throw new Exception("Creator not found");
 
@@ -134,6 +136,7 @@ public class AuthService : IAuthService
         };
 
         await _employeeService.CreateAsync(employeeDto);
+        await _notificationService.SendWelcomeEmail(employeeDto.Email, employeeDto.FirstName + " " + employeeDto.LastName, password);
 
         return user;
     }
@@ -185,9 +188,9 @@ public class AuthService : IAuthService
             _ => throw new Exception("Cannot determine role for new user")
         };
     }
-    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+    public async Task<bool> ChangePasswordAsync(ChangePasswordDto dto)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(_currentUserService.UserId);
         if (user == null) return false;
 
         var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
