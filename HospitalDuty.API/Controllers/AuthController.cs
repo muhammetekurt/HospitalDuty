@@ -19,11 +19,13 @@ public class AuthController : ControllerBase
     private readonly IAuthService _authService;
     private readonly IEmployeeService _employeeService;
     private readonly INotificationService _notificationService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AuthController(IAuthService authService, IEmployeeService employeeService, INotificationService notificationService)
+    public AuthController(IAuthService authService, IEmployeeService employeeService, INotificationService notificationService, ICurrentUserService currentUserService)
     {
         _authService = authService;
         _employeeService = employeeService;
+        _currentUserService = currentUserService;
         _notificationService = notificationService;
     }
 
@@ -110,6 +112,20 @@ public class AuthController : ControllerBase
         }
         return res.ToString();
     }
+
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // [HttpGet("me-new")]
+    // public async Task<IActionResult> MeNew()
+    // {
+    //     var employeeId = _currentUserService.UserId;
+    //     var employeeEmail = _currentUserService.Email;
+    //     var employeeFullName = _currentUserService.FullName;
+    //     var employeeIsAuthenticated = _currentUserService.IsAuthenticated;
+    //     var employeeRoles = _currentUserService.Roles;
+
+    //     if (employeeId == null) return NotFound();
+    //     return Ok(new { employeeId, employeeEmail, employeeFullName, employeeIsAuthenticated, employeeRoles});
+    // }
 
     // [Authorize(Roles = "SystemAdmin")]
     // [HttpPost("admin-only")]
