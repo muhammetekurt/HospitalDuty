@@ -30,6 +30,7 @@ import type { UpdateEmployeeRequest } from '../types/employee';
 import PasswordChangeDialog from './PasswordChangeDialog';
 import ShiftPreferenceDialog from './ShiftPreferenceDialog';
 import ShiftPreferenceList from './ShiftPreferenceList';
+import ShiftList from './ShiftList';
 
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
@@ -384,6 +385,22 @@ const Profile: React.FC = () => {
               
               {user && (
                 <ShiftPreferenceList key={refreshKey} employeeId={user.id} />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Vardiyalar */}
+          <Card sx={{ mt: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Vardiyalarım
+              </Typography>
+              
+              {user && (
+                <ShiftList 
+                  key={refreshKey}
+                  employeeId={user.id}
+                />
               )}
             </CardContent>
           </Card>

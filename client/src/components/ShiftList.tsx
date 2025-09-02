@@ -1,0 +1,369 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Alert,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Card,
+  CardContent,
+  Button,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
+import {
+  CalendarMonth as CalendarIcon,
+  AccessTime as TimeIcon,
+  Person as PersonIcon,
+  Business as BusinessIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
+import { shiftService } from '../services/shiftService';
+import type { Shift, ShiftType } from '../types/shift';
+
+interface ShiftListProps {
+  employeeId?: string;
+  showAddButton?: boolean;
+  onAddClick?: () => void;
+  onEditClick?: (shift: Shift) => void;
+  onDeleteClick?: (shift: Shift) => void;
+}
+
+const ShiftList: React.FC<ShiftListProps> = ({ 
+  employeeId, 
+  showAddButton = false, 
+  onAddClick,
+  onEditClick,
+  onDeleteClick
+}) => {
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    shift: Shift | null;
+  }>({ open: false, shift: null });
+
+  const months = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+  ];
+
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+
+  useEffect(() => {
+    loadShifts();
+  }, [employeeId, selectedMonth]);
+
+  const loadShifts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let data: Shift[];
+      if (employeeId) {
+        data = await shiftService.getShiftsByEmployee(employeeId);
+      } else {
+        data = await shiftService.getAllShifts();
+      }
+      
+      // Ay filtresi uygula
+      const filteredData = data.filter(shift => {
+        const shiftDate = new Date(shift.startTime);
+        return shiftDate.getMonth() + 1 === selectedMonth;
+      });
+      
+      setShifts(filteredData);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Vardiyalar yüklenirken bir hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('tr-TR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('tr-TR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getShiftTypeColor = (shiftType: ShiftType) => {
+    switch (shiftType) {
+      case 0: // Normal
+        return 'success';
+      case 1: // Night
+        return 'primary';
+      case 2: // Emergency
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const getShiftTypeLabel = (shiftType: ShiftType) => {
+    switch (shiftType) {
+      case 0: // Normal
+        return 'Normal';
+      case 1: // Night
+        return 'Gece';
+      case 2: // Emergency
+        return 'Acil';
+      default:
+        return 'Bilinmeyen';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ mb: 2 }}>
+        {error}
+      </Alert>
+    );
+  }
+
+  return (
+    <Box>
+      {/* Ay Filtresi */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel>Ay</InputLabel>
+                <Select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                  label="Ay"
+                >
+                  {months.map((month, index) => (
+                    <MenuItem key={index} value={index + 1}>
+                      {month}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <Typography variant="h6" color="primary">
+                {months[selectedMonth - 1]} {new Date().getFullYear()} Vardiyaları
+              </Typography>
+            </Box>
+
+            {showAddButton && onAddClick && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={onAddClick}
+                size="small"
+              >
+                Yeni Vardiya
+              </Button>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Vardiya Listesi */}
+      {shifts.length === 0 ? (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <CalendarIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Bu ay için vardiya bulunamadı
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {employeeId ? 'Size atanmış vardiya bulunmuyor.' : 'Henüz vardiya oluşturulmamış.'}
+          </Typography>
+        </Paper>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Tarih</TableCell>
+                <TableCell>Başlangıç</TableCell>
+                <TableCell>Bitiş</TableCell>
+                <TableCell>Vardiya Tipi</TableCell>
+                <TableCell>Çalışan</TableCell>
+                <TableCell>Hastane</TableCell>
+                <TableCell>Departman</TableCell>
+                {(onEditClick || onDeleteClick) && <TableCell align="center">İşlemler</TableCell>}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {shifts.map((shift) => (
+                <TableRow key={shift.id} hover>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <CalendarIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {formatDate(shift.startTime)}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <TimeIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {formatDateTime(shift.startTime)}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <TimeIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {formatDateTime(shift.endTime)}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={getShiftTypeLabel(shift.shiftType)}
+                      color={getShiftTypeColor(shift.shiftType) as any}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <PersonIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {shift.employeeName || '-'}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {shift.hospitalName || '-'}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {shift.departmentName || '-'}
+                    </Typography>
+                  </TableCell>
+                  {(onEditClick || onDeleteClick) && (
+                    <TableCell align="center">
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        {onEditClick && (
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => onEditClick(shift)}
+                            title="Düzenle"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                        {onDeleteClick && (
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => setDeleteDialog({ open: true, shift })}
+                            title="Sil"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, shift: null })}>
+        <DialogTitle>Vardiyayı Sil</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Bu vardiyayı silmek istediğinizden emin misiniz?
+          </Typography>
+          {deleteDialog.shift && (
+            <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
+              <Typography variant="body2">
+                <strong>Tarih:</strong> {formatDate(deleteDialog.shift.startTime)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Çalışan:</strong> {deleteDialog.shift.employeeName}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Hastane:</strong> {deleteDialog.shift.hospitalName}
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialog({ open: false, shift: null })}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => {
+              if (deleteDialog.shift && onDeleteClick) {
+                onDeleteClick(deleteDialog.shift);
+                setDeleteDialog({ open: false, shift: null });
+              }
+            }}
+            color="error"
+            variant="contained"
+          >
+            Sil
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default ShiftList;

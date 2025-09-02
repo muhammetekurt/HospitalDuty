@@ -11,6 +11,9 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import ShiftPreferenceList from './components/ShiftPreferenceList';
 import ShiftPreferenceDialog from './components/ShiftPreferenceDialog';
+import ShiftList from './components/ShiftList';
+import ShiftForm from './components/ShiftForm';
+import { shiftService } from './services/shiftService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const theme = createTheme({
@@ -113,6 +116,8 @@ const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = React.useState(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [openShiftPreferenceDialog, setOpenShiftPreferenceDialog] = React.useState(false);
+  const [openShiftFormDialog, setOpenShiftFormDialog] = React.useState(false);
+  const [editingShift, setEditingShift] = React.useState<any>(null);
   const [refreshKey, setRefreshKey] = React.useState(0);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -190,6 +195,7 @@ const AppContent: React.FC = () => {
               <Tab label="Departmanlar" />
               <Tab label="Çalışanlar" />
               <Tab label="Shift Tercihleri" />
+              <Tab label="Vardiyalar" />
               <Tab label="Profil" />
             </Tabs>
             
@@ -232,7 +238,29 @@ const AppContent: React.FC = () => {
               onAddClick={() => setOpenShiftPreferenceDialog(true)}
             />
           )}
-          {currentTab === 4 && <Profile />}
+          {currentTab === 4 && (
+            <ShiftList 
+              key={refreshKey}
+              showAddButton={true}
+              onAddClick={() => {
+                setEditingShift(null);
+                setOpenShiftFormDialog(true);
+              }}
+              onEditClick={(shift) => {
+                setEditingShift(shift);
+                setOpenShiftFormDialog(true);
+              }}
+              onDeleteClick={async (shift) => {
+                try {
+                  await shiftService.deleteShift(shift.id);
+                  setRefreshKey(prev => prev + 1);
+                } catch (error) {
+                  console.error('Delete error:', error);
+                }
+              }}
+            />
+          )}
+          {currentTab === 5 && <Profile />}
         </Container>
 
         {/* Shift Preference Dialog */}
@@ -242,6 +270,21 @@ const AppContent: React.FC = () => {
           onSuccess={() => {
             setRefreshKey(prev => prev + 1);
           }}
+        />
+
+        {/* Shift Form Dialog */}
+        <ShiftForm
+          open={openShiftFormDialog}
+          onClose={() => {
+            setOpenShiftFormDialog(false);
+            setEditingShift(null);
+          }}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingShift(null);
+          }}
+          shift={editingShift}
+          isEdit={!!editingShift}
         />
       </Box>
     </ThemeProvider>
