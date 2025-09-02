@@ -43,6 +43,7 @@ export interface User {
   departmentId: string;
   hospitalId: string;
   department: string;
+  hospitalName: string;
   hospital?: {
     id: string;
     name: string;

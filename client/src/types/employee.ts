@@ -9,7 +9,7 @@ export interface Employee {
   departmentId: string;
   hospitalId: string;
   department: string;
-  hospitalname: string;
+  hospitalName: string;
   hospital?: {
     id: string;
     name: string;
@@ -43,12 +43,14 @@ export interface UpdateEmployeeRequest {
   hospitalId: string;
 }
 
-export enum Role {
-  HospitalDirector = 'HospitalDirector',
-  DepartmentManager = 'DepartmentManager',
-  DepartmentLeader = 'DepartmentLeader',
-  Doctor = 'Doctor',
-  Nurse = 'Nurse',
-  Staff = 'Staff',
-  SystemAdmin = 'SystemAdmin'
-}
+export const Role = {
+  HospitalDirector: 'HospitalDirector',
+  DepartmentManager: 'DepartmentManager',
+  DepartmentLeader: 'DepartmentLeader',
+  Doctor: 'Doctor',
+  Nurse: 'Nurse',
+  Staff: 'Staff',
+  SystemAdmin: 'SystemAdmin'
+} as const;
+
+export type Role = typeof Role[keyof typeof Role];

@@ -340,7 +340,7 @@ const Profile: React.FC = () => {
                     <Typography variant="subtitle2">Hastane</Typography>
                   </Box>
                   <Typography variant="body2" color="text.secondary">
-                    {user.hospital?.name || 'Atanmamış'}
+                    {user.hospitalName || 'Atanmamış'}
                   </Typography>
                   {user.hospital?.city && (
                     <Typography variant="caption" color="text.secondary">

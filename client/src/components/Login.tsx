@@ -18,6 +18,7 @@ import {
   LocalHospital as HospitalIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import ForgotPasswordDialog from './ForgotPasswordDialog';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +27,7 @@ const Login: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [openForgotPassword, setOpenForgotPassword] = useState(false);
   const { login } = useAuth();
 
   const handleInputChange = (field: string) => (
@@ -193,11 +195,15 @@ const Login: React.FC = () => {
             {/* Forgot Password Link */}
             <Box textAlign="center">
               <Link
-                href="#"
+                component="button"
                 variant="body2"
+                onClick={() => setOpenForgotPassword(true)}
                 sx={{
                   color: 'primary.main',
                   textDecoration: 'none',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
                   '&:hover': {
                     textDecoration: 'underline',
                   },
@@ -216,6 +222,12 @@ const Login: React.FC = () => {
           </CardContent>
         </Card>
       </Container>
+
+      {/* Forgot Password Dialog */}
+      <ForgotPasswordDialog
+        open={openForgotPassword}
+        onClose={() => setOpenForgotPassword(false)}
+      />
     </Box>
   );
 };

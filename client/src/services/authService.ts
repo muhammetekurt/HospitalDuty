@@ -82,8 +82,8 @@ export const authService = {
   },
 
   // Şifremi unuttum
-  forgotPassword: async (forgotData: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
-    const response = await api.post<ForgotPasswordResponse>('/Auth/forgot-password', forgotData);
+  forgotPassword: async (forgotData: ForgotPasswordRequest): Promise<string> => {
+    const response = await api.post<string>('/Auth/forgot-password', forgotData);
     return response.data;
   },
 
