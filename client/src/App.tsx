@@ -230,10 +230,9 @@ const AppContent: React.FC = () => {
           {currentTab === 0 && <HospitalList />}
           {currentTab === 1 && <DepartmentList />}
           {currentTab === 2 && <EmployeeList />}
-          {currentTab === 3 && user && (
+          {currentTab === 3 && (
             <ShiftPreferenceList 
               key={refreshKey}
-              employeeId={user.id} 
               showAddButton={true}
               onAddClick={() => setOpenShiftPreferenceDialog(true)}
             />
@@ -261,9 +260,7 @@ const AppContent: React.FC = () => {
             />
           )}
           {currentTab === 5 && (
-            <Profile 
-              onNavigateToShiftPreferences={() => setCurrentTab(3)}
-            />
+            <Profile />
           )}
         </Container>
 

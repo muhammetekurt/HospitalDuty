@@ -33,7 +33,7 @@ import { shiftPreferenceService } from '../services/shiftPreferenceService';
 import type { ShiftPreference, PreferenceType } from '../types/shiftPreference';
 
 interface ShiftPreferenceListProps {
-  employeeId: string;
+  employeeId?: string;
   showAddButton?: boolean;
   onAddClick?: () => void;
 }
@@ -65,7 +65,14 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const data = await shiftPreferenceService.getPreferencesByEmployeeAndMonth(employeeId, selectedMonth);
+      
+      let data: ShiftPreference[];
+      if (employeeId) {
+        data = await shiftPreferenceService.getPreferencesByEmployeeAndMonth(employeeId, selectedMonth);
+      } else {
+        data = await shiftPreferenceService.getPreferencesByMonth(selectedMonth);
+      }
+      
       setPreferences(data);
     } catch (err) {
       setError('Shift tercihleri yüklenirken bir hata oluştu.');
@@ -163,7 +170,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
             Bu ay için shift tercihi bulunmuyor
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Yeni shift tercihleri eklemek için yukarıdaki butonu kullanın
+            {employeeId ? 'Size ait shift tercihi bulunmuyor.' : 'Henüz shift tercihi oluşturulmamış.'}
           </Typography>
         </Paper>
       ) : (
