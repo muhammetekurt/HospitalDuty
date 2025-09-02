@@ -23,7 +23,7 @@ namespace HospitalDuty.Infrastructure.Repository
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            return await _context.Employees.Include(e => e.ApplicationUser).Include(e => e.Department).ToListAsync();
+            return await _context.Employees.Include(e => e.ApplicationUser).Include(e => e.Department).Include(e => e.Hospital).ToListAsync();
         }
 
         public async Task<Employee?> GetByIdAsync(Guid id)

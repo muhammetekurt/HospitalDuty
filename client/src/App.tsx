@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { Container, AppBar, Toolbar, Typography, Box, Tabs, Tab } from '@mui/material';
 import HospitalList from './components/HospitalList';
 import DepartmentList from './components/DepartmentList';
+import EmployeeList from './components/EmployeeList';
 
 const theme = createTheme({
   palette: {
@@ -133,12 +134,14 @@ function App() {
             >
               <Tab label="Hastaneler" />
               <Tab label="Departmanlar" />
+              <Tab label="Çalışanlar" />
             </Tabs>
           </Toolbar>
         </AppBar>
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
           {currentTab === 0 && <HospitalList />}
           {currentTab === 1 && <DepartmentList />}
+          {currentTab === 2 && <EmployeeList />}
         </Container>
       </Box>
     </ThemeProvider>
