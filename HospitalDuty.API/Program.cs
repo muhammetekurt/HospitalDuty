@@ -112,7 +112,7 @@ builder.WebHost.UseUrls("https://localhost:5000");
 builder.Services.AddCors();
 
 var app = builder.Build();
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000", "https://localhost:3000"));
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3001", "https://localhost:3001"));
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

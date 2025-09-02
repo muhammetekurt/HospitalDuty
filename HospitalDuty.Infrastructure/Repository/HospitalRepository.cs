@@ -22,7 +22,7 @@ public class HospitalRepository : IHospitalRepository
 
     public async Task<IEnumerable<Hospital>> GetAllAsync()
     {
-        return await _dbContext.Hospitals.ToListAsync();
+        return await _dbContext.Hospitals.Include(h => h.Director).ToListAsync();
     }
 
     public async Task<Hospital?> GetByDirectorAsync(Guid directorId)
