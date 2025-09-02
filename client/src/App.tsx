@@ -2,10 +2,14 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Container, AppBar, Toolbar, Typography, Box, Tabs, Tab } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Tabs, Tab, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
+import { AccountCircle, Logout } from '@mui/icons-material';
 import HospitalList from './components/HospitalList';
 import DepartmentList from './components/DepartmentList';
 import EmployeeList from './components/EmployeeList';
+import Login from './components/Login';
+import Profile from './components/Profile';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const theme = createTheme({
   palette: {
@@ -102,12 +106,58 @@ const theme = createTheme({
   },
 });
 
-function App() {
+const AppContent: React.FC = () => {
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   const [currentTab, setCurrentTab] = React.useState(0);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    handleMenuClose();
+  };
+
+  const handleProfile = () => {
+    setCurrentTab(3); // Profile tab
+    handleMenuClose();
+  };
+
+  if (isLoading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box 
+          display="flex" 
+          justifyContent="center" 
+          alignItems="center" 
+          minHeight="100vh"
+          sx={{ bgcolor: 'background.default' }}
+        >
+          <Typography>Yükleniyor...</Typography>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Login />
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -135,16 +185,52 @@ function App() {
               <Tab label="Hastaneler" />
               <Tab label="Departmanlar" />
               <Tab label="Çalışanlar" />
+              <Tab label="Profil" />
             </Tabs>
+            
+            <Box sx={{ ml: 2 }}>
+              <IconButton
+                size="large"
+                onClick={handleMenuOpen}
+                color="inherit"
+              >
+                <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+                  {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleProfile}>
+                  <AccountCircle sx={{ mr: 1 }} />
+                  Profil
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <Logout sx={{ mr: 1 }} />
+                  Çıkış Yap
+                </MenuItem>
+              </Menu>
+            </Box>
           </Toolbar>
         </AppBar>
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
           {currentTab === 0 && <HospitalList />}
           {currentTab === 1 && <DepartmentList />}
           {currentTab === 2 && <EmployeeList />}
+          {currentTab === 3 && <Profile />}
         </Container>
       </Box>
     </ThemeProvider>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 export default App

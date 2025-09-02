@@ -18,5 +18,6 @@ namespace HospitalDuty.Application.DTOs.EmployeeDTOs
         public Guid DepartmentId { get; set; }
         public Guid HospitalId { get; set; }
         public string Department { get; set; } = string.Empty;
+        public string HospitalName { get; set; } = string.Empty;
     }
 }

@@ -31,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import type { Hospital } from '../types/hospital';
 import { hospitalService } from '../services/hospitalService';
-import HospitalForm from './HospitalForm';
+import HospitalForm from '../components/HospitalForm';
 
 const HospitalList: React.FC = () => {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);

@@ -9,6 +9,7 @@ export interface Employee {
   departmentId: string;
   hospitalId: string;
   department: string;
+  hospitalname: string;
   hospital?: {
     id: string;
     name: string;

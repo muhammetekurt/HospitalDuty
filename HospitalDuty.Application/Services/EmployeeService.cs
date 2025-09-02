@@ -171,6 +171,7 @@ namespace HospitalDuty.Application.Services
                 }
             }
             dto.Department = employee.Department?.Name ?? string.Empty;
+            dto.HospitalName = employee.Hospital?.Name ?? string.Empty;
             return dto;
         }
 

@@ -217,15 +217,15 @@ const EmployeeList: React.FC = () => {
                   </Box>
                 </TableCell>
                 <TableCell>
-                  {employee.hospital ? (
+                  {employee.hospitalname ? (
                     <Box display="flex" alignItems="center">
                       <HospitalIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
                       <Box>
                         <Typography variant="body2" fontWeight="medium">
-                          {employee.hospital.name}
+                          {employee.hospitalname}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {employee.hospital.city}
+                          {employee.hospital?.city}
                         </Typography>
                       </Box>
                     </Box>
