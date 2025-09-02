@@ -1,8 +1,10 @@
 
+import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Container, AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { Container, AppBar, Toolbar, Typography, Box, Tabs, Tab } from '@mui/material';
 import HospitalList from './components/HospitalList';
+import DepartmentList from './components/DepartmentList';
 
 const theme = createTheme({
   palette: {
@@ -100,6 +102,12 @@ const theme = createTheme({
 });
 
 function App() {
+  const [currentTab, setCurrentTab] = React.useState(0);
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setCurrentTab(newValue);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -109,10 +117,28 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Hospital Duty Management
             </Typography>
+            <Tabs
+              value={currentTab}
+              onChange={handleTabChange}
+              textColor="inherit"
+              indicatorColor="secondary"
+              sx={{
+                '& .MuiTab-root': {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  '&.Mui-selected': {
+                    color: 'white',
+                  },
+                },
+              }}
+            >
+              <Tab label="Hastaneler" />
+              <Tab label="Departmanlar" />
+            </Tabs>
           </Toolbar>
         </AppBar>
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          <HospitalList />
+          {currentTab === 0 && <HospitalList />}
+          {currentTab === 1 && <DepartmentList />}
         </Container>
       </Box>
     </ThemeProvider>
