@@ -29,7 +29,8 @@ namespace HospitalDuty.Application.Mapping
             CreateMap<CreateShiftDto, Shift>();
             CreateMap<UpdateShiftDto, Shift>();
 
-            CreateMap<ShiftPreference, ShiftPreferenceDto>();
+            CreateMap<ShiftPreference, ShiftPreferenceDto>()
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? $"{src.Employee.FirstName} {src.Employee.LastName}" : string.Empty));
             CreateMap<CreateShiftPreferenceDto, ShiftPreference>()
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Dates.FirstOrDefault()));
             CreateMap<CreateShiftDto, Shift>()

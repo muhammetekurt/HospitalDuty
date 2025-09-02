@@ -13,12 +13,14 @@ namespace HospitalDuty.Application.Services
         private readonly IShiftPreferenceRepository _repository;
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ShiftPreferenceService(IShiftPreferenceRepository repository, IEmployeeService employeeService, IMapper mapper)
+        public ShiftPreferenceService(IShiftPreferenceRepository repository, IEmployeeService employeeService, IMapper mapper, ICurrentUserService currentUserService)
         {
             _repository = repository;
             _employeeService = employeeService;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<IEnumerable<ShiftPreferenceDto>> CreatePreferencesAsync(CreateShiftPreferenceDto dto)
@@ -31,7 +33,7 @@ namespace HospitalDuty.Application.Services
                 if (existing != null) continue;
 
                 var entity = _mapper.Map<ShiftPreference>(dto);
-                entity.Date = date.Date; // döngüde güncellemeyi unutma
+                entity.Date = date.Date;
 
                 await _repository.CreateAsync(entity);
 

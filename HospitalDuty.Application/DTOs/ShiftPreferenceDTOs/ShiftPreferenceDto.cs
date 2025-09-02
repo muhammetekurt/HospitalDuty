@@ -11,4 +11,5 @@ public class ShiftPreferenceDto
     public PreferenceType PreferenceType { get; set; }
     public string Notes { get; set; } = string.Empty;
     public string DepartmentName { get; set; } = string.Empty;
+    public string EmployeeName { get; set; } = string.Empty;
 }

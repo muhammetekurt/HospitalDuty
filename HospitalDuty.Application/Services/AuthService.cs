@@ -62,7 +62,6 @@ public class AuthService : IAuthService
         if (creator == null)
             throw new Exception("Creator not found");
 
-
         var existingEmailUser = await _userManager.FindByEmailAsync(dto.Email);
         if (existingEmailUser != null)
             throw new Exception("Email already exists");
@@ -72,10 +71,12 @@ public class AuthService : IAuthService
             throw new Exception("Phone number already exists");
 
         // 2️⃣ Creator rolünü al
-        var creatorRoles = await _userManager.GetRolesAsync(creator);
-        var creatorRole = creatorRoles.FirstOrDefault();
-        if (creatorRole == null)
-            throw new Exception("Creator has no role");
+        // var creatorRoles = await _userManager.GetRolesAsync(creator);
+        // var creatorRole = creatorRoles.FirstOrDefault();
+        // if (creatorRole == null)
+        //     throw new Exception("Creator has no role");
+        var creatorRoles = _currentUserService.Roles;
+
 
         // 3️⃣ Yeni kullanıcı oluştur
         var user = new ApplicationUser
@@ -87,31 +88,57 @@ public class AuthService : IAuthService
         };
 
         // 4️⃣ Rol bazlı hospital & department aktarımı
-        switch (creatorRole)
+        // switch (creatorRole)
+        // {
+        //     case nameof(Role.SystemAdmin):
+        //         // Admin → HospitalDirector yaratacak
+        //         if (dto.HospitalId == null)
+        //             throw new Exception("HospitalId is required for director creation by admin");
+        //         user.HospitalId = dto.HospitalId;
+        //         break;
+
+        //     case nameof(Role.HospitalDirector):
+        //         // Director → DepartmentManager yaratacak
+        //         user.HospitalId = creator.HospitalId;
+        //         if (dto.DepartmentId == null)
+        //             throw new Exception("DepartmentId is required for manager creation by director");
+        //         user.DepartmentId = dto.DepartmentId;
+        //         break;
+
+        //     case nameof(Role.DepartmentManager):
+        //         // Manager → Leader/Doctor/Nurse yaratacak
+        //         user.HospitalId = creator.HospitalId;
+        //         user.DepartmentId = creator.DepartmentId;
+        //         break;
+
+        //     default:
+        //         throw new Exception("Creator role cannot create new users");
+        // }
+
+        if (creatorRoles.Contains(nameof(Role.SystemAdmin)))
         {
-            case nameof(Role.SystemAdmin):
-                // Admin → HospitalDirector yaratacak
-                if (dto.HospitalId == null)
-                    throw new Exception("HospitalId is required for director creation by admin");
-                user.HospitalId = dto.HospitalId;
-                break;
-
-            case nameof(Role.HospitalDirector):
-                // Director → DepartmentManager yaratacak
-                user.HospitalId = creator.HospitalId;
-                if (dto.DepartmentId == null)
-                    throw new Exception("DepartmentId is required for manager creation by director");
-                user.DepartmentId = dto.DepartmentId;
-                break;
-
-            case nameof(Role.DepartmentManager):
-                // Manager → Leader/Doctor/Nurse yaratacak
-                user.HospitalId = creator.HospitalId;
-                user.DepartmentId = creator.DepartmentId;
-                break;
-
-            default:
-                throw new Exception("Creator role cannot create new users");
+            // Admin → HospitalDirector yaratacak
+            if (dto.HospitalId == null)
+                throw new Exception("HospitalId is required for director creation by admin");
+            user.HospitalId = dto.HospitalId;
+        }
+        else if (creatorRoles.Contains(nameof(Role.HospitalDirector)))
+        {
+            // Director → DepartmentManager yaratacak
+            user.HospitalId = creator.HospitalId;
+            if (dto.DepartmentId == null)
+                throw new Exception("DepartmentId is required for manager creation by director");
+            user.DepartmentId = dto.DepartmentId;
+        }
+        else if (creatorRoles.Contains(nameof(Role.DepartmentManager)))
+        {
+            // Manager → Leader/Doctor/Nurse yaratacak
+            user.HospitalId = creator.HospitalId;
+            user.DepartmentId = creator.DepartmentId;
+        }
+        else
+        {
+            throw new Exception("Creator role cannot create new users");
         }
 
         // 5️⃣ Kullanıcıyı Identity'ye ekle
@@ -120,7 +147,7 @@ public class AuthService : IAuthService
             throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
         // 6️⃣ Rol ekle (DTO üzerinden veya otomatik)
-        string newUserRole = (dto.Role?.ToString()) ?? DetermineRoleByCreator(creatorRole);
+        string newUserRole = (dto.Role?.ToString()) ?? DetermineRoleByCreator(creatorRoles);
         await _userManager.AddToRoleAsync(user, newUserRole);
 
         // 7️⃣ Employee tablosuna ekle
@@ -178,16 +205,30 @@ public class AuthService : IAuthService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    private string DetermineRoleByCreator(string creatorRole)
+    // private string DetermineRoleByCreator(string creatorRole)
+    // {
+    //     return creatorRole switch
+    //     {
+    //         nameof(Role.SystemAdmin) => nameof(Role.HospitalDirector),
+    //         nameof(Role.HospitalDirector) => nameof(Role.DepartmentManager),
+    //         nameof(Role.DepartmentManager) => nameof(Role.DepartmentLeader),
+    //         _ => throw new Exception("Cannot determine role for new user")
+    //     };
+    // }
+    private string DetermineRoleByCreator(IEnumerable<string> creatorRoles)
     {
-        return creatorRole switch
-        {
-            nameof(Role.SystemAdmin) => nameof(Role.HospitalDirector),
-            nameof(Role.HospitalDirector) => nameof(Role.DepartmentManager),
-            nameof(Role.DepartmentManager) => nameof(Role.DepartmentLeader),
-            _ => throw new Exception("Cannot determine role for new user")
-        };
+        if (creatorRoles.Contains(nameof(Role.SystemAdmin)))
+            return nameof(Role.HospitalDirector);
+
+        if (creatorRoles.Contains(nameof(Role.HospitalDirector)))
+            return nameof(Role.DepartmentManager);
+
+        if (creatorRoles.Contains(nameof(Role.DepartmentManager)))
+            return nameof(Role.DepartmentLeader);
+
+        throw new Exception("Creator roles cannot assign a default role");
     }
+
     public async Task<bool> ChangePasswordAsync(ChangePasswordDto dto)
     {
         var user = await _userManager.FindByIdAsync(_currentUserService.UserId);
@@ -205,7 +246,7 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
             return (false, "User not found.");
-        
+
         await _userManager.RemovePasswordAsync(user);
         await _userManager.AddPasswordAsync(user, newPassword);
         await _notificationService.SendPasswordResetEmail(email, user.FullName, newPassword);

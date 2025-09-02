@@ -24,6 +24,7 @@ namespace HospitalDuty.Infrastructure.Repository
         public async Task<IEnumerable<ShiftPreference>> GetByEmployeeAsync(Guid employeeId)
         {
             return await _context.ShiftPreference
+                .Include(x => x.Employee)
                 .Where(x => x.EmployeeId == employeeId)
                 .ToListAsync();
         }
@@ -31,17 +32,19 @@ namespace HospitalDuty.Infrastructure.Repository
         public async Task<ShiftPreference?> GetByEmployeeAndDateAsync(Guid employeeId, DateTime date)
         {
             return await _context.ShiftPreference
+                .Include(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.EmployeeId == employeeId && x.Date.Date == date.Date);
         }
 
         public async Task<IEnumerable<ShiftPreference>> GetAllAsync()
         {
-            return await _context.ShiftPreference.ToListAsync();
+            return await _context.ShiftPreference.Include(x => x.Employee).ToListAsync();
         }
 
         public async Task<IEnumerable<ShiftPreference>> GetByMonthAsync(int month)
         {
             return await _context.ShiftPreference
+                .Include(x => x.Employee)
                 .Where(x => x.Date.Month == month)
                 .ToListAsync();
         }
@@ -49,6 +52,7 @@ namespace HospitalDuty.Infrastructure.Repository
         public async Task<IEnumerable<ShiftPreference>> GetByEmployeeAndMonthAsync(Guid employeeId, int month)
         {
             return await _context.ShiftPreference
+                .Include(x => x.Employee)
                 .Where(x => x.EmployeeId == employeeId && x.Date.Month == month)
                 .ToListAsync();
         }
@@ -56,6 +60,7 @@ namespace HospitalDuty.Infrastructure.Repository
         public async Task<IEnumerable<ShiftPreference>> GetAvailableEmployeesByDateAsync(DateTime date)
         {
             return await _context.ShiftPreference
+                .Include(x => x.Employee)
                 .Where(x => x.Date.Date == date.Date && x.PreferenceType == PreferenceType.Preferred)
                 .ToListAsync();
         }
@@ -63,6 +68,7 @@ namespace HospitalDuty.Infrastructure.Repository
         public async Task<IEnumerable<ShiftPreference>> GetAvailableEmployeesByMonthAsync(int month)
         {
             return await _context.ShiftPreference
+                .Include(x => x.Employee)
                 .Where(x => x.Date.Month == month && x.PreferenceType == PreferenceType.Preferred)
                 .ToListAsync();
         }

@@ -26,7 +26,7 @@ public class DepartmentRepository : IDepartmentRepository
     public async Task<IEnumerable<Department>> GetAllAsync()
     {
         return await _context.Departments
-            .Include(d => d.Hospital)
+            .Include(d => d.Hospital).Include(d => d.Manager)
             .ToListAsync();
     }
 
