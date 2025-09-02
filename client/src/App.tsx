@@ -9,6 +9,8 @@ import DepartmentList from './components/DepartmentList';
 import EmployeeList from './components/EmployeeList';
 import Login from './components/Login';
 import Profile from './components/Profile';
+import ShiftPreferenceList from './components/ShiftPreferenceList';
+import ShiftPreferenceDialog from './components/ShiftPreferenceDialog';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const theme = createTheme({
@@ -110,6 +112,8 @@ const AppContent: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const [currentTab, setCurrentTab] = React.useState(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [openShiftPreferenceDialog, setOpenShiftPreferenceDialog] = React.useState(false);
+  const [refreshKey, setRefreshKey] = React.useState(0);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
@@ -185,6 +189,7 @@ const AppContent: React.FC = () => {
               <Tab label="Hastaneler" />
               <Tab label="Departmanlar" />
               <Tab label="Çalışanlar" />
+              <Tab label="Shift Tercihleri" />
               <Tab label="Profil" />
             </Tabs>
             
@@ -219,8 +224,25 @@ const AppContent: React.FC = () => {
           {currentTab === 0 && <HospitalList />}
           {currentTab === 1 && <DepartmentList />}
           {currentTab === 2 && <EmployeeList />}
-          {currentTab === 3 && <Profile />}
+          {currentTab === 3 && user && (
+            <ShiftPreferenceList 
+              key={refreshKey}
+              employeeId={user.id} 
+              showAddButton={true}
+              onAddClick={() => setOpenShiftPreferenceDialog(true)}
+            />
+          )}
+          {currentTab === 4 && <Profile />}
         </Container>
+
+        {/* Shift Preference Dialog */}
+        <ShiftPreferenceDialog
+          open={openShiftPreferenceDialog}
+          onClose={() => setOpenShiftPreferenceDialog(false)}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+          }}
+        />
       </Box>
     </ThemeProvider>
   );

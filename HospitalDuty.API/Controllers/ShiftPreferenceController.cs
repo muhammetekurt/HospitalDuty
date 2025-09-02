@@ -1,11 +1,15 @@
 using HospitalDuty.Application.DTOs.ShiftPreferenceDTOs;
 using HospitalDuty.Application.Contracts.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 
 namespace HospitalDuty.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ShiftPreferenceController : ControllerBase
     {
         private readonly IShiftPreferenceService _service;
@@ -21,6 +25,14 @@ namespace HospitalDuty.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePreferences([FromBody] CreateShiftPreferenceDto dto)
         {
+            // Current user'ın ID'sini al
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("User not authenticated");
+
+            // DTO'ya user ID'sini ekle
+            dto.EmployeeId = Guid.Parse(userId);
+            
             var result = await _service.CreatePreferencesAsync(dto);
             return Ok(result);
         }

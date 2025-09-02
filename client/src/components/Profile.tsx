@@ -22,11 +22,14 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon,
   Lock as LockIcon,
+  CalendarMonth as CalendarIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { employeeService } from '../services/employeeService';
 import type { UpdateEmployeeRequest } from '../types/employee';
 import PasswordChangeDialog from './PasswordChangeDialog';
+import ShiftPreferenceDialog from './ShiftPreferenceDialog';
+import ShiftPreferenceList from './ShiftPreferenceList';
 
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
@@ -35,6 +38,8 @@ const Profile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+  const [openShiftPreferenceDialog, setOpenShiftPreferenceDialog] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
@@ -225,6 +230,14 @@ const Profile: React.FC = () => {
                 
                 <Button
                   variant="outlined"
+                  startIcon={<CalendarIcon />}
+                  onClick={() => setOpenShiftPreferenceDialog(true)}
+                >
+                  Shift Tercihleri
+                </Button>
+                
+                <Button
+                  variant="outlined"
                   color="error"
                   onClick={handleLogout}
                 >
@@ -351,6 +364,29 @@ const Profile: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
+
+          {/* Shift Preferences */}
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6">
+                  Shift Tercihlerim
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<CalendarIcon />}
+                  onClick={() => setOpenShiftPreferenceDialog(true)}
+                  size="small"
+                >
+                  Yeni Tercih Ekle
+                </Button>
+              </Box>
+              
+              {user && (
+                <ShiftPreferenceList key={refreshKey} employeeId={user.id} />
+              )}
+            </CardContent>
+          </Card>
         </Box>
       </Box>
 
@@ -358,6 +394,15 @@ const Profile: React.FC = () => {
       <PasswordChangeDialog
         open={openPasswordDialog}
         onClose={() => setOpenPasswordDialog(false)}
+      />
+
+      {/* Shift Preference Dialog */}
+      <ShiftPreferenceDialog
+        open={openShiftPreferenceDialog}
+        onClose={() => setOpenShiftPreferenceDialog(false)}
+        onSuccess={() => {
+          setRefreshKey(prev => prev + 1);
+        }}
       />
     </Box>
   );
