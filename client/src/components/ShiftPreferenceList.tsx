@@ -93,15 +93,15 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   };
 
   const getPreferenceTypeColor = (type: PreferenceType) => {
-    return type === 'Unavailable' ? 'error' : 'success';
+    return type === 0 ? 'error' : 'success';
   };
 
   const getPreferenceTypeIcon = (type: PreferenceType) => {
-    return type === 'Unavailable' ? <UnavailableIcon /> : <AvailableIcon />;
+    return type === 0 ? <UnavailableIcon /> : <AvailableIcon />;
   };
 
   const getPreferenceTypeLabel = (type: PreferenceType) => {
-    return type === 'Unavailable' ? 'Müsait Değil' : 'Tercih Edilen';
+    return type === 0 ? 'Müsait Değil' : 'Tercih Edilen';
   };
 
   const formatDate = (dateString: string) => {

@@ -267,11 +267,11 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
                     minWidth: '40px',
                     height: '40px',
                     bgcolor: isDateSelected(day) 
-                      ? (preferenceType === 'Unavailable' ? 'error.main' : 'success.main')
+                      ? (preferenceType === 0 ? 'error.main' : 'success.main')
                       : 'transparent',
                     '&:hover': {
                       bgcolor: isDateSelected(day) 
-                        ? (preferenceType === 'Unavailable' ? 'error.dark' : 'success.dark')
+                        ? (preferenceType === 0 ? 'error.dark' : 'success.dark')
                         : 'action.hover',
                     },
                   }}
@@ -292,7 +292,7 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
                     <Chip
                       key={index}
                       label={date.toLocaleDateString('tr-TR')}
-                      color={preferenceType === 'Unavailable' ? 'error' : 'success'}
+                      color={preferenceType === 0 ? 'error' : 'success'}
                       size="small"
                       onDelete={() => {
                         setSelectedDates(selectedDates.filter((_, i) => i !== index));

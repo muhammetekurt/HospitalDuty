@@ -138,7 +138,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleProfile = () => {
-    setCurrentTab(3); // Profile tab
+    setCurrentTab(5); // Profile tab (Vardiyalar'dan sonra)
     handleMenuClose();
   };
 
@@ -260,7 +260,11 @@ const AppContent: React.FC = () => {
               }}
             />
           )}
-          {currentTab === 5 && <Profile />}
+          {currentTab === 5 && (
+            <Profile 
+              onNavigateToShiftPreferences={() => setCurrentTab(3)}
+            />
+          )}
         </Container>
 
         {/* Shift Preference Dialog */}

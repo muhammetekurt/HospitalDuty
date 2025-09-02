@@ -32,7 +32,11 @@ import ShiftPreferenceDialog from './ShiftPreferenceDialog';
 import ShiftPreferenceList from './ShiftPreferenceList';
 import ShiftList from './ShiftList';
 
-const Profile: React.FC = () => {
+interface ProfileProps {
+  onNavigateToShiftPreferences?: () => void;
+}
+
+const Profile: React.FC<ProfileProps> = ({ onNavigateToShiftPreferences }) => {
   const { user, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -232,7 +236,13 @@ const Profile: React.FC = () => {
                 <Button
                   variant="outlined"
                   startIcon={<CalendarIcon />}
-                  onClick={() => setOpenShiftPreferenceDialog(true)}
+                  onClick={() => {
+                    if (onNavigateToShiftPreferences) {
+                      onNavigateToShiftPreferences();
+                    } else {
+                      setOpenShiftPreferenceDialog(true);
+                    }
+                  }}
                 >
                   Shift Tercihleri
                 </Button>
