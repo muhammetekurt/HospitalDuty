@@ -52,6 +52,11 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   
+  // Bugünün tarihini al (saat bilgisi olmadan)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayString = today.toISOString().slice(0, 16);
+
   const [formData, setFormData] = useState({
     employeeId: '',
     hospitalId: '',
@@ -124,6 +129,15 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       return;
     }
 
+    // Bitiş tarihi başlangıç tarihinden önce olamaz
+    const startDate = new Date(formData.startTime);
+    const endDate = new Date(formData.endTime);
+    
+    if (endDate <= startDate) {
+      setError('Bitiş tarihi başlangıç tarihinden sonra olmalıdır');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -155,7 +169,17 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       setSuccess(true);
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Vardiya kaydedilirken bir hata oluştu');
+      console.error('Shift form error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error data:', err.response?.data);
+      
+      // Backend'ten gelen hata mesajını al
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.title || 
+                          err.message || 
+                          'Vardiya kaydedilirken bir hata oluştu';
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -269,6 +293,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                   value={formData.startTime}
                   onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: todayString }}
                   required
                   sx={{ minWidth: 250 }}
                 />
@@ -282,6 +307,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                   value={formData.endTime}
                   onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ 
+                    min: formData.startTime ? formData.startTime : todayString 
+                  }}
                   required
                   sx={{ minWidth: 250 }}
                 />

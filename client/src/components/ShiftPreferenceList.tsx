@@ -73,6 +73,9 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
         data = await shiftPreferenceService.getPreferencesByMonth(selectedMonth);
       }
       
+      // Tarihe göre sırala (en yakın tarih ilk sırada)
+      data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
       setPreferences(data);
     } catch (err) {
       setError('Shift tercihleri yüklenirken bir hata oluştu.');

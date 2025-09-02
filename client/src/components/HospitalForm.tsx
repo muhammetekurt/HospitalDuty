@@ -90,7 +90,11 @@ const HospitalForm: React.FC<HospitalFormProps> = ({
     try {
       setLoadingEmployees(true);
       const data = await employeeService.getAll();
-      setEmployees(data);
+      // Sadece HospitalDirector rolü olan çalışanları filtrele
+      const directors = data.filter(employee => 
+        employee.roles && employee.roles.includes('HospitalDirector')
+      );
+      setEmployees(directors);
     } catch (err) {
       console.error('Error loading employees:', err);
       // Employee yükleme hatası formu bloke etmesin
@@ -139,7 +143,30 @@ const HospitalForm: React.FC<HospitalFormProps> = ({
   const handleInputChange = (field: keyof CreateHospitalRequest) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = event.target.value;
+    let value = event.target.value;
+    
+    // Website alanı için https otomatik ekle
+    if (field === 'website' && value && !value.startsWith('http://') && !value.startsWith('https://')) {
+      value = 'https://' + value;
+    }
+    
+    // Telefon alanı için format uygula
+    if (field === 'phone') {
+      // Sadece rakamları al
+      const numbers = value.replace(/\D/g, '');
+      
+      // (555) formatında başla
+      if (numbers.length > 0) {
+        if (numbers.length <= 3) {
+          value = `(${numbers}`;
+        } else if (numbers.length <= 6) {
+          value = `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
+        } else {
+          value = `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
+        }
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -243,9 +270,10 @@ const HospitalForm: React.FC<HospitalFormProps> = ({
                 value={formData.phone}
                 onChange={handleInputChange('phone')}
                 error={!!errors.phone}
-                helperText={errors.phone}
+                helperText={errors.phone || 'Örnek: (555) 123-4567'}
                 required
                 disabled={loading}
+                placeholder="(555) 123-4567"
               />
               <TextField
                 fullWidth

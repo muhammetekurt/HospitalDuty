@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AutoMapper;
 using HospitalDuty.Application.Contracts.Persistence;
 using HospitalDuty.Application.DTOs.ShiftDTOs;
@@ -84,7 +85,9 @@ public class ShiftService : IShiftService
 
             if (prefs.Any(p => shiftDates.Contains(p.Date.Date) && p.PreferenceType == PreferenceType.Unavailable))
             {
-                throw new Exception("Employee is unavailable for one or more dates in the selected shift range");
+                var unavailableDates = prefs.Where(p => shiftDates.Contains(p.Date.Date) && p.PreferenceType == PreferenceType.Unavailable)
+                                           .Select(p => p.Date.ToString("dd.MM.yyyy"));
+                throw new Exception($"Çalışan bu tarihlerde müsait değil: {string.Join(", ", unavailableDates)}");
             }
         }
 
@@ -117,6 +120,29 @@ public class ShiftService : IShiftService
         
         var existingShift = await _shiftRepository.GetShiftByIdAsync(id);
         if (existingShift == null) return false;
+
+        // Çalışan değiştiyse veya tarih değiştiyse preference kontrolü yap
+        if (existingShift.EmployeeId != updateShiftDto.EmployeeId || 
+            existingShift.StartTime != updateShiftDto.StartTime || 
+            existingShift.EndTime != updateShiftDto.EndTime)
+        {
+            // Tüm preference'ları al
+            var prefs = await _shiftPreferenceService.GetPreferencesByEmployeeAndMonthAsync(
+                updateShiftDto.EmployeeId, updateShiftDto.StartTime.Month);
+            if (prefs != null && prefs.Any())
+            {
+                // Shift aralığını kontrol et
+                var shiftDates = Enumerable.Range(0, (updateShiftDto.EndTime.Date - updateShiftDto.StartTime.Date).Days + 1)
+                                        .Select(d => updateShiftDto.StartTime.Date.AddDays(d));
+
+                if (prefs.Any(p => shiftDates.Contains(p.Date.Date) && p.PreferenceType == PreferenceType.Unavailable))
+                {
+                    var unavailableDates = prefs.Where(p => shiftDates.Contains(p.Date.Date) && p.PreferenceType == PreferenceType.Unavailable)
+                                               .Select(p => p.Date.ToString("dd.MM.yyyy"));
+                    throw new Exception($"Çalışan bu tarihlerde müsait değil: {string.Join(", ", unavailableDates)}");
+                }
+            }
+        }
 
         if (existingShift.EmployeeId != updateShiftDto.EmployeeId)
         {

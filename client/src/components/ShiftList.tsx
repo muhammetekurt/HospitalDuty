@@ -90,6 +90,9 @@ const ShiftList: React.FC<ShiftListProps> = ({
         return shiftDate.getMonth() + 1 === selectedMonth;
       });
       
+      // Tarihe göre sırala (en yakın tarih ilk sırada)
+      filteredData.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+      
       setShifts(filteredData);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Vardiyalar yüklenirken bir hata oluştu');

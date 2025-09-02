@@ -73,6 +73,14 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
   // Tarih seçimi
   const handleDateClick = (day: number) => {
     const date = new Date(selectedYear, selectedMonth - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Eski tarihleri engelle
+    if (date < today) {
+      setError('Geçmiş tarihler seçilemez');
+      return;
+    }
     
     if (selectMode === 'single') {
       if (selectedDates.some(d => d.getTime() === date.getTime())) {
@@ -149,6 +157,13 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
   const isDateSelected = (day: number) => {
     const date = new Date(selectedYear, selectedMonth - 1, day);
     return selectedDates.some(d => d.getTime() === date.getTime());
+  };
+
+  const isDateDisabled = (day: number) => {
+    const date = new Date(selectedYear, selectedMonth - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
   };
 
 
@@ -257,28 +272,39 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
             </Typography>
 
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => (
-                <Button
-                  key={day}
-                  variant={isDateSelected(day) ? 'contained' : 'outlined'}
-                  size="small"
-                  onClick={() => handleDateClick(day)}
-                  sx={{
-                    minWidth: '40px',
-                    height: '40px',
-                    bgcolor: isDateSelected(day) 
-                      ? (preferenceType === 0 ? 'error.main' : 'success.main')
-                      : 'transparent',
-                    '&:hover': {
-                      bgcolor: isDateSelected(day) 
-                        ? (preferenceType === 0 ? 'error.dark' : 'success.dark')
-                        : 'action.hover',
-                    },
-                  }}
-                >
-                  {day}
-                </Button>
-              ))}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+                const disabled = isDateDisabled(day);
+                const selected = isDateSelected(day);
+                
+                return (
+                  <Button
+                    key={day}
+                    variant={selected ? 'contained' : 'outlined'}
+                    size="small"
+                    disabled={disabled}
+                    onClick={() => handleDateClick(day)}
+                    sx={{
+                      minWidth: '40px',
+                      height: '40px',
+                      bgcolor: selected 
+                        ? (preferenceType === 0 ? 'error.main' : 'success.main')
+                        : disabled 
+                          ? 'grey.300' 
+                          : 'transparent',
+                      color: disabled ? 'grey.500' : 'inherit',
+                      '&:hover': {
+                        bgcolor: disabled 
+                          ? 'grey.300'
+                          : selected 
+                            ? (preferenceType === 0 ? 'error.dark' : 'success.dark')
+                            : 'action.hover',
+                      },
+                    }}
+                  >
+                    {day}
+                  </Button>
+                );
+              })}
             </Box>
 
             {/* Seçili Tarihler */}

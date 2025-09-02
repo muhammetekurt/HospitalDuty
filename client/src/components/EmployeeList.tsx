@@ -95,10 +95,7 @@ const EmployeeList: React.FC = () => {
     handleFormClose();
   };
 
-  const getRoleColor = (roles: string[] | undefined) => {
-    if (!roles || roles.length === 0) return 'default';
-    
-    const role = roles[0]; // İlk role'ü al
+  const getRoleColor = (role: string) => {
     switch (role) {
       case 'SystemAdmin':
         return 'error';
@@ -115,10 +112,7 @@ const EmployeeList: React.FC = () => {
     }
   };
 
-  const getRoleLabel = (roles: string[] | undefined) => {
-    if (!roles || roles.length === 0) return 'Personel';
-    
-    const role = roles[0]; // İlk role'ü al
+  const getRoleLabel = (role: string) => {
     switch (role) {
       case 'SystemAdmin':
         return 'Sistem Yöneticisi';
@@ -234,11 +228,24 @@ const EmployeeList: React.FC = () => {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Chip 
-                    label={getRoleLabel(employee.roles)} 
-                    size="small" 
-                    color={getRoleColor(employee.roles) as any}
-                  />
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {employee.roles && employee.roles.length > 0 ? (
+                      employee.roles.map((role, index) => (
+                        <Chip 
+                          key={index}
+                          label={getRoleLabel(role)} 
+                          size="small" 
+                          color={getRoleColor(role) as any}
+                        />
+                      ))
+                    ) : (
+                      <Chip 
+                        label="Personel" 
+                        size="small" 
+                        color="default"
+                      />
+                    )}
+                  </Box>
                 </TableCell>
                 <TableCell align="center">
                   <IconButton

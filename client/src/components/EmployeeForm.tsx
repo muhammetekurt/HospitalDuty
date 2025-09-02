@@ -210,13 +210,25 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
       setError(null);
 
       if (isEdit && employee) {
+        console.log('Updating employee with ID:', employee.id);
+        console.log('Form data:', formData);
         await employeeService.update(employee.id, formData);
+        console.log('Employee updated successfully');
       }
 
       onSubmit();
     } catch (err: any) {
-      setError('Çalışan güncellenirken bir hata oluştu.');
       console.error('Error saving employee:', err);
+      console.error('Error response:', err.response);
+      console.error('Error data:', err.response?.data);
+      console.error('Form data being sent:', formData);
+      
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.title || 
+                          err.message || 
+                          'Çalışan güncellenirken bir hata oluştu.';
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
