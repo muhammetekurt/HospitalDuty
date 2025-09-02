@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
+import type { EmployeeDto } from "./lib/types";
+import { List, ListItem, Typography } from "@mui/material";
+import axios from "axios";
 function App() {
   const title = "welcome to react from scratch";
-  const [employees, setEmployees] = useState([]);
+  const [employees, setEmployees] = useState<EmployeeDto[]>([]);
 
   useEffect(() => {
-    fetch("https://localhost:5000/api/employee/")
-      .then((response) => response.json())
-      .then((data) => { setEmployees(data); });
+    // fetch("https://localhost:5000/api/employee/")
+    //   .then((response) => response.json())
+    //   .then((data) => { setEmployees(data); });
+    axios.get<EmployeeDto[]>("https://localhost:5000/api/employee/")
+      .then((response) => { setEmployees(response.data); });
 
       return () => {
       };
@@ -14,26 +19,24 @@ function App() {
 
   return (
     <>
-      <h1 className="app" style={{ color: 'navy', backgroundColor: 'yellow', textAlign: 'center', justifyContent: 'center' }}>{title}</h1>
+      <Typography variant='h3'>{title}</Typography>
       {employees.map((employee) => (
-        // <h2 key={employee.id} className="app" style={{ color: 'green', textAlign: 'center', justifyContent: 'center' }}>
-        //   Employee Name: {employee.name}
-        //   Employee Department: {employee.department}
-        // </h2>
-        <ul>
-          <li key={employee.id}>
+        <List key={employee.id}>
+          <ListItem>
             Employee Name: {employee.firstName + " " + employee.lastName}
-          </li>
-          <li>
-            Employee Department: {employee.department}
-          </li>
-          <li>
+          </ListItem>
+          <ListItem>
+            Employee Department: {employee.department || 'No Department'}
+          </ListItem>
+          <ListItem>
             Employee Email: {employee.email}
-          </li>
-        </ul>
+          </ListItem>
+          <ListItem>
+            Employee Roles: {employee.roles?.join(", ") || 'No Roles'}
+          </ListItem>
+        </List>
       ))}
     </>
   )
 }
-
 export default App
