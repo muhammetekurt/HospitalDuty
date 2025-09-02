@@ -11,6 +11,36 @@ const api = axios.create({
   },
 });
 
+// Token'ı localStorage'dan al ve axios'a ekle
+const getToken = () => localStorage.getItem('token');
+
+// Request interceptor - her istekte token'ı ekle
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor - hata durumlarını yakala
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token geçersiz, kullanıcıyı login sayfasına yönlendir
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const employeeService = {
   // Tüm çalışanları getir
   getAll: async (): Promise<Employee[]> => {
