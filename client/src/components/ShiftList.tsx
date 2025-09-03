@@ -245,7 +245,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h6">
+        <Typography variant="h4" gutterBottom>
           {months[selectedMonth - 1]} {new Date().getFullYear()} Vardiyaları
         </Typography>
         <Typography variant="body2" color="text.secondary">

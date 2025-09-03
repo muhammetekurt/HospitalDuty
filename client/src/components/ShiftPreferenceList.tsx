@@ -207,7 +207,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h6">
+        <Typography variant="h4" gutterBottom>
           Shift Tercihleri
         </Typography>
         <Typography variant="body2" color="text.secondary">
