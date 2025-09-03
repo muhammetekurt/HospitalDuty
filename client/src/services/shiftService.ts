@@ -73,5 +73,17 @@ export const shiftService = {
   // Vardiya iptal et (sadece admin)
   cancelShift: async (id: string): Promise<void> => {
     await api.post(`/Shift/${id}/cancel`);
+  },
+
+  // Tarih aralığına göre vardiyaları getir
+  getShiftsByDateRange: async (startDate: string, endDate: string): Promise<Shift[]> => {
+    const response = await api.get<Shift[]>(`/Shift/dateRange?startDate=${startDate}&endDate=${endDate}`);
+    return response.data;
+  },
+
+  // Belirli bir tarihteki vardiyaları getir
+  getShiftsByDate: async (date: string): Promise<Shift[]> => {
+    const response = await api.get<Shift[]>(`/Shift/date/${date}`);
+    return response.data;
   }
 };
