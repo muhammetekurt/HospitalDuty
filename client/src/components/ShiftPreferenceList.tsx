@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material';
 import { shiftPreferenceService } from '../services/shiftPreferenceService';
 import { employeeService } from '../services/employeeService';
+import { useAuth } from '../contexts/AuthContext';
 import type { ShiftPreference, PreferenceType } from '../types/shiftPreference';
 import type { Employee } from '../types/employee';
 
@@ -49,6 +50,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   showAddButton = false, 
   onAddClick 
 }) => {
+  const { user } = useAuth();
   const [preferences, setPreferences] = useState<ShiftPreference[]>([]);
   const [filteredPreferences, setFilteredPreferences] = useState<ShiftPreference[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -83,9 +85,10 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
       setLoading(true);
       setError(null);
       
-      // Çalışanları yükle
+      // Çalışanları yükle ve kullanıcının hastanesindeki çalışanları filtrele
       const employeesData = await employeeService.getAll();
-      setEmployees(employeesData);
+      const filteredEmployees = employeesData.filter(emp => emp.hospitalId === user?.hospitalId);
+      setEmployees(filteredEmployees);
       
       let data: ShiftPreference[];
       if (employeeId) {
@@ -94,10 +97,16 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
         data = await shiftPreferenceService.getPreferencesByMonth(selectedMonth);
       }
       
-      // Tarihe göre sırala (en yakın tarih ilk sırada)
-      data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      // Kullanıcının hastanesindeki shift tercihlerini filtrele
+      const hospitalFilteredData = data.filter(preference => {
+        const employee = filteredEmployees.find(emp => emp.id === preference.employeeId);
+        return employee !== undefined;
+      });
       
-      setPreferences(data);
+      // Tarihe göre sırala (en yakın tarih ilk sırada)
+      hospitalFilteredData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      setPreferences(hospitalFilteredData);
     } catch (err) {
       setError('Shift tercihleri yüklenirken bir hata oluştu.');
       console.error('Error loading shift preferences:', err);

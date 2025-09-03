@@ -67,7 +67,9 @@ const ShiftList: React.FC<ShiftListProps> = ({
   // Shift yetkilendirme kontrolü
   const canManageShifts = () => {
     if (!user?.roles) return false;
-    return user.roles.includes('DepartmentManager') || user.roles.includes('DepartmentLeader');
+    return user.roles.includes('DepartmentManager') || 
+           user.roles.includes('DepartmentLeader') || 
+           user.roles.includes('HospitalDirector');
   };
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -110,8 +112,11 @@ const ShiftList: React.FC<ShiftListProps> = ({
         data = await shiftService.getAllShifts();
       }
       
+      // Kullanıcının hastanesindeki shift'leri filtrele
+      const hospitalFilteredData = data.filter(shift => shift.hospitalId === user?.hospitalId);
+      
       // Ay filtresi uygula
-      const filteredData = data.filter(shift => {
+      const filteredData = hospitalFilteredData.filter(shift => {
         const shiftDate = new Date(shift.startTime);
         return shiftDate.getMonth() + 1 === selectedMonth;
       });
@@ -130,7 +135,9 @@ const ShiftList: React.FC<ShiftListProps> = ({
   const loadEmployees = async () => {
     try {
       const data = await employeeService.getAll();
-      setEmployees(data);
+      // Kullanıcının hastanesindeki çalışanları filtrele
+      const filteredEmployees = data.filter(emp => emp.hospitalId === user?.hospitalId);
+      setEmployees(filteredEmployees);
     } catch (err) {
       console.error('Error loading employees:', err);
     }
@@ -139,7 +146,9 @@ const ShiftList: React.FC<ShiftListProps> = ({
   const loadDepartments = async () => {
     try {
       const data = await departmentService.getAll();
-      setDepartments(data);
+      // Kullanıcının hastanesindeki departmanları filtrele
+      const filteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
+      setDepartments(filteredDepartments);
     } catch (err) {
       console.error('Error loading departments:', err);
     }

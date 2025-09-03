@@ -31,9 +31,11 @@ import {
 } from '@mui/icons-material';
 import type { Department } from '../types/department';
 import { departmentService } from '../services/departmentService';
+import { useAuth } from '../contexts/AuthContext';
 import DepartmentForm from './DepartmentForm';
 
 const DepartmentList: React.FC = () => {
+  const { user } = useAuth();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +60,10 @@ const DepartmentList: React.FC = () => {
       setError(null);
       const data = await departmentService.getAll();
       console.log('Loaded departments:', data); // Debug için
-      setDepartments(data);
+      
+      // Kullanıcının hastanesindeki departmanları filtrele
+      const filteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
+      setDepartments(filteredDepartments);
     } catch (err) {
       setError('Departmanlar yüklenirken bir hata oluştu.');
       console.error('Error loading departments:', err);

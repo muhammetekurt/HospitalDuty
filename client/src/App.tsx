@@ -219,7 +219,9 @@ const AppContent: React.FC = () => {
   // Shift yetkilendirme kontrolü
   const canManageShifts = () => {
     if (!user?.roles) return false;
-    return user.roles.includes('DepartmentManager') || user.roles.includes('DepartmentLeader');
+    return user.roles.includes('DepartmentManager') || 
+           user.roles.includes('DepartmentLeader') || 
+           user.roles.includes('HospitalDirector');
   };
 
   // SystemAdmin kontrolü

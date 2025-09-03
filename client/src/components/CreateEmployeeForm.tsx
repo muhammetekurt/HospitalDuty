@@ -33,6 +33,7 @@ import { Role } from '../types/employee';
 import { employeeService } from '../services/employeeService';
 import { hospitalService } from '../services/hospitalService';
 import { departmentService } from '../services/departmentService';
+import { useAuth } from '../contexts/AuthContext';
 import type { Hospital } from '../types/hospital';
 import type { Department } from '../types/department';
 
@@ -47,6 +48,7 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const { user } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<CreateEmployeeRequest>({
     firstName: '',
@@ -54,8 +56,8 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
     email: '',
     phoneNumber: '',
     roles: [],
-    departmentId: '',
-    hospitalId: '',
+    departmentId: (user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader')) ? user?.departmentId || '' : '',
+    hospitalId: user?.hospitalId || '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -98,12 +100,15 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
     }
   }, [open]);
 
-  // Yetki kontrolü - DepartmentLeader ve altı çalışan ekleyemez
+  // Yetki kontrolü - Sadece yönetici roller çalışan ekleyebilir
   const canCreateEmployee = (): boolean => {
     if (!currentUser?.roles) return false;
     
-    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
-    return !currentUser.roles.some(role => restrictedRoles.includes(role));
+    // Yönetici roller
+    const managerRoles: string[] = [Role.SystemAdmin, Role.HospitalDirector, Role.DepartmentManager, Role.DepartmentLeader];
+    
+    // Eğer kullanıcının herhangi bir yönetici rolü varsa çalışan ekleyebilir
+    return currentUser.roles.some(role => managerRoles.includes(role));
   };
 
   useEffect(() => {
@@ -121,8 +126,8 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       email: '',
       phoneNumber: '',
       roles: [],
-      departmentId: '',
-      hospitalId: '',
+      departmentId: (user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader')) ? user?.departmentId || '' : '',
+      hospitalId: user?.hospitalId || '',
     });
     setActiveStep(0);
     setError(null);
@@ -142,7 +147,9 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
     try {
       setLoadingHospitals(true);
       const data = await hospitalService.getAll();
-      setHospitals(data);
+      // Sadece kullanıcının hastanesini göster
+      const userHospital = data.filter(hospital => hospital.id === user?.hospitalId);
+      setHospitals(userHospital);
     } catch (err) {
       console.error('Error loading hospitals:', err);
     } finally {
@@ -154,7 +161,14 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
     try {
       setLoadingDepartments(true);
       const data = await departmentService.getByHospital(hospitalId);
-      setDepartments(data);
+      
+      // Department Manager/Leader ise sadece kendi departmanını göster
+      if (user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader')) {
+        const userDepartment = data.filter(dept => dept.id === user?.departmentId);
+        setDepartments(userDepartment);
+      } else {
+        setDepartments(data);
+      }
     } catch (err) {
       console.error('Error loading departments:', err);
     } finally {
@@ -372,18 +386,19 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       case 1:
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-            <FormControl fullWidth disabled={loading || loadingHospitals} error={!!errors.hospitalId}>
+            <FormControl fullWidth disabled={true} error={!!errors.hospitalId}>
               <InputLabel>Hastane</InputLabel>
               <Select
                 value={formData.hospitalId}
                 onChange={handleInputChange('hospitalId')}
                 label="Hastane"
                 required
+                readOnly
                 sx={{
                   '& .MuiSelect-select': {
-                    backgroundColor: formData.hospitalId ? '#e3f2fd' : 'transparent',
-                    color: formData.hospitalId ? '#1976d2' : 'inherit',
-                    fontWeight: formData.hospitalId ? 600 : 'normal',
+                    backgroundColor: '#f5f5f5',
+                    color: '#666',
+                    fontWeight: 500,
                   },
                 }}
               >
@@ -408,17 +423,26 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
               )}
             </FormControl>
 
-            <FormControl fullWidth disabled={loading || loadingDepartments} error={!!errors.departmentId}>
+            <FormControl 
+              fullWidth 
+              disabled={loading || loadingDepartments || (user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader'))} 
+              error={!!errors.departmentId}
+            >
               <InputLabel>Departman</InputLabel>
               <Select
                 value={formData.departmentId}
                 onChange={handleInputChange('departmentId')}
                 label="Departman"
                 required
+                readOnly={user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader')}
                 sx={{
                   '& .MuiSelect-select': {
-                    backgroundColor: formData.departmentId ? '#e8f5e8' : 'transparent',
-                    color: formData.departmentId ? '#2e7d32' : 'inherit',
+                    backgroundColor: (user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader')) 
+                      ? '#f5f5f5' 
+                      : formData.departmentId ? '#e8f5e8' : 'transparent',
+                    color: (user?.roles?.includes('DepartmentManager') || user?.roles?.includes('DepartmentLeader')) 
+                      ? '#666' 
+                      : formData.departmentId ? '#2e7d32' : 'inherit',
                     fontWeight: formData.departmentId ? 600 : 'normal',
                   },
                 }}

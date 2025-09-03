@@ -40,13 +40,22 @@ import { Role } from '../types/employee';
 import type { Department } from '../types/department';
 import { employeeService } from '../services/employeeService';
 import { departmentService } from '../services/departmentService';
+import { useAuth } from '../contexts/AuthContext';
 import EmployeeForm from './EmployeeForm';
 import CreateEmployeeForm from './CreateEmployeeForm';
 
 const EmployeeList: React.FC = () => {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  
+  // Çalışan yönetimi yetkilendirme kontrolü
+  const canManageEmployees = () => {
+    if (!user?.roles) return false;
+    const managerRoles: string[] = [Role.SystemAdmin, Role.HospitalDirector, Role.DepartmentManager, Role.DepartmentLeader];
+    return user.roles.some(role => managerRoles.includes(role));
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openForm, setOpenForm] = useState(false);
@@ -78,7 +87,10 @@ const EmployeeList: React.FC = () => {
       setError(null);
       const data = await employeeService.getAll();
       console.log('Loaded employees:', data); // Debug için
-      setEmployees(data);
+      
+      // Kullanıcının hastanesindeki çalışanları filtrele
+      const filteredEmployees = data.filter(emp => emp.hospitalId === user?.hospitalId);
+      setEmployees(filteredEmployees);
     } catch (err) {
       setError('Çalışanlar yüklenirken bir hata oluştu.');
       console.error('Error loading employees:', err);
@@ -90,7 +102,9 @@ const EmployeeList: React.FC = () => {
   const loadDepartments = async () => {
     try {
       const data = await departmentService.getAll();
-      setDepartments(data);
+      // Kullanıcının hastanesindeki departmanları filtrele
+      const filteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
+      setDepartments(filteredDepartments);
     } catch (err) {
       console.error('Error loading departments:', err);
     }
@@ -106,25 +120,59 @@ const EmployeeList: React.FC = () => {
   };
 
   // Yetki kontrol fonksiyonları
-  const canManageEmployees = (): boolean => {
-    if (!currentUser?.roles) return false;
+
+  const canEditEmployee = (employee: Employee): boolean => {
+    if (!user?.roles) return false;
     
-    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
-    return !currentUser.roles.some(role => restrictedRoles.includes(role));
+    // SystemAdmin herkesi edit edebilir
+    if (user.roles.includes(Role.SystemAdmin)) return true;
+    
+    // HospitalDirector sadece SystemAdmin dışındakileri edit edebilir
+    if (user.roles.includes(Role.HospitalDirector)) {
+      return !employee.roles.includes(Role.SystemAdmin);
+    }
+    
+    // DepartmentManager sadece SystemAdmin ve HospitalDirector dışındakileri edit edebilir
+    if (user.roles.includes(Role.DepartmentManager)) {
+      return !employee.roles.includes(Role.SystemAdmin) && !employee.roles.includes(Role.HospitalDirector);
+    }
+    
+    // DepartmentLeader, Doctor, Nurse, Staff sadece kendilerini edit edebilir (çalışan listesinden değil, sadece profilden)
+    if (user.roles.includes(Role.DepartmentLeader) || 
+        user.roles.includes(Role.Doctor) || 
+        user.roles.includes(Role.Nurse) || 
+        user.roles.includes(Role.Staff)) {
+      return false; // Çalışan listesinden edit edemezler
+    }
+    
+    return false;
   };
 
-  const canEditEmployee = (): boolean => {
-    if (!currentUser?.roles) return false;
+  const canDeleteEmployee = (employee: Employee): boolean => {
+    if (!user?.roles) return false;
     
-    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
-    return !currentUser.roles.some(role => restrictedRoles.includes(role));
-  };
-
-  const canDeleteEmployee = (): boolean => {
-    if (!currentUser?.roles) return false;
+    // SystemAdmin herkesi silebilir
+    if (user.roles.includes(Role.SystemAdmin)) return true;
     
-    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
-    return !currentUser.roles.some(role => restrictedRoles.includes(role));
+    // HospitalDirector sadece SystemAdmin dışındakileri silebilir
+    if (user.roles.includes(Role.HospitalDirector)) {
+      return !employee.roles.includes(Role.SystemAdmin);
+    }
+    
+    // DepartmentManager sadece SystemAdmin ve HospitalDirector dışındakileri silebilir
+    if (user.roles.includes(Role.DepartmentManager)) {
+      return !employee.roles.includes(Role.SystemAdmin) && !employee.roles.includes(Role.HospitalDirector);
+    }
+    
+    // DepartmentLeader, Doctor, Nurse, Staff hiç kimseyi silemez
+    if (user.roles.includes(Role.DepartmentLeader) || 
+        user.roles.includes(Role.Doctor) || 
+        user.roles.includes(Role.Nurse) || 
+        user.roles.includes(Role.Staff)) {
+      return false; // Hiç kimseyi silemezler
+    }
+    
+    return false;
   };
 
   const applyFilters = () => {
@@ -352,7 +400,7 @@ const EmployeeList: React.FC = () => {
               <TableCell>Departman</TableCell>
               <TableCell>Hastane</TableCell>
               <TableCell>Rol</TableCell>
-              <TableCell align="center">İşlemler</TableCell>
+              {canManageEmployees() && <TableCell align="center">İşlemler</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -435,40 +483,42 @@ const EmployeeList: React.FC = () => {
                     )}
                   </Box>
                 </TableCell>
-                <TableCell align="center">
-                  {canEditEmployee() && (
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEdit(employee)}
-                      size="small"
-                      sx={{ 
-                        color: 'primary.main',
-                        '&:hover': {
-                          bgcolor: 'primary.light',
-                          color: 'primary.dark',
-                        }
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  )}
-                  {canDeleteEmployee() && (
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDelete(employee)}
-                      size="small"
-                      sx={{ 
-                        color: 'secondary.main',
-                        '&:hover': {
-                          bgcolor: 'secondary.light',
-                          color: 'secondary.dark',
-                        }
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  )}
-                </TableCell>
+                {canManageEmployees() && (
+                  <TableCell align="center">
+                    {canEditEmployee(employee) && (
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleEdit(employee)}
+                        size="small"
+                        sx={{ 
+                          color: 'primary.main',
+                          '&:hover': {
+                            bgcolor: 'primary.light',
+                            color: 'primary.dark',
+                          }
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    )}
+                    {canDeleteEmployee(employee) && (
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(employee)}
+                        size="small"
+                        sx={{ 
+                          color: 'secondary.main',
+                          '&:hover': {
+                            bgcolor: 'secondary.light',
+                            color: 'secondary.dark',
+                          }
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
