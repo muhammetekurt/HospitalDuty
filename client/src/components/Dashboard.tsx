@@ -415,14 +415,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </Box>
       </Box>
 
-      {/* 2. Satır: Bugün Nöbetçi Staff - Takvim - Bildirimler */}
+      {/* 2. Satır: Bugün Nöbetçi Staff - Hızlı İşlemler - Takvim */}
       <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
         {/* Bugün Nöbetçi Staff */}
         <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarIcon color="primary" />
+                <PersonIcon color="primary" />
                 Günün Nöbetçileri
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -471,51 +471,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   })}
                 </List>
               )}
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Takvim */}
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: '100%',
-              p: 2
-            }}>
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarIcon color="primary" />
-                Takvim
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              
-              <Paper sx={{ 
-                p: 2, 
-                textAlign: 'center', 
-                bgcolor: 'primary.main', 
-                color: 'white',
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {new Date().getDate()}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 0.5 }}>
-                  {new Date().toLocaleDateString('tr-TR', { 
-                    month: 'long', 
-                    year: 'numeric' 
-                  })}
-                </Typography>
-                <Typography variant="body2">
-                  {new Date().toLocaleDateString('tr-TR', { 
-                    weekday: 'long' 
-                  })}
-                </Typography>
-              </Paper>
             </CardContent>
           </Card>
         </Box>
@@ -586,6 +541,51 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   Rapor Oluştur
                 </Button>
               </Box>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Takvim */}
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              height: '100%',
+              p: 2
+            }}>
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CalendarIcon color="primary" />
+                Takvim
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              
+              <Paper sx={{ 
+                p: 2, 
+                textAlign: 'center', 
+                bgcolor: 'primary.main', 
+                color: 'white',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {new Date().getDate()}
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 0.5 }}>
+                  {new Date().toLocaleDateString('tr-TR', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                  })}
+                </Typography>
+                <Typography variant="body2">
+                  {new Date().toLocaleDateString('tr-TR', { 
+                    weekday: 'long' 
+                  })}
+                </Typography>
+              </Paper>
             </CardContent>
           </Card>
         </Box>
