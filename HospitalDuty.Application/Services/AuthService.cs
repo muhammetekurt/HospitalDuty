@@ -187,12 +187,24 @@ public class AuthService : IAuthService
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        
+        // Employee bilgilerini al
+        var employee = _employeeService.GetByIdAsync(Guid.Parse(user.Id)).Result;
+        
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Email, user.Email ?? ""),
             new(ClaimTypes.Name, user.FullName)
         };
+        
+        // Employee bilgilerini claims'e ekle
+        if (employee != null)
+        {
+            claims.Add(new Claim("DepartmentId", employee.DepartmentId.ToString()));
+            claims.Add(new Claim("HospitalId", employee.HospitalId.ToString()));
+        }
+        
         foreach (var r in roles) claims.Add(new Claim(ClaimTypes.Role, r));
 
         var token = new JwtSecurityToken(

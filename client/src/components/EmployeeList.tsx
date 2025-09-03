@@ -19,6 +19,12 @@ import {
   TableHead,
   TableRow,
   Avatar,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Card,
+  CardContent,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -30,11 +36,15 @@ import {
   Phone as PhoneIcon,
 } from '@mui/icons-material';
 import type { Employee } from '../types/employee';
+import type { Department } from '../types/department';
 import { employeeService } from '../services/employeeService';
+import { departmentService } from '../services/departmentService';
 import EmployeeForm from './EmployeeForm';
 
 const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openForm, setOpenForm] = useState(false);
@@ -43,10 +53,19 @@ const EmployeeList: React.FC = () => {
     open: boolean;
     employee: Employee | null;
   }>({ open: false, employee: null });
+  
+  // Filter states
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<string>('');
 
   useEffect(() => {
     loadEmployees();
+    loadDepartments();
   }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [employees, selectedDepartment, selectedRole]);
 
   const loadEmployees = async () => {
     try {
@@ -62,6 +81,51 @@ const EmployeeList: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const loadDepartments = async () => {
+    try {
+      const data = await departmentService.getAll();
+      setDepartments(data);
+    } catch (err) {
+      console.error('Error loading departments:', err);
+    }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...employees];
+
+    // Departman filtresi
+    if (selectedDepartment) {
+      filtered = filtered.filter(employee => 
+        employee.department === selectedDepartment
+      );
+    }
+
+    // Rol filtresi
+    if (selectedRole) {
+      filtered = filtered.filter(employee => 
+        employee.roles && employee.roles.includes(selectedRole)
+      );
+    }
+
+    setFilteredEmployees(filtered);
+  };
+
+  const clearFilters = () => {
+    setSelectedDepartment('');
+    setSelectedRole('');
+  };
+
+  // Rol seçenekleri
+  const roleOptions = [
+    { value: 'SystemAdmin', label: 'Sistem Yöneticisi' },
+    { value: 'HospitalDirector', label: 'Hastane Müdürü' },
+    { value: 'DepartmentManager', label: 'Departman Müdürü' },
+    { value: 'DepartmentLeader', label: 'Departman Lideri' },
+    { value: 'Doctor', label: 'Doktor' },
+    { value: 'Nurse', label: 'Hemşire' },
+    { value: 'Staff', label: 'Personel' },
+  ];
 
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
@@ -148,9 +212,68 @@ const EmployeeList: React.FC = () => {
           Çalışanlar
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Toplam {employees.length} çalışan
+          {filteredEmployees.length} / {employees.length} çalışan
         </Typography>
       </Box>
+
+      {/* Filtre Kartı */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Filtreler
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Departman</InputLabel>
+                <Select
+                  value={selectedDepartment}
+                  label="Departman"
+                  onChange={(e) => setSelectedDepartment(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {departments.map((dept) => (
+                    <MenuItem key={dept.id} value={dept.name}>
+                      {dept.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Rol</InputLabel>
+                <Select
+                  value={selectedRole}
+                  label="Rol"
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {roleOptions.map((role) => (
+                    <MenuItem key={role.value} value={role.value}>
+                      {role.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: '1 1 150px', minWidth: '150px' }}>
+              <Button
+                variant="outlined"
+                onClick={clearFilters}
+                fullWidth
+                size="small"
+              >
+                Filtreleri Temizle
+              </Button>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
@@ -171,7 +294,7 @@ const EmployeeList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {employees.map((employee) => (
+            {filteredEmployees.map((employee) => (
               <TableRow key={employee.id} hover>
                 <TableCell>
                   <Box display="flex" alignItems="center">
@@ -286,14 +409,20 @@ const EmployeeList: React.FC = () => {
         </Table>
       </TableContainer>
 
-      {employees.length === 0 && !loading && (
+      {filteredEmployees.length === 0 && !loading && (
         <Box textAlign="center" py={4}>
           <PersonIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
-            Henüz çalışan bulunmuyor
+            {employees.length === 0 
+              ? 'Henüz çalışan bulunmuyor'
+              : 'Seçilen filtreye uygun çalışan bulunmuyor'
+            }
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Çalışanlar Auth sistemi üzerinden kaydedilir
+            {employees.length === 0 
+              ? 'Çalışanlar Auth sistemi üzerinden kaydedilir'
+              : 'Filtreleri değiştirerek tekrar deneyin'
+            }
           </Typography>
         </Box>
       )}

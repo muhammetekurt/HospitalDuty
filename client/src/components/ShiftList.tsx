@@ -35,7 +35,11 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { shiftService } from '../services/shiftService';
+import { employeeService } from '../services/employeeService';
+import { departmentService } from '../services/departmentService';
 import type { Shift, ShiftType } from '../types/shift';
+import type { Employee } from '../types/employee';
+import type { Department } from '../types/department';
 
 interface ShiftListProps {
   employeeId?: string;
@@ -53,6 +57,9 @@ const ShiftList: React.FC<ShiftListProps> = ({
   onDeleteClick
 }) => {
   const [shifts, setShifts] = useState<Shift[]>([]);
+  const [filteredShifts, setFilteredShifts] = useState<Shift[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -60,17 +67,28 @@ const ShiftList: React.FC<ShiftListProps> = ({
     open: boolean;
     shift: Shift | null;
   }>({ open: false, shift: null });
+  
+  // Filter states
+  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedShiftType, setSelectedShiftType] = useState<string>('');
 
   const months = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
     'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
   ];
 
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+
 
   useEffect(() => {
     loadShifts();
+    loadEmployees();
+    loadDepartments();
   }, [employeeId, selectedMonth]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [shifts, selectedEmployee, selectedDepartment, selectedShiftType]);
 
   const loadShifts = async () => {
     try {
@@ -101,6 +119,65 @@ const ShiftList: React.FC<ShiftListProps> = ({
     }
   };
 
+  const loadEmployees = async () => {
+    try {
+      const data = await employeeService.getAll();
+      setEmployees(data);
+    } catch (err) {
+      console.error('Error loading employees:', err);
+    }
+  };
+
+  const loadDepartments = async () => {
+    try {
+      const data = await departmentService.getAll();
+      setDepartments(data);
+    } catch (err) {
+      console.error('Error loading departments:', err);
+    }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...shifts];
+
+    // Çalışan filtresi
+    if (selectedEmployee) {
+      filtered = filtered.filter(shift => 
+        shift.employeeId === selectedEmployee
+      );
+    }
+
+    // Departman filtresi
+    if (selectedDepartment) {
+      filtered = filtered.filter(shift => 
+        shift.departmentName === selectedDepartment
+      );
+    }
+
+    // Vardiya tipi filtresi
+    if (selectedShiftType !== '') {
+      const shiftType = parseInt(selectedShiftType);
+      filtered = filtered.filter(shift => 
+        shift.shiftType === shiftType
+      );
+    }
+
+    setFilteredShifts(filtered);
+  };
+
+  const clearFilters = () => {
+    setSelectedEmployee('');
+    setSelectedDepartment('');
+    setSelectedShiftType('');
+  };
+
+  // Vardiya tipi seçenekleri
+  const shiftTypeOptions = [
+    { value: '0', label: 'Normal' },
+    { value: '1', label: 'Gece' },
+    { value: '2', label: 'Acil' },
+  ];
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('tr-TR', {
@@ -110,13 +187,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
     });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('tr-TR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -173,78 +244,162 @@ const ShiftList: React.FC<ShiftListProps> = ({
 
   return (
     <Box>
-      {/* Ay Filtresi */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h6">
+          {months[selectedMonth - 1]} {new Date().getFullYear()} Vardiyaları
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {filteredShifts.length} / {shifts.length} vardiya
+        </Typography>
+      </Box>
+
+      {/* Filtre Kartı */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <FormControl sx={{ minWidth: 120 }}>
-                <InputLabel>Ay</InputLabel>
+          <Typography variant="h6" gutterBottom>
+            Filtreler
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Çalışan</InputLabel>
                 <Select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                  label="Ay"
-                  sx={{
-                    '& .MuiSelect-select': {
-                      backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
-                      color: selectedMonth ? '#0277bd' : 'inherit',
-                      fontWeight: selectedMonth ? 600 : 'normal',
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: selectedMonth ? '#0277bd' : 'inherit',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: selectedMonth ? '#01579b' : 'inherit',
-                    },
-                  }}
+                  value={selectedEmployee}
+                  label="Çalışan"
+                  onChange={(e) => setSelectedEmployee(e.target.value)}
                 >
-                  {months.map((month, index) => (
-                    <MenuItem 
-                      key={index} 
-                      value={index + 1}
-                      sx={{
-                        backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
-                        color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
-                        fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
-                        '&:hover': {
-                          backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
-                        }
-                      }}
-                    >
-                      {month}
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {employees.map((employee) => (
+                    <MenuItem key={employee.id} value={employee.id}>
+                      {employee.firstName} {employee.lastName}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              
-              <Typography variant="h6" color="primary">
-                {months[selectedMonth - 1]} {new Date().getFullYear()} Vardiyaları
-              </Typography>
             </Box>
-
-            {showAddButton && onAddClick && (
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Departman</InputLabel>
+                <Select
+                  value={selectedDepartment}
+                  label="Departman"
+                  onChange={(e) => setSelectedDepartment(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {departments.map((dept) => (
+                    <MenuItem key={dept.id} value={dept.name}>
+                      {dept.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Vardiya Tipi</InputLabel>
+                <Select
+                  value={selectedShiftType}
+                  label="Vardiya Tipi"
+                  onChange={(e) => setSelectedShiftType(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {shiftTypeOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: '1 1 150px', minWidth: '150px' }}>
               <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={onAddClick}
+                variant="outlined"
+                onClick={clearFilters}
+                fullWidth
                 size="small"
               >
-                Yeni Vardiya
+                Filtreleri Temizle
               </Button>
-            )}
+            </Box>
+          </Box>
+          
+          {/* Ay Seçici ve Yeni Vardiya Butonu */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              {showAddButton && onAddClick && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={onAddClick}
+                  size="small"
+                >
+                  Yeni Vardiya
+                </Button>
+              )}
+            </Box>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Ay</InputLabel>
+              <Select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                label="Ay"
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
+                    color: selectedMonth ? '#0277bd' : 'inherit',
+                    fontWeight: selectedMonth ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: selectedMonth ? '#01579b' : 'inherit',
+                  },
+                }}
+              >
+                {months.map((month, index) => (
+                  <MenuItem 
+                    key={index} 
+                    value={index + 1}
+                    sx={{
+                      backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
+                      color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
+                      fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
+                      }
+                    }}
+                  >
+                    {month}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
         </CardContent>
       </Card>
 
       {/* Vardiya Listesi */}
-      {shifts.length === 0 ? (
+      {filteredShifts.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <CalendarIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            Bu ay için vardiya bulunamadı
+            {shifts.length === 0 
+              ? 'Bu ay için vardiya bulunamadı'
+              : 'Seçilen filtreye uygun vardiya bulunmuyor'
+            }
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {employeeId ? 'Size atanmış vardiya bulunmuyor.' : 'Henüz vardiya oluşturulmamış.'}
+            {shifts.length === 0 
+              ? (employeeId ? 'Size atanmış vardiya bulunmuyor.' : 'Henüz vardiya oluşturulmamış.')
+              : 'Filtreleri değiştirerek tekrar deneyin'
+            }
           </Typography>
         </Paper>
       ) : (
@@ -263,7 +418,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {shifts.map((shift) => (
+              {filteredShifts.map((shift) => (
                 <TableRow key={shift.id} hover>
                   <TableCell>
                     <Box display="flex" alignItems="center">

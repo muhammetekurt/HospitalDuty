@@ -26,4 +26,22 @@ public class CurrentUserService : ICurrentUserService
 
     public bool IsInRole(string role) =>
         User?.IsInRole(role) ?? false;
+
+    public Guid? DepartmentId 
+    {
+        get
+        {
+            var value = User?.FindFirstValue("DepartmentId");
+            return string.IsNullOrEmpty(value) ? null : Guid.Parse(value);
+        }
+    }
+
+    public Guid? HospitalId 
+    {
+        get
+        {
+            var value = User?.FindFirstValue("HospitalId");
+            return string.IsNullOrEmpty(value) ? null : Guid.Parse(value);
+        }
+    }
 }

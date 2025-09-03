@@ -4,7 +4,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid,
   Avatar,
   Chip,
   List,
@@ -15,6 +14,7 @@ import {
   Divider,
   CircularProgress,
   Alert,
+  Button,
 } from '@mui/material';
 import {
   CalendarToday as CalendarIcon,
@@ -22,11 +22,17 @@ import {
   Person as PersonIcon,
   Business as BusinessIcon,
   TrendingUp as TrendingUpIcon,
+  Add as AddIcon,
+  People as PeopleIcon,
+  Assignment as AssignmentIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { shiftService } from '../services/shiftService';
 import { employeeService } from '../services/employeeService';
 import { departmentService } from '../services/departmentService';
+import ShiftForm from './ShiftForm';
+import DepartmentForm from './DepartmentForm';
 import type { Shift } from '../types/shift';
 import type { Employee } from '../types/employee';
 import type { Department } from '../types/department';
@@ -39,6 +45,19 @@ interface DashboardStats {
   }>;
   departments: Department[];
   employees: Employee[];
+  totalEmployees: number;
+  activeShifts: number;
+  totalDepartments: number;
+  monthlyShifts: number;
+  upcomingShifts: Shift[];
+
+  notifications: Array<{
+    id: string;
+    type: 'warning' | 'error' | 'info' | 'success';
+    title: string;
+    message: string;
+    timestamp: string;
+  }>;
 }
 
 export const Dashboard: React.FC = () => {
@@ -48,9 +67,17 @@ export const Dashboard: React.FC = () => {
     topDoctors: [],
     departments: [],
     employees: [],
+    totalEmployees: 0,
+    activeShifts: 0,
+    totalDepartments: 0,
+    monthlyShifts: 0,
+    upcomingShifts: [],
+    notifications: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shiftFormOpen, setShiftFormOpen] = useState(false);
+  const [departmentFormOpen, setDepartmentFormOpen] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -108,11 +135,86 @@ export const Dashboard: React.FC = () => {
       const allDepartments = await departmentService.getAll();
       const departments = allDepartments.filter(dept => dept.hospitalId === user?.hospitalId);
 
+      // Yaklaşan nöbetleri hesapla (gelecek 7 gün)
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      const upcomingShifts = allShifts.filter(shift => {
+        const shiftDate = new Date(shift.startTime);
+        return shiftDate > today && shiftDate <= nextWeek;
+      });
+
+      // Aktif nöbetleri hesapla (şu anda devam eden)
+      const now = new Date();
+      const activeShifts = allShifts.filter(shift => {
+        const startTime = new Date(shift.startTime);
+        const endTime = new Date(shift.endTime);
+        return startTime <= now && endTime >= now;
+      });
+
+
+
+      // Bildirimleri hesapla
+      const notifications = [];
+      
+      // Eksik nöbet atamaları kontrolü
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowShifts = allShifts.filter(shift => {
+        const shiftDate = new Date(shift.startTime);
+        return shiftDate.toDateString() === tomorrow.toDateString();
+      });
+      
+      if (tomorrowShifts.length === 0) {
+        notifications.push({
+          id: 'no-shifts-tomorrow',
+          type: 'warning' as const,
+          title: 'Yarın Nöbet Ataması Yok',
+          message: 'Yarın için hiç nöbet ataması bulunmuyor. Lütfen kontrol edin.',
+          timestamp: new Date().toISOString(),
+        });
+      }
+      
+      // Yaklaşan nöbet hatırlatması
+      const nextShift = upcomingShifts[0];
+      if (nextShift) {
+        const nextShiftDate = new Date(nextShift.startTime);
+        const hoursUntilShift = (nextShiftDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursUntilShift <= 24 && hoursUntilShift > 0) {
+          const employee = employees.find(emp => emp.id === nextShift.employeeId);
+          notifications.push({
+            id: `shift-reminder-${nextShift.id}`,
+            type: 'info' as const,
+            title: 'Yaklaşan Nöbet',
+            message: `${employee?.firstName} ${employee?.lastName} için ${Math.round(hoursUntilShift)} saat sonra nöbet başlıyor.`,
+            timestamp: new Date().toISOString(),
+          });
+        }
+      }
+      
+      // Departman yöneticisi eksikliği
+      const departmentsWithoutManager = departments.filter(dept => !dept.manager);
+      if (departmentsWithoutManager.length > 0) {
+        notifications.push({
+          id: 'departments-without-manager',
+          type: 'error' as const,
+          title: 'Yöneticisiz Departmanlar',
+          message: `${departmentsWithoutManager.length} departmanın yöneticisi atanmamış.`,
+          timestamp: new Date().toISOString(),
+        });
+      }
+
       setStats({
         todayShifts,
         topDoctors,
         departments,
         employees,
+        totalEmployees: employees.length,
+        activeShifts: activeShifts.length,
+        totalDepartments: departments.length,
+        monthlyShifts: monthlyShifts.length,
+        upcomingShifts,
+        notifications,
       });
     } catch (err) {
       setError('Dashboard verileri yüklenirken hata oluştu');
@@ -181,15 +283,102 @@ export const Dashboard: React.FC = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* Sol Kolon */}
-        <Grid item xs={12} md={8}>
-          {/* Bugün Nöbetçi Staff */}
-          <Card sx={{ mb: 3 }}>
+      {/* İstatistik Kartları */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ 
+            background: '#e63946',
+            color: 'white',
+            height: '140px',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
+          }}>
+            <CardContent sx={{ textAlign: 'center', width: '100%' }}>
+              <PeopleIcon sx={{ fontSize: 40, mb: 1, color: 'white' }} />
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'white' }}>
+                {stats.totalEmployees}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                Toplam Çalışan
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ 
+            background: '#457b9d',
+            color: 'white',
+            height: '140px',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
+          }}>
+            <CardContent sx={{ textAlign: 'center', width: '100%' }}>
+              <AssignmentIcon sx={{ fontSize: 40, mb: 1, color: 'white' }} />
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'white' }}>
+                {stats.activeShifts}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                Aktif Nöbet
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ 
+            background: '#a8dadc',
+            color: '#1d3557',
+            height: '140px',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
+          }}>
+            <CardContent sx={{ textAlign: 'center', width: '100%' }}>
+              <BusinessIcon sx={{ fontSize: 40, mb: 1, color: '#1d3557' }} />
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#1d3557' }}>
+                {stats.totalDepartments}
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#1d3557' }}>
+                Departman
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ 
+            background: '#1d3557',
+            color: 'white',
+            height: '140px',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
+          }}>
+            <CardContent sx={{ textAlign: 'center', width: '100%' }}>
+              <ScheduleIcon sx={{ fontSize: 40, mb: 1, color: 'white' }} />
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'white' }}>
+                {stats.monthlyShifts}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                Bu Ay Nöbet
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
+
+      {/* 2. Satır: Bugün Nöbetçi Staff - Takvim - Bildirimler */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+        {/* Bugün Nöbetçi Staff */}
+        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CalendarIcon color="primary" />
-                Bugün Nöbetçi Staff
+                Günün Nöbetçileri
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
@@ -199,7 +388,7 @@ export const Dashboard: React.FC = () => {
                 </Typography>
               ) : (
                 <List>
-                  {stats.todayShifts.map((shift, index) => {
+                  {stats.todayShifts.map((shift) => {
                     // Çalışan bilgisini employees listesinden bul
                     const employee = stats.employees.find(emp => emp.id === shift.employeeId);
                     return (
@@ -215,15 +404,20 @@ export const Dashboard: React.FC = () => {
                         <ListItemText
                           primary={`${employee?.firstName || 'Bilinmeyen'} ${employee?.lastName || 'Çalışan'}`}
                           secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                              <Typography variant="caption">
-                                {formatDateTime(shift.startTime)} - {formatDateTime(shift.endTime)}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                              <Typography variant="caption" color="text.secondary">
+                                {employee?.department || 'Departman Bilinmiyor'}
                               </Typography>
-                              <Chip
-                                label={getShiftTypeLabel(shift.shiftType)}
-                                color={getShiftTypeColor(shift.shiftType) as any}
-                                size="small"
-                              />
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="caption">
+                                  {formatDateTime(shift.startTime)} - {formatDateTime(shift.endTime)}
+                                </Typography>
+                                <Chip
+                                  label={getShiftTypeLabel(shift.shiftType)}
+                                  color={getShiftTypeColor(shift.shiftType) as any}
+                                  size="small"
+                                />
+                              </Box>
                             </Box>
                           }
                         />
@@ -234,13 +428,133 @@ export const Dashboard: React.FC = () => {
               )}
             </CardContent>
           </Card>
+        </Box>
 
-          {/* Bu Ay En Çok Nöbet Tutan Doktorlar */}
-          <Card>
+        {/* Takvim */}
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              height: '100%',
+              p: 2
+            }}>
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CalendarIcon color="primary" />
+                Takvim
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              
+              <Paper sx={{ 
+                p: 2, 
+                textAlign: 'center', 
+                bgcolor: 'primary.main', 
+                color: 'white',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {new Date().getDate()}
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 0.5 }}>
+                  {new Date().toLocaleDateString('tr-TR', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                  })}
+                </Typography>
+                <Typography variant="body2">
+                  {new Date().toLocaleDateString('tr-TR', { 
+                    weekday: 'long' 
+                  })}
+                </Typography>
+              </Paper>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Hızlı İşlemler */}
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <AddIcon color="primary" />
+                Hızlı İşlemler
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<AssignmentIcon />}
+                  fullWidth
+                  onClick={() => setShiftFormOpen(true)}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
+                    py: 1.5
+                  }}
+                >
+                  Yeni Nöbet Oluştur
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  startIcon={<PersonIcon />}
+                  fullWidth
+                  onClick={() => window.location.href = '/employees'}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
+                    py: 1.5
+                  }}
+                >
+                  Çalışan Ekle
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  startIcon={<BusinessIcon />}
+                  fullWidth
+                  onClick={() => setDepartmentFormOpen(true)}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
+                    py: 1.5
+                  }}
+                >
+                  Departman Ekle
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  startIcon={<TrendingUpIcon />}
+                  fullWidth
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
+                    py: 1.5
+                  }}
+                >
+                  Rapor Oluştur
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
+
+      {/* 3. Satır: Bu Ay En Çok Nöbet Tutan Doktorlar - Yaklaşan Nöbetler - Hastane Departmanları */}
+      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+        {/* Bu Ay En Çok Nöbet Tutan Doktorlar */}
+        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <TrendingUpIcon color="primary" />
-                Bu Ay En Çok Nöbet Tutan Doktorlar
+                Bu Ay En Çok Nöbet Tutanlar
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
@@ -250,7 +564,7 @@ export const Dashboard: React.FC = () => {
                 </Typography>
               ) : (
                 <List>
-                  {stats.topDoctors.map((item, index) => (
+                  {stats.topDoctors.map((item) => (
                     <ListItem key={item.employee.id} sx={{ px: 0 }}>
                       <ListItemAvatar>
                         <Avatar 
@@ -276,7 +590,7 @@ export const Dashboard: React.FC = () => {
                         }
                       />
                       <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                        #{index + 1}
+                        #{stats.topDoctors.indexOf(item) + 1}
                       </Typography>
                     </ListItem>
                   ))}
@@ -284,40 +598,77 @@ export const Dashboard: React.FC = () => {
               )}
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        {/* Sağ Kolon */}
-        <Grid item xs={12} md={4}>
-          {/* Takvim */}
-          <Card sx={{ mb: 3 }}>
+        {/* Yaklaşan Nöbetler */}
+        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarIcon color="primary" />
-                Takvim
+                <ScheduleIcon color="primary" />
+                Yaklaşan Nöbetler (7 Gün)
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
-              <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                  {new Date().getDate()}
+              {stats.upcomingShifts.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                  Yaklaşan nöbet bulunmuyor
                 </Typography>
-                <Typography variant="h6">
-                  {new Date().toLocaleDateString('tr-TR', { 
-                    month: 'long', 
-                    year: 'numeric' 
+              ) : (
+                <List>
+                  {stats.upcomingShifts.slice(0, 5).map((shift) => {
+                    const employee = stats.employees.find(emp => emp.id === shift.employeeId);
+                    const shiftDate = new Date(shift.startTime);
+                    const isToday = shiftDate.toDateString() === new Date().toDateString();
+                    const isTomorrow = shiftDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
+                    
+                    return (
+                      <ListItem key={shift.id} sx={{ px: 0 }}>
+                        <ListItemAvatar>
+                          <Avatar 
+                            src={employee?.profileImageUrl}
+                            sx={{ bgcolor: isToday ? 'error.main' : isTomorrow ? 'warning.main' : 'primary.main' }}
+                          >
+                            {employee?.firstName?.charAt(0)}{employee?.lastName?.charAt(0)}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={`${employee?.firstName || 'Bilinmeyen'} ${employee?.lastName || 'Çalışan'}`}
+                          secondary={
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                              <Typography variant="caption" color="text.secondary">
+                                {employee?.department || 'Departman Bilinmiyor'}
+                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="caption">
+                                  {formatDateTime(shift.startTime)}
+                                </Typography>
+                                <Chip
+                                  label={isToday ? 'Bugün' : isTomorrow ? 'Yarın' : shiftDate.toLocaleDateString('tr-TR')}
+                                  color={isToday ? 'error' : isTomorrow ? 'warning' : 'default'}
+                                  size="small"
+                                />
+                                <Chip
+                                  label={getShiftTypeLabel(shift.shiftType)}
+                                  color={getShiftTypeColor(shift.shiftType) as any}
+                                  size="small"
+                                />
+                              </Box>
+                            </Box>
+                          }
+                        />
+                      </ListItem>
+                    );
                   })}
-                </Typography>
-                <Typography variant="body2">
-                  {new Date().toLocaleDateString('tr-TR', { 
-                    weekday: 'long' 
-                  })}
-                </Typography>
-              </Paper>
+                </List>
+              )}
             </CardContent>
           </Card>
+        </Box>
 
-          {/* Hastane Departmanları */}
-          <Card>
+        {/* Hastane Departmanları */}
+        <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <BusinessIcon color="primary" />
@@ -332,10 +683,8 @@ export const Dashboard: React.FC = () => {
               ) : (
                 <Box sx={{ 
                   display: 'flex', 
-                  flexDirection: 'row', 
-                  gap: 2,
-                  flexWrap: 'wrap',
-                  justifyContent: 'flex-start'
+                  flexDirection: 'column', 
+                  gap: 2
                 }}>
                   {stats.departments.map((department) => (
                     <Box 
@@ -349,8 +698,6 @@ export const Dashboard: React.FC = () => {
                         bgcolor: 'grey.50',
                         border: '1px solid',
                         borderColor: 'grey.200',
-                        minWidth: '200px',
-                        flex: '0 0 auto',
                         '&:hover': {
                           bgcolor: 'grey.100',
                           borderColor: 'primary.main',
@@ -374,8 +721,26 @@ export const Dashboard: React.FC = () => {
               )}
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
+
+      {/* Form'lar */}
+      <ShiftForm
+        open={shiftFormOpen}
+        onClose={() => setShiftFormOpen(false)}
+        onSuccess={() => {
+          setShiftFormOpen(false);
+          loadDashboardData(); // Verileri yenile
+        }}
+      />
+
+      <DepartmentForm
+        open={departmentFormOpen}
+        onClose={() => {
+          setDepartmentFormOpen(false);
+          loadDashboardData(); // Verileri yenile
+        }}
+      />
     </Box>
   );
 };

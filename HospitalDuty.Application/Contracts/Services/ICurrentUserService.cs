@@ -10,5 +10,7 @@ public interface ICurrentUserService
     bool IsAuthenticated { get; }
     IEnumerable<string> Roles { get; }
     bool IsInRole(string role);
+    Guid? DepartmentId { get; }
+    Guid? HospitalId { get; }
 }
 
