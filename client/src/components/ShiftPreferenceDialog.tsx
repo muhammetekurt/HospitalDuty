@@ -188,9 +188,33 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(Number(e.target.value))}
                   label="Ay"
+                  sx={{
+                    '& .MuiSelect-select': {
+                      backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
+                      color: selectedMonth ? '#0277bd' : 'inherit',
+                      fontWeight: selectedMonth ? 600 : 'normal',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: selectedMonth ? '#01579b' : 'inherit',
+                    },
+                  }}
                 >
                   {months.map((month, index) => (
-                    <MenuItem key={index} value={index + 1}>
+                    <MenuItem 
+                      key={index} 
+                      value={index + 1}
+                      sx={{
+                        backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
+                        color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
+                        fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
+                        '&:hover': {
+                          backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
+                        }
+                      }}
+                    >
                       {month}
                     </MenuItem>
                   ))}
@@ -202,9 +226,33 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                   label="Yıl"
+                  sx={{
+                    '& .MuiSelect-select': {
+                      backgroundColor: selectedYear ? '#f3e5f5' : 'transparent',
+                      color: selectedYear ? '#7b1fa2' : 'inherit',
+                      fontWeight: selectedYear ? 600 : 'normal',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: selectedYear ? '#7b1fa2' : 'inherit',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: selectedYear ? '#4a148c' : 'inherit',
+                    },
+                  }}
                 >
                   {years.map((year) => (
-                    <MenuItem key={year} value={year}>
+                    <MenuItem 
+                      key={year} 
+                      value={year}
+                      sx={{
+                        backgroundColor: selectedYear === year ? '#f3e5f5' : 'transparent',
+                        color: selectedYear === year ? '#7b1fa2' : 'inherit',
+                        fontWeight: selectedYear === year ? 600 : 'normal',
+                        '&:hover': {
+                          backgroundColor: selectedYear === year ? '#e1bee7' : '#f5f5f5',
+                        }
+                      }}
+                    >
                       {year}
                     </MenuItem>
                   ))}
@@ -219,14 +267,47 @@ const ShiftPreferenceDialog: React.FC<ShiftPreferenceDialogProps> = ({
                 value={preferenceType}
                 onChange={(e) => setPreferenceType(e.target.value as PreferenceType)}
                 label="Tercih Tipi"
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: preferenceType !== undefined ? '#e8f5e8' : 'transparent',
+                    color: preferenceType !== undefined ? '#2e7d32' : 'inherit',
+                    fontWeight: preferenceType !== undefined ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: preferenceType !== undefined ? '#2e7d32' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: preferenceType !== undefined ? '#1b5e20' : 'inherit',
+                  },
+                }}
               >
-                <MenuItem value={0}>
+                <MenuItem 
+                  value={0}
+                  sx={{
+                    backgroundColor: preferenceType === 0 ? '#e8f5e8' : 'transparent',
+                    color: preferenceType === 0 ? '#2e7d32' : 'inherit',
+                    fontWeight: preferenceType === 0 ? 600 : 'normal',
+                    '&:hover': {
+                      backgroundColor: preferenceType === 0 ? '#c8e6c9' : '#f5f5f5',
+                    }
+                  }}
+                >
                   <Box display="flex" alignItems="center">
                     <UnavailableIcon sx={{ mr: 1, color: 'error.main' }} />
                     Müsait Değil
                   </Box>
                 </MenuItem>
-                <MenuItem value={1}>
+                <MenuItem 
+                  value={1}
+                  sx={{
+                    backgroundColor: preferenceType === 1 ? '#e8f5e8' : 'transparent',
+                    color: preferenceType === 1 ? '#2e7d32' : 'inherit',
+                    fontWeight: preferenceType === 1 ? 600 : 'normal',
+                    '&:hover': {
+                      backgroundColor: preferenceType === 1 ? '#c8e6c9' : '#f5f5f5',
+                    }
+                  }}
+                >
                   <Box display="flex" alignItems="center">
                     <AvailableIcon sx={{ mr: 1, color: 'success.main' }} />
                     Tercih Edilen

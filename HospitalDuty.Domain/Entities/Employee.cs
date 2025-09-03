@@ -10,8 +10,8 @@ public class Employee
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string? ProfileImagePath { get; set; }
     // public string PhoneNumber { get; set; } = string.Empty;
-    // public string ProfileImage { get; set; } = string.Empty;
     // public Role Role { get; set; } = Role.Staff;
 
     public Guid? DepartmentId { get; set; }

@@ -129,4 +129,93 @@ public class EmployeeController : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary>
+    /// Uploads a profile image for an employee
+    /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("{id:guid}/upload-profile-image")]
+    public async Task<ActionResult> UploadProfileImage(Guid id, IFormFile file)
+    {
+        // Dosya kontrolü
+        if (file == null || file.Length == 0)
+            return BadRequest("No file uploaded");
+
+        // Dosya boyutu kontrolü (2MB)
+        if (file.Length > 2 * 1024 * 1024)
+            return BadRequest("File size cannot exceed 2MB");
+
+        // Dosya tipi kontrolü
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(fileExtension))
+            return BadRequest("Only JPG, PNG, and WebP files are allowed");
+
+        try
+        {
+            // Dosya adını oluştur
+            var fileName = $"employee-{id}{fileExtension}";
+            var filePath = Path.Combine("wwwroot", "profile-images", fileName);
+
+            // Eski dosyayı sil (varsa)
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+
+            // Yeni dosyayı kaydet
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Database'i güncelle
+            var result = await _employeeService.UpdateProfileImageAsync(id, fileName);
+            if (!result)
+                return NotFound("Employee not found");
+
+            return Ok(new { message = "Profile image uploaded successfully", fileName });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Deletes a profile image for an employee
+    /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpDelete("{id:guid}/delete-profile-image")]
+    public async Task<ActionResult> DeleteProfileImage(Guid id)
+    {
+        try
+        {
+            // Employee'yi bul
+            var employee = await _employeeService.GetByIdAsync(id);
+            if (employee == null)
+                return NotFound("Employee not found");
+
+            // Eski dosyayı sil (varsa)
+            if (!string.IsNullOrEmpty(employee.ProfileImagePath))
+            {
+                var filePath = Path.Combine("wwwroot", "profile-images", employee.ProfileImagePath);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+            // Database'den profil resmi bilgisini sil
+            var result = await _employeeService.DeleteProfileImageAsync(id);
+            if (!result)
+                return NotFound("Employee not found");
+
+            return Ok(new { message = "Profile image deleted successfully" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
 }

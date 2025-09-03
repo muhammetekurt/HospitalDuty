@@ -26,7 +26,7 @@ namespace HospitalDuty.Application.Services
         public async Task<IEnumerable<ShiftPreferenceDto>> CreatePreferencesAsync(CreateShiftPreferenceDto dto)
         {
             var result = new List<ShiftPreferenceDto>();
-
+            dto.EmployeeId = Guid.Parse(_currentUserService.UserId);
             foreach (var date in dto.Dates)
             {
                 var existing = await _repository.GetByEmployeeAndDateAsync(dto.EmployeeId, date.Date);

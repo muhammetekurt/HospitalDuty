@@ -26,12 +26,12 @@ namespace HospitalDuty.API.Controllers
         public async Task<IActionResult> CreatePreferences([FromBody] CreateShiftPreferenceDto dto)
         {
             // Current user'ın ID'sini al
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("User not authenticated");
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //if (string.IsNullOrEmpty(userId))
+                //return Unauthorized("User not authenticated");
 
             // DTO'ya user ID'sini ekle
-            dto.EmployeeId = Guid.Parse(userId);
+            //dto.EmployeeId = Guid.Parse(userId);
             
             var result = await _service.CreatePreferencesAsync(dto);
             return Ok(result);

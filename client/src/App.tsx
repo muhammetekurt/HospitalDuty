@@ -205,7 +205,10 @@ const AppContent: React.FC = () => {
                 onClick={handleMenuOpen}
                 color="inherit"
               >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+                <Avatar 
+                  src={user?.profileImageUrl}
+                  sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}
+                >
                   {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                 </Avatar>
               </IconButton>

@@ -187,3 +187,14 @@ dist/
 # cache.json için
 cache.json
 **/cache.json
+
+# Profil resimleri - GitHub'a yüklenmesin
+wwwroot/profile-images/
+**/wwwroot/profile-images/
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.gif
+*.bmp
+*.tiff

@@ -8,23 +8,24 @@ import {
   Alert,
   CircularProgress,
   Box,
-  Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   TextField,
-  Grid,
 } from '@mui/material';
+
+
 import {
   CalendarMonth as CalendarIcon,
-  AccessTime as TimeIcon,
 } from '@mui/icons-material';
 import { shiftService } from '../services/shiftService';
 import { employeeService } from '../services/employeeService';
 import { hospitalService } from '../services/hospitalService';
 import { departmentService } from '../services/departmentService';
-import type { Shift, CreateShiftRequest, UpdateShiftRequest, ShiftType } from '../types/shift';
+import { useAuth } from '../contexts/AuthContext';
+import type { Shift, CreateShiftRequest, UpdateShiftRequest } from '../types/shift';
+import { ShiftType } from '../types/shift';
 import type { Employee } from '../types/employee';
 import type { Hospital } from '../types/hospital';
 import type { Department } from '../types/department';
@@ -44,6 +45,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   shift,
   isEdit = false
 }) => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -57,20 +59,28 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   today.setHours(0, 0, 0, 0);
   const todayString = today.toISOString().slice(0, 16);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    employeeId: string;
+    hospitalId: string;
+    departmentId: string;
+    startTime: string;
+    endTime: string;
+    shiftType: ShiftType;
+    notes: string;
+  }>({
     employeeId: '',
-    hospitalId: '',
-    departmentId: '',
+    hospitalId: user?.hospitalId || '',
+    departmentId: user?.departmentId || '',
     startTime: new Date().toISOString().slice(0, 16),
     endTime: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 16), // 8 saat sonra
-    shiftType: 0, // Normal
+    shiftType: ShiftType.Normal,
     notes: ''
   });
 
   const shiftTypes = [
-    { value: 0, label: 'Normal' },
-    { value: 1, label: 'Gece' },
-    { value: 2, label: 'Acil' }
+    { value: ShiftType.Normal, label: 'Normal' },
+    { value: ShiftType.Night, label: 'Gece' },
+    { value: ShiftType.Emergency, label: 'Acil' }
   ];
 
   useEffect(() => {
@@ -88,6 +98,12 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
         });
       } else {
         resetForm();
+        // Yeni shift oluştururken kullanıcının hastane ve departmanını ayarla
+        setFormData(prev => ({
+          ...prev,
+          hospitalId: user?.hospitalId || '',
+          departmentId: user?.departmentId || ''
+        }));
       }
     }
   }, [open, isEdit, shift]);
@@ -195,10 +211,10 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       open={open} 
       onClose={handleClose} 
       maxWidth={false}
-      PaperProps={{
-        sx: { 
+            PaperProps={{
+        sx: {
           width: '900px',
-          height: '450px'
+          height: '530px'
         }
       }}
     >
@@ -212,111 +228,195 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       <DialogContent style={{ paddingTop: '20px' }}>
         {!success ? (
           <Box>
-            <Grid container spacing={4}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
               {/* Çalışan Seçimi */}
-              <Grid item xs={12} sm={6}>
-                <FormControl required sx={{ minWidth: 250 }}>
-                  <InputLabel>Çalışan</InputLabel>
-                  <Select
-                    value={formData.employeeId}
-                    onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-                    label="Çalışan"
-                  >
-                    {employees.map((employee) => (
-                      <MenuItem key={employee.id} value={employee.id}>
-                        {employee.firstName} {employee.lastName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              <FormControl required sx={{ minWidth: 250 }}>
+                <InputLabel>Çalışan</InputLabel>
+                <Select
+                  value={formData.employeeId}
+                  onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                  label="Çalışan"
+                  sx={{
+                    '& .MuiSelect-select': {
+                      backgroundColor: formData.employeeId ? '#e1f5fe' : 'transparent',
+                      color: formData.employeeId ? '#0277bd' : 'inherit',
+                      fontWeight: formData.employeeId ? 600 : 'normal',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.employeeId ? '#0277bd' : 'inherit',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.employeeId ? '#01579b' : 'inherit',
+                    },
+                  }}
+                >
+                  {employees.map((employee) => (
+                    <MenuItem 
+                      key={employee.id} 
+                      value={employee.id}
+                      sx={{
+                        backgroundColor: formData.employeeId === employee.id ? '#e1f5fe' : 'transparent',
+                        color: formData.employeeId === employee.id ? '#0277bd' : 'inherit',
+                        fontWeight: formData.employeeId === employee.id ? 600 : 'normal',
+                        '&:hover': {
+                          backgroundColor: formData.employeeId === employee.id ? '#b3e5fc' : '#f5f5f5',
+                        }
+                      }}
+                    >
+                      {employee.firstName} {employee.lastName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               {/* Hastane Seçimi */}
-              <Grid item xs={12} sm={6}>
-                <FormControl required sx={{ minWidth: 250 }}>
-                  <InputLabel>Hastane</InputLabel>
-                  <Select
-                    value={formData.hospitalId}
-                    onChange={(e) => setFormData({ ...formData, hospitalId: e.target.value })}
-                    label="Hastane"
-                  >
-                    {hospitals.map((hospital) => (
-                      <MenuItem key={hospital.id} value={hospital.id}>
-                        {hospital.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              <FormControl required sx={{ minWidth: 250 }}>
+                <InputLabel>Hastane</InputLabel>
+                <Select
+                  value={formData.hospitalId}
+                  onChange={(e) => setFormData({ ...formData, hospitalId: e.target.value })}
+                  label="Hastane"
+                  disabled={!isEdit}
+                  sx={{
+                    '& .MuiSelect-select': {
+                      backgroundColor: formData.hospitalId ? '#f3e5f5' : 'transparent',
+                      color: formData.hospitalId ? '#7b1fa2' : 'inherit',
+                      fontWeight: formData.hospitalId ? 600 : 'normal',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.hospitalId ? '#7b1fa2' : 'inherit',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.hospitalId ? '#4a148c' : 'inherit',
+                    },
+                  }}
+                >
+                  {hospitals.map((hospital) => (
+                    <MenuItem 
+                      key={hospital.id} 
+                      value={hospital.id}
+                      sx={{
+                        backgroundColor: formData.hospitalId === hospital.id ? '#f3e5f5' : 'transparent',
+                        color: formData.hospitalId === hospital.id ? '#7b1fa2' : 'inherit',
+                        fontWeight: formData.hospitalId === hospital.id ? 600 : 'normal',
+                        '&:hover': {
+                          backgroundColor: formData.hospitalId === hospital.id ? '#e1bee7' : '#f5f5f5',
+                        }
+                      }}
+                    >
+                      {hospital.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               {/* Departman Seçimi */}
-              <Grid item xs={12} sm={6}>
-                <FormControl required sx={{ minWidth: 250 }}>
-                  <InputLabel>Departman</InputLabel>
-                  <Select
-                    value={formData.departmentId}
-                    onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
-                    label="Departman"
-                  >
-                    {departments.map((department) => (
-                      <MenuItem key={department.id} value={department.id}>
-                        {department.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              <FormControl required sx={{ minWidth: 250 }}>
+                <InputLabel>Departman</InputLabel>
+                <Select
+                  value={formData.departmentId}
+                  onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                  label="Departman"
+                  disabled={!isEdit}
+                  sx={{
+                    '& .MuiSelect-select': {
+                      backgroundColor: formData.departmentId ? '#e8f5e8' : 'transparent',
+                      color: formData.departmentId ? '#388e3c' : 'inherit',
+                      fontWeight: formData.departmentId ? 600 : 'normal',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.departmentId ? '#388e3c' : 'inherit',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.departmentId ? '#2e7d32' : 'inherit',
+                    },
+                  }}
+                >
+                  {departments.map((department) => (
+                    <MenuItem 
+                      key={department.id} 
+                      value={department.id}
+                      sx={{
+                        backgroundColor: formData.departmentId === department.id ? '#e8f5e8' : 'transparent',
+                        color: formData.departmentId === department.id ? '#388e3c' : 'inherit',
+                        fontWeight: formData.departmentId === department.id ? 600 : 'normal',
+                        '&:hover': {
+                          backgroundColor: formData.departmentId === department.id ? '#c8e6c9' : '#f5f5f5',
+                        }
+                      }}
+                    >
+                      {department.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               {/* Vardiya Tipi */}
-              <Grid item xs={12} sm={6}>
-                <FormControl required sx={{ minWidth: 250 }}>
-                  <InputLabel>Vardiya Tipi</InputLabel>
-                  <Select
-                    value={formData.shiftType}
-                    onChange={(e) => setFormData({ ...formData, shiftType: e.target.value })}
-                    label="Vardiya Tipi"
-                  >
-                    {shiftTypes.map((type) => (
-                      <MenuItem key={type.value} value={type.value}>
-                        {type.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              <FormControl required sx={{ minWidth: 250 }}>
+                <InputLabel>Vardiya Tipi</InputLabel>
+                <Select
+                  value={formData.shiftType}
+                  onChange={(e) => setFormData({ ...formData, shiftType: e.target.value })}
+                  label="Vardiya Tipi"
+                  sx={{
+                    '& .MuiSelect-select': {
+                      backgroundColor: formData.shiftType ? '#fce4ec' : 'transparent',
+                      color: formData.shiftType ? '#c2185b' : 'inherit',
+                      fontWeight: formData.shiftType ? 600 : 'normal',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.shiftType ? '#c2185b' : 'inherit',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: formData.shiftType ? '#ad1457' : 'inherit',
+                    },
+                  }}
+                >
+                  {shiftTypes.map((type) => (
+                    <MenuItem 
+                      key={type.value} 
+                      value={type.value}
+                      sx={{
+                        backgroundColor: formData.shiftType === type.value ? '#fce4ec' : 'transparent',
+                        color: formData.shiftType === type.value ? '#c2185b' : 'inherit',
+                        fontWeight: formData.shiftType === type.value ? 600 : 'normal',
+                        '&:hover': {
+                          backgroundColor: formData.shiftType === type.value ? '#f8bbd9' : '#f5f5f5',
+                        }
+                      }}
+                    >
+                      {type.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               {/* Başlangıç Zamanı */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Başlangıç Zamanı"
-                  type="datetime-local"
-                  value={formData.startTime}
-                  onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{ min: todayString }}
-                  required
-                  sx={{ minWidth: 250 }}
-                />
-              </Grid>
+              <TextField
+                label="Başlangıç Zamanı"
+                type="datetime-local"
+                value={formData.startTime}
+                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ min: todayString }}
+                required
+                sx={{ minWidth: 250 }}
+              />
 
               {/* Bitiş Zamanı */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Bitiş Zamanı"
-                  type="datetime-local"
-                  value={formData.endTime}
-                  onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{ 
-                    min: formData.startTime ? formData.startTime : todayString 
-                  }}
-                  required
-                  sx={{ minWidth: 250 }}
-                />
-              </Grid>
-
-
-            </Grid>
+              <TextField
+                label="Bitiş Zamanı"
+                type="datetime-local"
+                value={formData.endTime}
+                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ 
+                  min: formData.startTime ? formData.startTime : todayString 
+                }}
+                required
+                sx={{ minWidth: 250 }}
+              />
+            </Box>
 
             {/* Notlar */}
             <Box sx={{ mt: 3 }}>
@@ -327,7 +427,8 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                 rows={3}
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                sx={{ width: '100%' }}
+                placeholder="Vardiya ile ilgili notlar..."
+                disabled={loading}
               />
             </Box>
 

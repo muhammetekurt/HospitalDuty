@@ -10,6 +10,8 @@ export interface Employee {
   hospitalId: string;
   department: string;
   hospitalName: string;
+  profileImagePath?: string;
+  profileImageUrl?: string;
   hospital?: {
     id: string;
     name: string;

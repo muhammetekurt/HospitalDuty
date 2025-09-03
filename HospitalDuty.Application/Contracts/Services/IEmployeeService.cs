@@ -17,5 +17,7 @@ namespace HospitalDuty.Application.Contracts.Services
         Task<bool> DeleteAsync(Guid id);
         Task<EmployeeDto?> CreateAsync(CreateEmployeeDto employeeDto);
         Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeDto employeeDto, ClaimsPrincipal user);
+        Task<bool> UpdateProfileImageAsync(Guid id, string fileName);
+        Task<bool> DeleteProfileImageAsync(Guid id);
     }
 }
