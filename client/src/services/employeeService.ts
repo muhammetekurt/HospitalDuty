@@ -88,4 +88,27 @@ export const employeeService = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/Employee/${id}`);
   },
+
+  // Profil resmi yükle
+  uploadProfileImage: async (id: string, file: File): Promise<{ message: string; fileName: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post<{ message: string; fileName: string }>(
+      `/Employee/${id}/upload-profile-image`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
+
+  // Profil resmi sil
+  deleteProfileImage: async (id: string): Promise<{ message: string }> => {
+    const response = await api.delete<{ message: string }>(`/Employee/${id}/delete-profile-image`);
+    return response.data;
+  },
 };

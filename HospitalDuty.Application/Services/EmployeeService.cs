@@ -156,6 +156,26 @@ namespace HospitalDuty.Application.Services
             return true;
         }
 
+        public async Task<bool> UpdateProfileImageAsync(Guid id, string fileName)
+        {
+            var employee = await _context.GetByIdAsync(id);
+            if (employee == null) return false;
+
+            employee.ProfileImagePath = fileName;
+            await _context.UpdateAsync(employee);
+            return true;
+        }
+
+        public async Task<bool> DeleteProfileImageAsync(Guid id)
+        {
+            var employee = await _context.GetByIdAsync(id);
+            if (employee == null) return false;
+
+            employee.ProfileImagePath = null;
+            await _context.UpdateAsync(employee);
+            return true;
+        }
+
         private async Task<EmployeeDto> MapToDtoWithRoles(Employee employee)
         {
             var dto = _mapper.Map<EmployeeDto>(employee);
@@ -172,6 +192,17 @@ namespace HospitalDuty.Application.Services
             }
             dto.Department = employee.Department?.Name ?? string.Empty;
             dto.HospitalName = employee.Hospital?.Name ?? string.Empty;
+            
+            // Profile image URL oluştur
+            if (!string.IsNullOrEmpty(employee.ProfileImagePath))
+            {
+                dto.ProfileImageUrl = $"https://localhost:5000/profile-images/{employee.ProfileImagePath}";
+            }
+            else
+            {
+                dto.ProfileImageUrl = "https://localhost:5000/profile-images/default-avatar.jpg";
+            }
+            
             return dto;
         }
 

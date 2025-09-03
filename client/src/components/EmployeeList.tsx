@@ -175,7 +175,10 @@ const EmployeeList: React.FC = () => {
               <TableRow key={employee.id} hover>
                 <TableCell>
                   <Box display="flex" alignItems="center">
-                    <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
+                    <Avatar 
+                      src={employee.profileImageUrl}
+                      sx={{ mr: 2, bgcolor: 'primary.main' }}
+                    >
                       {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
                     </Avatar>
                     <Box>

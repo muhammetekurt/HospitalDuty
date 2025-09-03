@@ -22,6 +22,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Avatar,
 } from '@mui/material';
 import {
   CalendarMonth as CalendarIcon,
@@ -30,7 +31,9 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { shiftPreferenceService } from '../services/shiftPreferenceService';
+import { employeeService } from '../services/employeeService';
 import type { ShiftPreference, PreferenceType } from '../types/shiftPreference';
+import type { Employee } from '../types/employee';
 
 interface ShiftPreferenceListProps {
   employeeId?: string;
@@ -44,6 +47,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   onAddClick 
 }) => {
   const [preferences, setPreferences] = useState<ShiftPreference[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -66,6 +70,10 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
       setLoading(true);
       setError(null);
       
+      // Çalışanları yükle
+      const employeesData = await employeeService.getAll();
+      setEmployees(employeesData);
+      
       let data: ShiftPreference[];
       if (employeeId) {
         data = await shiftPreferenceService.getPreferencesByEmployeeAndMonth(employeeId, selectedMonth);
@@ -83,6 +91,21 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const getEmployeeById = (employeeId: string): Employee | undefined => {
+    if (!employeeId || !employees.length) {
+      console.log('No employeeId or no employees:', { employeeId, employeesLength: employees.length });
+      return undefined;
+    }
+    
+    console.log('All employees:', employees.map(emp => ({ id: emp.id, name: emp.firstName + ' ' + emp.lastName })));
+    console.log('Looking for employeeId:', employeeId);
+    
+    const employee = employees.find(emp => emp.id === employeeId);
+    console.log('Found employee:', employee);
+    
+    return employee;
   };
 
   const handleDelete = (preference: ShiftPreference) => {
@@ -224,9 +247,22 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {preference.employeeName || '-'}
-                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      {(() => {
+                        const employee = getEmployeeById(preference.employeeId);
+                        return (
+                          <Avatar 
+                            src={employee?.profileImageUrl}
+                            sx={{ mr: 2, bgcolor: 'primary.main', width: 32, height: 32 }}
+                          >
+                            {employee?.firstName?.charAt(0) || '?'}{employee?.lastName?.charAt(0) || '?'}
+                          </Avatar>
+                        );
+                      })()}
+                      <Typography variant="body2" fontWeight="medium">
+                        {preference.employeeName || '-'}
+                      </Typography>
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <Chip

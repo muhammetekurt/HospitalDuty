@@ -123,6 +123,9 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
+// Static files serving
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

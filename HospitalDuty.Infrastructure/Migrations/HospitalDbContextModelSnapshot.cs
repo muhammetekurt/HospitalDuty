@@ -146,6 +146,9 @@ namespace HospitalDuty.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ProfileImagePath")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId")

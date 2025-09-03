@@ -5,7 +5,6 @@ import {
   CardContent,
   Typography,
   Button,
-  Avatar,
   Chip,
   Divider,
   TextField,
@@ -31,6 +30,7 @@ import PasswordChangeDialog from './PasswordChangeDialog';
 import ShiftPreferenceDialog from './ShiftPreferenceDialog';
 import ShiftPreferenceList from './ShiftPreferenceList';
 import ShiftList from './ShiftList';
+import { ProfileImageUpload } from './ProfileImageUpload';
 
 interface ProfileProps {
   onNavigateToShiftPreferences?: () => void;
@@ -180,18 +180,17 @@ const Profile: React.FC<ProfileProps> = ({ onNavigateToShiftPreferences }) => {
         <Box sx={{ flex: { xs: '1', md: '0 0 300px' } }}>
           <Card>
             <CardContent sx={{ textAlign: 'center', p: 3 }}>
-              <Avatar
-                sx={{
-                  width: 120,
-                  height: 120,
-                  mx: 'auto',
-                  mb: 2,
-                  bgcolor: 'primary.main',
-                  fontSize: '2.5rem',
+              <ProfileImageUpload
+                employee={user}
+                onImageUpdate={(newImageUrl) => {
+                  // User objesini güncelle
+                  user.profileImageUrl = newImageUrl;
                 }}
-              >
-                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-              </Avatar>
+                size={120}
+                showUploadButton={isEditing}
+                showDeleteButton={isEditing}
+                showInfoTexts={isEditing}
+              />
               
               <Typography variant="h5" component="h2" gutterBottom>
                 {user.firstName} {user.lastName}
