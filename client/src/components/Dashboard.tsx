@@ -378,7 +378,7 @@ export const Dashboard: React.FC = () => {
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CalendarIcon color="primary" />
-                Bugün Nöbetçi Staff
+                Günün Nöbetçileri
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
@@ -554,7 +554,7 @@ export const Dashboard: React.FC = () => {
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <TrendingUpIcon color="primary" />
-                Bu Ay En Çok Nöbet Tutan Doktorlar
+                Bu Ay En Çok Nöbet Tutanlar
               </Typography>
               <Divider sx={{ mb: 2 }} />
               

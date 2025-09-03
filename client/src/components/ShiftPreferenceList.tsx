@@ -23,6 +23,9 @@ import {
   Select,
   MenuItem,
   Avatar,
+  Card,
+  CardContent,
+  TextField,
 } from '@mui/material';
 import {
   CalendarMonth as CalendarIcon,
@@ -47,6 +50,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   onAddClick 
 }) => {
   const [preferences, setPreferences] = useState<ShiftPreference[]>([]);
+  const [filteredPreferences, setFilteredPreferences] = useState<ShiftPreference[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +59,11 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
     open: boolean;
     preference: ShiftPreference | null;
   }>({ open: false, preference: null });
+  
+  // Filter states
+  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [selectedPreferenceType, setSelectedPreferenceType] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
 
   const months = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -64,6 +73,10 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   useEffect(() => {
     loadPreferences();
   }, [employeeId, selectedMonth]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [preferences, selectedEmployee, selectedPreferenceType, selectedDate]);
 
   const loadPreferences = async () => {
     try {
@@ -92,6 +105,48 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
       setLoading(false);
     }
   };
+
+  const applyFilters = () => {
+    let filtered = [...preferences];
+
+    // Çalışan filtresi
+    if (selectedEmployee) {
+      filtered = filtered.filter(preference => 
+        preference.employeeId === selectedEmployee
+      );
+    }
+
+    // Tercih tipi filtresi
+    if (selectedPreferenceType !== '') {
+      const preferenceType = parseInt(selectedPreferenceType);
+      filtered = filtered.filter(preference => 
+        preference.preferenceType === preferenceType
+      );
+    }
+
+    // Tarih filtresi
+    if (selectedDate) {
+      filtered = filtered.filter(preference => {
+        const preferenceDate = new Date(preference.date).toDateString();
+        const filterDate = new Date(selectedDate).toDateString();
+        return preferenceDate === filterDate;
+      });
+    }
+
+    setFilteredPreferences(filtered);
+  };
+
+  const clearFilters = () => {
+    setSelectedEmployee('');
+    setSelectedPreferenceType('');
+    setSelectedDate('');
+  };
+
+  // Tercih tipi seçenekleri
+  const preferenceTypeOptions = [
+    { value: '0', label: 'Müsait Değil' },
+    { value: '1', label: 'Tercih Edilen' },
+  ];
 
   const getEmployeeById = (employeeId: string): Employee | undefined => {
     if (!employeeId || !employees.length) {
@@ -155,57 +210,136 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
         <Typography variant="h6">
           Shift Tercihleri
         </Typography>
-        <Box display="flex" gap={2} alignItems="center">
-          {showAddButton && onAddClick && (
-            <Button
-              variant="contained"
-              startIcon={<CalendarIcon />}
-              onClick={onAddClick}
-              size="small"
-            >
-              Yeni Tercih Ekle
-            </Button>
-          )}
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Ay</InputLabel>
-            <Select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              label="Ay"
-              sx={{
-                '& .MuiSelect-select': {
-                  backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
-                  color: selectedMonth ? '#0277bd' : 'inherit',
-                  fontWeight: selectedMonth ? 600 : 'normal',
-                },
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: selectedMonth ? '#0277bd' : 'inherit',
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: selectedMonth ? '#01579b' : 'inherit',
-                },
-              }}
-            >
-              {months.map((month, index) => (
-                <MenuItem 
-                  key={index} 
-                  value={index + 1}
-                  sx={{
-                    backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
-                    color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
-                    fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
-                    '&:hover': {
-                      backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
-                    }
-                  }}
-                >
-                  {month}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+        <Typography variant="body2" color="text.secondary">
+          {filteredPreferences.length} / {preferences.length} tercih
+        </Typography>
       </Box>
+
+      {/* Filtre Kartı */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Filtreler
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Çalışan</InputLabel>
+                <Select
+                  value={selectedEmployee}
+                  label="Çalışan"
+                  onChange={(e) => setSelectedEmployee(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {employees.map((employee) => (
+                    <MenuItem key={employee.id} value={employee.id}>
+                      {employee.firstName} {employee.lastName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Tercih Tipi</InputLabel>
+                <Select
+                  value={selectedPreferenceType}
+                  label="Tercih Tipi"
+                  onChange={(e) => setSelectedPreferenceType(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Tümü</em>
+                  </MenuItem>
+                  {preferenceTypeOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+              <TextField
+                fullWidth
+                size="small"
+                type="date"
+                label="Tarih"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Box>
+            <Box sx={{ flex: '1 1 150px', minWidth: '150px' }}>
+              <Button
+                variant="outlined"
+                onClick={clearFilters}
+                fullWidth
+                size="small"
+              >
+                Filtreleri Temizle
+              </Button>
+            </Box>
+          </Box>
+          
+          {/* Ay Seçici */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              {showAddButton && onAddClick && (
+                <Button
+                  variant="contained"
+                  startIcon={<CalendarIcon />}
+                  onClick={onAddClick}
+                  size="small"
+                >
+                  Yeni Tercih Ekle
+                </Button>
+              )}
+            </Box>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Ay</InputLabel>
+              <Select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                label="Ay"
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
+                    color: selectedMonth ? '#0277bd' : 'inherit',
+                    fontWeight: selectedMonth ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: selectedMonth ? '#01579b' : 'inherit',
+                  },
+                }}
+              >
+                {months.map((month, index) => (
+                  <MenuItem 
+                    key={index} 
+                    value={index + 1}
+                    sx={{
+                      backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
+                      color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
+                      fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
+                      }
+                    }}
+                  >
+                    {month}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </CardContent>
+      </Card>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
@@ -213,14 +347,20 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
         </Alert>
       )}
 
-      {preferences.length === 0 ? (
+      {filteredPreferences.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <CalendarIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
-            Bu ay için shift tercihi bulunmuyor
+            {preferences.length === 0 
+              ? 'Bu ay için shift tercihi bulunmuyor'
+              : 'Seçilen filtreye uygun tercih bulunmuyor'
+            }
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            {employeeId ? 'Size ait shift tercihi bulunmuyor.' : 'Henüz shift tercihi oluşturulmamış.'}
+            {preferences.length === 0 
+              ? (employeeId ? 'Size ait shift tercihi bulunmuyor.' : 'Henüz shift tercihi oluşturulmamış.')
+              : 'Filtreleri değiştirerek tekrar deneyin'
+            }
           </Typography>
         </Paper>
       ) : (
@@ -236,7 +376,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {preferences.map((preference) => (
+              {filteredPreferences.map((preference) => (
                 <TableRow key={preference.id} hover>
                   <TableCell>
                     <Box display="flex" alignItems="center">
