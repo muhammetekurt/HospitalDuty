@@ -37,6 +37,10 @@ import type { Shift } from '../types/shift';
 import type { Employee } from '../types/employee';
 import type { Department } from '../types/department';
 
+interface DashboardProps {
+  onTabChange: (tabIndex: number) => void;
+}
+
 interface DashboardStats {
   todayShifts: Shift[];
   topDoctors: Array<{
@@ -60,7 +64,7 @@ interface DashboardStats {
   }>;
 }
 
-export const Dashboard: React.FC = () => {
+export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     todayShifts: [],
@@ -78,6 +82,19 @@ export const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [shiftFormOpen, setShiftFormOpen] = useState(false);
   const [departmentFormOpen, setDepartmentFormOpen] = useState(false);
+
+  // Navigation functions
+  const navigateToEmployees = () => {
+    onTabChange(3); // EmployeeList tab
+  };
+
+  const navigateToShifts = () => {
+    onTabChange(5); // ShiftList tab
+  };
+
+  const navigateToDepartments = () => {
+    onTabChange(2); // DepartmentList tab
+  };
 
   useEffect(() => {
     loadDashboardData();
@@ -292,8 +309,15 @@ export const Dashboard: React.FC = () => {
             height: '140px',
             display: 'flex',
             alignItems: 'center',
-            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
-          }}>
+            cursor: 'pointer',
+            '&:hover': { 
+              transform: 'translateY(-4px)', 
+              transition: 'transform 0.3s ease',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+            }
+          }}
+          onClick={navigateToEmployees}
+          >
             <CardContent sx={{ textAlign: 'center', width: '100%' }}>
               <PeopleIcon sx={{ fontSize: 40, mb: 1, color: 'white' }} />
               <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'white' }}>
@@ -313,8 +337,15 @@ export const Dashboard: React.FC = () => {
             height: '140px',
             display: 'flex',
             alignItems: 'center',
-            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
-          }}>
+            cursor: 'pointer',
+            '&:hover': { 
+              transform: 'translateY(-4px)', 
+              transition: 'transform 0.3s ease',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+            }
+          }}
+          onClick={navigateToShifts}
+          >
             <CardContent sx={{ textAlign: 'center', width: '100%' }}>
               <AssignmentIcon sx={{ fontSize: 40, mb: 1, color: 'white' }} />
               <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'white' }}>
@@ -334,8 +365,15 @@ export const Dashboard: React.FC = () => {
             height: '140px',
             display: 'flex',
             alignItems: 'center',
-            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
-          }}>
+            cursor: 'pointer',
+            '&:hover': { 
+              transform: 'translateY(-4px)', 
+              transition: 'transform 0.3s ease',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+            }
+          }}
+          onClick={navigateToDepartments}
+          >
             <CardContent sx={{ textAlign: 'center', width: '100%' }}>
               <BusinessIcon sx={{ fontSize: 40, mb: 1, color: '#1d3557' }} />
               <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#1d3557' }}>
@@ -355,29 +393,36 @@ export const Dashboard: React.FC = () => {
             height: '140px',
             display: 'flex',
             alignItems: 'center',
-            '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.3s ease' }
-          }}>
+            cursor: 'pointer',
+            '&:hover': { 
+              transform: 'translateY(-4px)', 
+              transition: 'transform 0.3s ease',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+            }
+          }}
+          onClick={navigateToShifts}
+          >
             <CardContent sx={{ textAlign: 'center', width: '100%' }}>
               <ScheduleIcon sx={{ fontSize: 40, mb: 1, color: 'white' }} />
               <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'white' }}>
                 {stats.monthlyShifts}
               </Typography>
               <Typography variant="body2" sx={{ color: 'white' }}>
-                Bu Ay Nöbet
+                Aylık Nöbet Sayısı
               </Typography>
             </CardContent>
           </Card>
         </Box>
       </Box>
 
-      {/* 2. Satır: Bugün Nöbetçi Staff - Takvim - Bildirimler */}
+      {/* 2. Satır: Bugün Nöbetçi Staff - Hızlı İşlemler - Takvim */}
       <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
         {/* Bugün Nöbetçi Staff */}
         <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarIcon color="primary" />
+                <PersonIcon color="primary" />
                 Günün Nöbetçileri
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -426,51 +471,6 @@ export const Dashboard: React.FC = () => {
                   })}
                 </List>
               )}
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Takvim */}
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: '100%',
-              p: 2
-            }}>
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarIcon color="primary" />
-                Takvim
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              
-              <Paper sx={{ 
-                p: 2, 
-                textAlign: 'center', 
-                bgcolor: 'primary.main', 
-                color: 'white',
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {new Date().getDate()}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 0.5 }}>
-                  {new Date().toLocaleDateString('tr-TR', { 
-                    month: 'long', 
-                    year: 'numeric' 
-                  })}
-                </Typography>
-                <Typography variant="body2">
-                  {new Date().toLocaleDateString('tr-TR', { 
-                    weekday: 'long' 
-                  })}
-                </Typography>
-              </Paper>
             </CardContent>
           </Card>
         </Box>
@@ -541,6 +541,51 @@ export const Dashboard: React.FC = () => {
                   Rapor Oluştur
                 </Button>
               </Box>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Takvim */}
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              height: '100%',
+              p: 2
+            }}>
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CalendarIcon color="primary" />
+                Takvim
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              
+              <Paper sx={{ 
+                p: 2, 
+                textAlign: 'center', 
+                bgcolor: 'primary.main', 
+                color: 'white',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {new Date().getDate()}
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 0.5 }}>
+                  {new Date().toLocaleDateString('tr-TR', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                  })}
+                </Typography>
+                <Typography variant="body2">
+                  {new Date().toLocaleDateString('tr-TR', { 
+                    weekday: 'long' 
+                  })}
+                </Typography>
+              </Paper>
             </CardContent>
           </Card>
         </Box>
@@ -737,6 +782,10 @@ export const Dashboard: React.FC = () => {
       <DepartmentForm
         open={departmentFormOpen}
         onClose={() => {
+          setDepartmentFormOpen(false);
+          loadDashboardData(); // Verileri yenile
+        }}
+        onSubmit={() => {
           setDepartmentFormOpen(false);
           loadDashboardData(); // Verileri yenile
         }}

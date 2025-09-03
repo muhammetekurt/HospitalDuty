@@ -149,12 +149,37 @@ const AppContent: React.FC = () => {
         <CssBaseline />
         <Box 
           display="flex" 
+          flexDirection="column"
           justifyContent="center" 
           alignItems="center" 
           minHeight="100vh"
           sx={{ bgcolor: 'background.default' }}
         >
-          <Typography>Yükleniyor...</Typography>
+          <Box
+            component="img"
+            src="/favicon.ico"
+            alt="Hospital Duty"
+            sx={{
+              width: 250,
+              height: 250,
+              mb: 2,
+              animation: 'pulse 2s infinite',
+              '@keyframes pulse': {
+                '0%': {
+                  opacity: 1,
+                },
+                '50%': {
+                  opacity: 0.5,
+                },
+                '100%': {
+                  opacity: 1,
+                },
+              },
+            }}
+          />
+          <Typography variant="h6" color="primary">
+            Yükleniyor...
+          </Typography>
         </Box>
       </ThemeProvider>
     );
@@ -255,7 +280,7 @@ const AppContent: React.FC = () => {
           </Toolbar>
         </AppBar>
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          {currentTab === 0 && <Dashboard />}
+          {currentTab === 0 && <Dashboard onTabChange={setCurrentTab} />}
           {currentTab === 1 && <HospitalList />}
           {currentTab === 2 && <DepartmentList />}
           {currentTab === 3 && <EmployeeList />}

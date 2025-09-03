@@ -18,6 +18,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Pagination,
+  Stack,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -41,6 +43,10 @@ const DepartmentList: React.FC = () => {
     open: boolean;
     department: Department | null;
   }>({ open: false, department: null });
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     loadDepartments();
@@ -59,6 +65,16 @@ const DepartmentList: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Pagination functions
+  const totalPages = Math.ceil(departments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentDepartments = departments.slice(startIndex, endIndex);
+
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
   };
 
   const handleCreate = () => {
@@ -109,9 +125,14 @@ const DepartmentList: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Departmanlar
-        </Typography>
+        <Box>
+          <Typography variant="h4" component="h1">
+            Departmanlar
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {departments.length} departman - Sayfa {currentPage} / {totalPages}
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -145,7 +166,7 @@ const DepartmentList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {departments.map((department) => (
+            {currentDepartments.map((department) => (
               <TableRow key={department.id} hover>
                 <TableCell>
                   <Box display="flex" alignItems="center">
@@ -223,6 +244,23 @@ const DepartmentList: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Pagination */}
+      {departments.length > 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Stack spacing={2}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              showFirstButton
+              showLastButton
+            />
+          </Stack>
+        </Box>
+      )}
 
       {departments.length === 0 && !loading && (
         <Box textAlign="center" py={4}>
