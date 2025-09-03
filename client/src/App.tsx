@@ -14,6 +14,7 @@ import ShiftPreferenceList from './components/ShiftPreferenceList';
 import ShiftPreferenceDialog from './components/ShiftPreferenceDialog';
 import ShiftList from './components/ShiftList';
 import ShiftForm from './components/ShiftForm';
+import ShiftCalendar from './components/ShiftCalendar';
 import { shiftService } from './services/shiftService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -139,7 +140,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleProfile = () => {
-    setCurrentTab(6); // Profile tab (Vardiyalar'dan sonra)
+    setCurrentTab(7); // Profile tab (Shift Takvimi'nden sonra)
     handleMenuClose();
   };
 
@@ -246,6 +247,7 @@ const AppContent: React.FC = () => {
               <Tab label="Çalışanlar" />
               <Tab label="Shift Tercihleri" />
               <Tab label="Vardiyalar" />
+              <Tab label="Shift Takvimi" />
               <Tab label="Profil" />
             </Tabs>
             
@@ -314,6 +316,9 @@ const AppContent: React.FC = () => {
             />
           )}
           {currentTab === 6 && (
+            <ShiftCalendar />
+          )}
+          {currentTab === 7 && (
             <Profile />
           )}
         </Container>
