@@ -34,6 +34,7 @@ public class DepartmentRepository : IDepartmentRepository
     {
         return await _context.Departments
             .Include(d => d.Hospital)
+            .Include(d => d.Manager)
             .Where(d => d.HospitalId == hospitalId)
             .ToListAsync();
     }

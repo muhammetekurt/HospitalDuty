@@ -9,6 +9,7 @@ import DepartmentList from './components/DepartmentList';
 import EmployeeList from './components/EmployeeList';
 import Login from './components/Login';
 import Profile from './components/Profile';
+import { Dashboard } from './components/Dashboard';
 import ShiftPreferenceList from './components/ShiftPreferenceList';
 import ShiftPreferenceDialog from './components/ShiftPreferenceDialog';
 import ShiftList from './components/ShiftList';
@@ -138,7 +139,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleProfile = () => {
-    setCurrentTab(5); // Profile tab (Vardiyalar'dan sonra)
+    setCurrentTab(6); // Profile tab (Vardiyalar'dan sonra)
     handleMenuClose();
   };
 
@@ -174,16 +175,27 @@ const AppContent: React.FC = () => {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-              <img 
-                src="/hospital.jpeg" 
-                alt="Hospital Logo" 
-                style={{ 
-                  height: '40px', 
-                  width: '40px', 
+                        <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                mr: 2,
+                cursor: 'pointer',
+                '&:hover': {
+                  opacity: 0.8,
+                }
+              }}
+              onClick={() => setCurrentTab(0)} // Ana sayfa tab'ına git
+            >
+              <img
+                src="/hospital.jpeg"
+                alt="Hospital Logo"
+                style={{
+                  height: '40px',
+                  width: '40px',
                   borderRadius: '8px',
                   objectFit: 'cover'
-                }} 
+                }}
               />
             </Box>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -203,6 +215,7 @@ const AppContent: React.FC = () => {
                 },
               }}
             >
+              <Tab label="Ana Sayfa" />
               <Tab label="Hastaneler" />
               <Tab label="Departmanlar" />
               <Tab label="Çalışanlar" />
@@ -242,17 +255,18 @@ const AppContent: React.FC = () => {
           </Toolbar>
         </AppBar>
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          {currentTab === 0 && <HospitalList />}
-          {currentTab === 1 && <DepartmentList />}
-          {currentTab === 2 && <EmployeeList />}
-          {currentTab === 3 && (
+          {currentTab === 0 && <Dashboard />}
+          {currentTab === 1 && <HospitalList />}
+          {currentTab === 2 && <DepartmentList />}
+          {currentTab === 3 && <EmployeeList />}
+          {currentTab === 4 && (
             <ShiftPreferenceList 
               key={refreshKey}
               showAddButton={true}
               onAddClick={() => setOpenShiftPreferenceDialog(true)}
             />
           )}
-          {currentTab === 4 && (
+          {currentTab === 5 && (
             <ShiftList 
               key={refreshKey}
               showAddButton={true}
@@ -274,7 +288,7 @@ const AppContent: React.FC = () => {
               }}
             />
           )}
-          {currentTab === 5 && (
+          {currentTab === 6 && (
             <Profile />
           )}
         </Container>
