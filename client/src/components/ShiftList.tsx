@@ -37,6 +37,7 @@ import {
 import { shiftService } from '../services/shiftService';
 import { employeeService } from '../services/employeeService';
 import { departmentService } from '../services/departmentService';
+import { useAuth } from '../contexts/AuthContext';
 import type { Shift, ShiftType } from '../types/shift';
 import type { Employee } from '../types/employee';
 import type { Department } from '../types/department';
@@ -52,15 +53,22 @@ interface ShiftListProps {
 const ShiftList: React.FC<ShiftListProps> = ({ 
   employeeId, 
   showAddButton = false, 
-  onAddClick,
-  onEditClick,
-  onDeleteClick
+  onAddClick, 
+  onEditClick, 
+  onDeleteClick 
 }) => {
+  const { user } = useAuth();
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [filteredShifts, setFilteredShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Shift yetkilendirme kontrolü
+  const canManageShifts = () => {
+    if (!user?.roles) return false;
+    return user.roles.includes('DepartmentManager') || user.roles.includes('DepartmentLeader');
+  };
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -332,7 +340,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
           {/* Ay Seçici ve Yeni Vardiya Butonu */}
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              {showAddButton && onAddClick && (
+              {showAddButton && onAddClick && canManageShifts() && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -414,7 +422,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
                 <TableCell>Çalışan</TableCell>
                 <TableCell>Hastane</TableCell>
                 <TableCell>Departman</TableCell>
-                {(onEditClick || onDeleteClick) && <TableCell align="center">İşlemler</TableCell>}
+                {(onEditClick || onDeleteClick) && canManageShifts() && <TableCell align="center">İşlemler</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -472,7 +480,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
                       {shift.departmentName || '-'}
                     </Typography>
                   </TableCell>
-                  {(onEditClick || onDeleteClick) && (
+                  {(onEditClick || onDeleteClick) && canManageShifts() && (
                     <TableCell align="center">
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                         {onEditClick && (

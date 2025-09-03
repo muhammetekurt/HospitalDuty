@@ -33,6 +33,7 @@ import { employeeService } from '../services/employeeService';
 import { departmentService } from '../services/departmentService';
 import ShiftForm from './ShiftForm';
 import DepartmentForm from './DepartmentForm';
+import CreateEmployeeForm from './CreateEmployeeForm';
 import type { Shift } from '../types/shift';
 import type { Employee } from '../types/employee';
 import type { Department } from '../types/department';
@@ -82,6 +83,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const [error, setError] = useState<string | null>(null);
   const [shiftFormOpen, setShiftFormOpen] = useState(false);
   const [departmentFormOpen, setDepartmentFormOpen] = useState(false);
+  const [employeeFormOpen, setEmployeeFormOpen] = useState(false);
 
   // Navigation functions
   const navigateToEmployees = () => {
@@ -504,7 +506,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   variant="outlined"
                   startIcon={<PersonIcon />}
                   fullWidth
-                  onClick={() => window.location.href = '/employees'}
+                  onClick={() => setEmployeeFormOpen(true)}
                   sx={{ 
                     justifyContent: 'flex-start',
                     textTransform: 'none',
@@ -787,6 +789,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         }}
         onSubmit={() => {
           setDepartmentFormOpen(false);
+          loadDashboardData(); // Verileri yenile
+        }}
+      />
+
+      <CreateEmployeeForm
+        open={employeeFormOpen}
+        onClose={() => {
+          setEmployeeFormOpen(false);
+          loadDashboardData(); // Verileri yenile
+        }}
+        onSubmit={() => {
+          setEmployeeFormOpen(false);
           loadDashboardData(); // Verileri yenile
         }}
       />

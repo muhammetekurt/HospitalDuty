@@ -1,9 +1,9 @@
 
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { 
-  Container, 
   AppBar, 
   Toolbar, 
   Typography, 
@@ -145,7 +145,8 @@ const drawerWidth = 240;
 
 const AppContent: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
-  const [currentTab, setCurrentTab] = React.useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [desktopOpen, setDesktopOpen] = React.useState(true);
@@ -154,9 +155,39 @@ const AppContent: React.FC = () => {
   const [editingShift, setEditingShift] = React.useState<any>(null);
   const [refreshKey, setRefreshKey] = React.useState(0);
 
+  // URL'den current tab'ı belirle
+  const getCurrentTab = () => {
+    const path = location.pathname;
+    switch (path) {
+      case '/': return 0;
+      case '/hospitals': return 1;
+      case '/departments': return 2;
+      case '/employees': return 3;
+      case '/shift-preferences': return 4;
+      case '/shifts': return 5;
+      case '/shift-calendar': return 6;
+      case '/profile': return 7;
+      default: return 0;
+    }
+  };
+
+  const currentTab = getCurrentTab();
+
   const handleTabChange = (newValue: number) => {
-    setCurrentTab(newValue);
     setMobileOpen(false); // Mobilde menüyü kapat
+    
+    // URL'ye göre navigate et
+    switch (newValue) {
+      case 0: navigate('/'); break;
+      case 1: navigate('/hospitals'); break;
+      case 2: navigate('/departments'); break;
+      case 3: navigate('/employees'); break;
+      case 4: navigate('/shift-preferences'); break;
+      case 5: navigate('/shifts'); break;
+      case 6: navigate('/shift-calendar'); break;
+      case 7: navigate('/profile'); break;
+      default: navigate('/'); break;
+    }
   };
 
   const handleDrawerToggle = () => {
@@ -181,8 +212,14 @@ const AppContent: React.FC = () => {
   };
 
   const handleProfile = () => {
-    setCurrentTab(7); // Profile tab (Shift Takvimi'nden sonra)
+    navigate('/profile');
     handleMenuClose();
+  };
+
+  // Shift yetkilendirme kontrolü
+  const canManageShifts = () => {
+    if (!user?.roles) return false;
+    return user.roles.includes('DepartmentManager') || user.roles.includes('DepartmentLeader');
   };
 
   const menuItems = [
@@ -272,7 +309,7 @@ const AppContent: React.FC = () => {
             }}
           />
           <Typography variant="h6" noWrap component="div" sx={{ color: 'white' }}>
-            Hospital Duty
+            Hastane Yönetim
           </Typography>
         </Box>
       </Toolbar>
@@ -412,45 +449,49 @@ const AppContent: React.FC = () => {
             transition: 'width 0.3s',
           }}
         >
-          {currentTab === 0 && <Dashboard onTabChange={setCurrentTab} />}
-          {currentTab === 1 && <HospitalList />}
-          {currentTab === 2 && <DepartmentList />}
-          {currentTab === 3 && <EmployeeList />}
-          {currentTab === 4 && (
-            <ShiftPreferenceList 
-              key={refreshKey}
-              showAddButton={true}
-              onAddClick={() => setOpenShiftPreferenceDialog(true)}
+          <Routes>
+            <Route path="/" element={<Dashboard onTabChange={handleTabChange} />} />
+            <Route path="/hospitals" element={<HospitalList />} />
+            <Route path="/departments" element={<DepartmentList />} />
+            <Route path="/employees" element={<EmployeeList />} />
+            <Route 
+              path="/shift-preferences" 
+              element={
+                <ShiftPreferenceList 
+                  key={refreshKey}
+                  showAddButton={true}
+                  onAddClick={() => setOpenShiftPreferenceDialog(true)}
+                />
+              } 
             />
-          )}
-          {currentTab === 5 && (
-            <ShiftList 
-              key={refreshKey}
-              showAddButton={true}
-              onAddClick={() => {
-                setEditingShift(null);
-                setOpenShiftFormDialog(true);
-              }}
-              onEditClick={(shift) => {
-                setEditingShift(shift);
-                setOpenShiftFormDialog(true);
-              }}
-              onDeleteClick={async (shift) => {
-                try {
-                  await shiftService.deleteShift(shift.id);
-                  setRefreshKey(prev => prev + 1);
-                } catch (error) {
-                  console.error('Delete error:', error);
-                }
-              }}
+            <Route 
+              path="/shifts" 
+              element={
+                <ShiftList 
+                  key={refreshKey}
+                  showAddButton={canManageShifts()}
+                  onAddClick={() => {
+                    setEditingShift(null);
+                    setOpenShiftFormDialog(true);
+                  }}
+                  onEditClick={canManageShifts() ? (shift) => {
+                    setEditingShift(shift);
+                    setOpenShiftFormDialog(true);
+                  } : undefined}
+                  onDeleteClick={canManageShifts() ? async (shift) => {
+                    try {
+                      await shiftService.deleteShift(shift.id);
+                      setRefreshKey(prev => prev + 1);
+                    } catch (error) {
+                      console.error('Delete error:', error);
+                    }
+                  } : undefined}
+                />
+              } 
             />
-          )}
-          {currentTab === 6 && (
-            <ShiftCalendar />
-          )}
-          {currentTab === 7 && (
-            <Profile />
-          )}
+            <Route path="/shift-calendar" element={<ShiftCalendar />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
         </Box>
 
         {/* Shift Preference Dialog */}
@@ -483,9 +524,11 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 export default App
