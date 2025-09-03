@@ -433,18 +433,33 @@ export const Dashboard: React.FC = () => {
         {/* Takvim */}
         <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
           <Card sx={{ height: '100%' }}>
-            <CardContent>
+            <CardContent sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              height: '100%',
+              p: 2
+            }}>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CalendarIcon color="primary" />
                 Takvim
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
-              <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
-                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+              <Paper sx={{ 
+                p: 2, 
+                textAlign: 'center', 
+                bgcolor: 'primary.main', 
+                color: 'white',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
                   {new Date().getDate()}
                 </Typography>
-                <Typography variant="h6">
+                <Typography variant="h6" sx={{ mb: 0.5 }}>
                   {new Date().toLocaleDateString('tr-TR', { 
                     month: 'long', 
                     year: 'numeric' 
