@@ -10,6 +10,23 @@ const api = axios.create({
   },
 });
 
+// Token'ı localStorage'dan al ve axios'a ekle
+const getToken = () => localStorage.getItem('token');
+
+// Request interceptor - her istekte token'ı ekle
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const hospitalService = {
   // Tüm hastaneleri getir
   getAll: async (): Promise<Hospital[]> => {

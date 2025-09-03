@@ -21,6 +21,7 @@ import { AccessTime, Person, Business, LocationOn } from '@mui/icons-material';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/tr';
 import { shiftService } from '../services/shiftService';
+import { useAuth } from '../contexts/AuthContext';
 import type { Shift } from '../types/shift';
 
 // Türkçe locale ayarla
@@ -37,6 +38,7 @@ const ShiftCalendar: React.FC<ShiftCalendarProps> = ({
   departmentId,
   employeeId
 }) => {
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,8 +73,9 @@ const ShiftCalendar: React.FC<ShiftCalendarProps> = ({
       }
 
       // Filtreleme (hospital/department)
-      if (hospitalId) {
-        fetchedShifts = fetchedShifts.filter(shift => shift.hospitalId === hospitalId);
+      const targetHospitalId = hospitalId || user?.hospitalId;
+      if (targetHospitalId) {
+        fetchedShifts = fetchedShifts.filter(shift => shift.hospitalId === targetHospitalId);
       }
       if (departmentId) {
         fetchedShifts = fetchedShifts.filter(shift => shift.departmentId === departmentId);

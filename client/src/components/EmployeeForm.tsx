@@ -21,6 +21,7 @@ import type { Employee, UpdateEmployeeRequest } from '../types/employee';
 import { employeeService } from '../services/employeeService';
 import { hospitalService } from '../services/hospitalService';
 import { departmentService } from '../services/departmentService';
+import { useAuth } from '../contexts/AuthContext';
 import type { Hospital } from '../types/hospital';
 import type { Department } from '../types/department';
 import { Role } from '../types/employee';
@@ -38,6 +39,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   onSubmit,
   employee,
 }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<UpdateEmployeeRequest>({
     firstName: '',
     lastName: '',
@@ -112,7 +114,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
     try {
       setLoadingHospitals(true);
       const data = await hospitalService.getAll();
-      setHospitals(data);
+      // Sadece kullanıcının hastanesini göster
+      const userHospital = data.filter(hospital => hospital.id === user?.hospitalId);
+      setHospitals(userHospital);
     } catch (err) {
       console.error('Error loading hospitals:', err);
     } finally {
@@ -310,24 +314,25 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
               />
             </Box>
 
-            <FormControl fullWidth disabled={loading || loadingHospitals} error={!!errors.hospitalId}>
+            <FormControl fullWidth disabled={true} error={!!errors.hospitalId}>
               <InputLabel>Hastane</InputLabel>
               <Select
                 value={formData.hospitalId}
                 onChange={handleInputChange('hospitalId')}
                 label="Hastane"
                 required
+                readOnly
                 sx={{
                   '& .MuiSelect-select': {
-                    backgroundColor: formData.hospitalId ? '#e3f2fd' : 'transparent',
-                    color: formData.hospitalId ? '#1976d2' : 'inherit',
-                    fontWeight: formData.hospitalId ? 600 : 'normal',
+                    backgroundColor: '#f5f5f5',
+                    color: '#666',
+                    fontWeight: 500,
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: formData.hospitalId ? '#1976d2' : 'inherit',
+                    borderColor: '#ccc',
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: formData.hospitalId ? '#1565c0' : 'inherit',
+                    borderColor: '#ccc',
                   },
                 }}
               >
