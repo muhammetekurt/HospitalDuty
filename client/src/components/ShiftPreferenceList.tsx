@@ -54,6 +54,12 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   const [preferences, setPreferences] = useState<ShiftPreference[]>([]);
   const [filteredPreferences, setFilteredPreferences] = useState<ShiftPreference[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  
+  // Shift preference silme yetkisi - herkes sadece kendi tercihlerini silebilir
+  const canDeletePreference = (preference: ShiftPreference): boolean => {
+    if (!user?.id) return false;
+    return preference.employeeId === user.id;
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -427,13 +433,15 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
                     </Typography>
                   </TableCell>
                   <TableCell align="center">
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDelete(preference)}
-                      size="small"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {canDeletePreference(preference) && (
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(preference)}
+                        size="small"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
