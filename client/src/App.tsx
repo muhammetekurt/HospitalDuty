@@ -272,7 +272,7 @@ const AppContent: React.FC = () => {
     { text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 },
     { text: 'Çalışanlar', icon: <PeopleIcon />, tab: 3 },
     { text: 'Shift Tercihleri', icon: <ScheduleIcon />, tab: 4 },
-    { text: 'Vardiyalar', icon: <AssignmentIcon />, tab: 5 },
+    { text: 'Aylık Shift Listesi', icon: <AssignmentIcon />, tab: 5 },
     { text: 'Shift Takvimi', icon: <CalendarIcon />, tab: 6 },
   ];
 

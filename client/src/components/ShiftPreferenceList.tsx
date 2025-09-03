@@ -225,7 +225,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" gutterBottom>
-          Shift Tercihleri
+          Shift Tercihleri - {user?.department}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {filteredPreferences.length} / {preferences.length} tercih
@@ -324,15 +324,15 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
                 label="Ay"
                 sx={{
                   '& .MuiSelect-select': {
-                    backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
-                    color: selectedMonth ? '#0277bd' : 'inherit',
-                    fontWeight: selectedMonth ? 600 : 'normal',
+                    backgroundColor: 'white',
+                    color: 'inherit',
+                    fontWeight: 'normal',
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                    borderColor: 'inherit',
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: selectedMonth ? '#01579b' : 'inherit',
+                    borderColor: 'inherit',
                   },
                 }}
               >
@@ -341,11 +341,11 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
                     key={index} 
                     value={index + 1}
                     sx={{
-                      backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
-                      color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
-                      fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
+                      backgroundColor: 'white',
+                      color: 'inherit',
+                      fontWeight: 'normal',
                       '&:hover': {
-                        backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
+                        backgroundColor: '#f5f5f5',
                       }
                     }}
                   >

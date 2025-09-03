@@ -33,6 +33,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  FileDownload as ExportIcon,
 } from '@mui/icons-material';
 import { shiftService } from '../services/shiftService';
 import { employeeService } from '../services/employeeService';
@@ -250,6 +251,36 @@ const ShiftList: React.FC<ShiftListProps> = ({
     }
   };
 
+  // Excel export fonksiyonu
+  const exportToExcel = () => {
+    const csvContent = [
+      // Header
+      ['Tarih', 'Başlangıç', 'Bitiş', 'Vardiya Tipi', 'Çalışan', 'Hastane', 'Departman', 'Notlar'],
+      // Data
+      ...filteredShifts.map(shift => [
+        formatDate(shift.startTime),
+        formatDateTime(shift.startTime),
+        formatDateTime(shift.endTime),
+        getShiftTypeLabel(shift.shiftType),
+        shift.employeeName || '-',
+        shift.hospitalName || '-',
+        shift.departmentName || '-',
+        shift.notes || '-'
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    // CSV dosyası oluştur ve indir
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `vardiyalar_${months[selectedMonth - 1]}_${new Date().getFullYear()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -270,7 +301,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" gutterBottom>
-          {months[selectedMonth - 1]} {new Date().getFullYear()} Vardiyaları
+          {months[selectedMonth - 1]} {new Date().getFullYear()} Shift Listesi - {user?.department}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {filteredShifts.length} / {shifts.length} vardiya
@@ -366,6 +397,21 @@ const ShiftList: React.FC<ShiftListProps> = ({
                   Yeni Vardiya
                 </Button>
               )}
+              <Button
+                variant="contained"
+                startIcon={<ExportIcon />}
+                onClick={exportToExcel}
+                size="small"
+                disabled={filteredShifts.length === 0}
+                sx={{
+                  bgcolor: 'success.main',
+                  '&:hover': {
+                    bgcolor: 'success.dark',
+                  }
+                }}
+              >
+                Excel'e Aktar
+              </Button>
             </Box>
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Ay</InputLabel>
@@ -375,15 +421,15 @@ const ShiftList: React.FC<ShiftListProps> = ({
                 label="Ay"
                 sx={{
                   '& .MuiSelect-select': {
-                    backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
-                    color: selectedMonth ? '#0277bd' : 'inherit',
-                    fontWeight: selectedMonth ? 600 : 'normal',
+                    backgroundColor: 'white',
+                    color: 'inherit',
+                    fontWeight: 'normal',
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                    borderColor: 'inherit',
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: selectedMonth ? '#01579b' : 'inherit',
+                    borderColor: 'inherit',
                   },
                 }}
               >
