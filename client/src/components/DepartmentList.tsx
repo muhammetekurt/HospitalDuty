@@ -45,6 +45,13 @@ const DepartmentList: React.FC = () => {
     open: boolean;
     department: Department | null;
   }>({ open: false, department: null });
+
+  // Departman yönetimi yetkilendirme kontrolü
+  const canManageDepartments = () => {
+    if (!user?.roles) return false;
+    return user.roles.includes('SystemAdmin') || 
+           user.roles.includes('HospitalDirector');
+  };
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -138,19 +145,21 @@ const DepartmentList: React.FC = () => {
             {departments.length} departman - Sayfa {currentPage} / {totalPages}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreate}
-          sx={{ 
-            bgcolor: 'primary.main',
-            '&:hover': {
-              bgcolor: 'primary.dark',
-            }
-          }}
-        >
-          Yeni Departman
-        </Button>
+        {canManageDepartments() && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreate}
+            sx={{ 
+              bgcolor: 'primary.main',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              }
+            }}
+          >
+            Yeni Departman
+          </Button>
+        )}
       </Box>
 
       {error && (
@@ -160,16 +169,16 @@ const DepartmentList: React.FC = () => {
       )}
 
       <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Departman Adı</TableCell>
-              <TableCell>Hastane</TableCell>
-              <TableCell>Lokasyon</TableCell>
-              <TableCell>Müdür</TableCell>
-              <TableCell align="center">İşlemler</TableCell>
-            </TableRow>
-          </TableHead>
+        <Table sx={{ tableLayout: 'fixed', width: '100%' }}>
+                      <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: '25%' }}>Departman Adı</TableCell>
+                <TableCell sx={{ width: '25%' }}>Hastane</TableCell>
+                <TableCell sx={{ width: '25%' }}>Lokasyon</TableCell>
+                <TableCell sx={{ width: canManageDepartments() ? '15%' : '25%' }}>Müdür</TableCell>
+                {canManageDepartments() && <TableCell align="center" sx={{ width: '10%' }}>İşlemler</TableCell>}
+              </TableRow>
+            </TableHead>
           <TableBody>
             {currentDepartments.map((department) => (
               <TableRow key={department.id} hover>
@@ -214,36 +223,38 @@ const DepartmentList: React.FC = () => {
                     <Chip label="Atanmamış" size="small" color="default" />
                   )}
                 </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleEdit(department)}
-                    size="small"
-                    sx={{ 
-                      color: 'primary.main',
-                      '&:hover': {
-                        bgcolor: 'primary.light',
-                        color: 'primary.dark',
-                      }
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(department)}
-                    size="small"
-                    sx={{ 
-                      color: 'secondary.main',
-                      '&:hover': {
-                        bgcolor: 'secondary.light',
-                        color: 'secondary.dark',
-                      }
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
+                {canManageDepartments() && (
+                  <TableCell align="center">
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleEdit(department)}
+                      size="small"
+                      sx={{ 
+                        color: 'primary.main',
+                        '&:hover': {
+                          bgcolor: 'primary.light',
+                          color: 'primary.dark',
+                        }
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(department)}
+                      size="small"
+                      sx={{ 
+                        color: 'secondary.main',
+                        '&:hover': {
+                          bgcolor: 'secondary.light',
+                          color: 'secondary.dark',
+                        }
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

@@ -74,11 +74,13 @@ const ShiftCalendar: React.FC<ShiftCalendarProps> = ({
 
       // Filtreleme (hospital/department)
       const targetHospitalId = hospitalId || user?.hospitalId;
+      const targetDepartmentId = departmentId || user?.departmentId;
+      
       if (targetHospitalId) {
         fetchedShifts = fetchedShifts.filter(shift => shift.hospitalId === targetHospitalId);
       }
-      if (departmentId) {
-        fetchedShifts = fetchedShifts.filter(shift => shift.departmentId === departmentId);
+      if (targetDepartmentId) {
+        fetchedShifts = fetchedShifts.filter(shift => shift.departmentId === targetDepartmentId);
       }
 
       setShifts(fetchedShifts);
@@ -177,7 +179,7 @@ const ShiftCalendar: React.FC<ShiftCalendarProps> = ({
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="tr">
       <Box sx={{ p: 3 }}>
         <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-          Shift Takvimi
+          Shift Takvimi{user?.department ? ` - ${user.department}` : ''}
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>

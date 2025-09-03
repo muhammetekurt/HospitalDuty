@@ -211,6 +211,42 @@ const AppContent: React.FC = () => {
     handleMenuClose();
   };
 
+  // Rol hiyerarşisi - en yüksek seviye 1
+  const getRoleHierarchy = (role: string): number => {
+    const hierarchy: { [key: string]: number } = {
+      'SystemAdmin': 1,
+      'HospitalDirector': 2,
+      'DepartmentManager': 3,
+      'DepartmentLeader': 4,
+      'Doctor': 5,
+      'Nurse': 6,
+      'Staff': 7
+    };
+    return hierarchy[role] || 999;
+  };
+
+  // En yüksek rolü getir
+  const getHighestRole = (roles?: string[]): string => {
+    if (!roles || roles.length === 0) return 'Personel';
+    
+    const sortedRoles = roles.sort((a, b) => getRoleHierarchy(a) - getRoleHierarchy(b));
+    return sortedRoles[0];
+  };
+
+  // Rol etiketini getir
+  const getRoleLabel = (role: string): string => {
+    const roleLabels: { [key: string]: string } = {
+      'SystemAdmin': 'Sistem Yöneticisi',
+      'HospitalDirector': 'Hastane Müdürü',
+      'DepartmentManager': 'Departman Müdürü',
+      'DepartmentLeader': 'Departman Lideri',
+      'Doctor': 'Doktor',
+      'Nurse': 'Hemşire',
+      'Staff': 'Personel'
+    };
+    return roleLabels[role] || role;
+  };
+
   const handleProfile = () => {
     navigate('/profile');
     handleMenuClose();
@@ -236,7 +272,7 @@ const AppContent: React.FC = () => {
     { text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 },
     { text: 'Çalışanlar', icon: <PeopleIcon />, tab: 3 },
     { text: 'Shift Tercihleri', icon: <ScheduleIcon />, tab: 4 },
-    { text: 'Vardiyalar', icon: <AssignmentIcon />, tab: 5 },
+    { text: 'Aylık Shift Listesi', icon: <AssignmentIcon />, tab: 5 },
     { text: 'Shift Takvimi', icon: <CalendarIcon />, tab: 6 },
   ];
 
@@ -383,7 +419,15 @@ const AppContent: React.FC = () => {
               Hospital Duty Management
             </Typography>
             
-            <Box sx={{ ml: 2 }}>
+            <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                <Typography variant="body2" sx={{ color: 'inherit', fontWeight: 500, lineHeight: 1.2 }}>
+                  {user?.firstName} {user?.lastName}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, lineHeight: 1.2 }}>
+                  {getRoleLabel(getHighestRole(user?.roles))}
+                </Typography>
+              </Box>
               <IconButton
                 size="large"
                 onClick={handleMenuOpen}

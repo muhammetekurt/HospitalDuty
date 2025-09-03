@@ -33,6 +33,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  FileDownload as ExportIcon,
 } from '@mui/icons-material';
 import { shiftService } from '../services/shiftService';
 import { employeeService } from '../services/employeeService';
@@ -115,8 +116,11 @@ const ShiftList: React.FC<ShiftListProps> = ({
       // Kullanıcının hastanesindeki shift'leri filtrele
       const hospitalFilteredData = data.filter(shift => shift.hospitalId === user?.hospitalId);
       
+      // Kullanıcının departmanındaki shift'leri filtrele
+      const departmentFilteredData = hospitalFilteredData.filter(shift => shift.departmentId === user?.departmentId);
+      
       // Ay filtresi uygula
-      const filteredData = hospitalFilteredData.filter(shift => {
+      const filteredData = departmentFilteredData.filter(shift => {
         const shiftDate = new Date(shift.startTime);
         return shiftDate.getMonth() + 1 === selectedMonth;
       });
@@ -136,8 +140,10 @@ const ShiftList: React.FC<ShiftListProps> = ({
     try {
       const data = await employeeService.getAll();
       // Kullanıcının hastanesindeki çalışanları filtrele
-      const filteredEmployees = data.filter(emp => emp.hospitalId === user?.hospitalId);
-      setEmployees(filteredEmployees);
+      const hospitalFilteredEmployees = data.filter(emp => emp.hospitalId === user?.hospitalId);
+      // Kullanıcının departmanındaki çalışanları filtrele
+      const departmentFilteredEmployees = hospitalFilteredEmployees.filter(emp => emp.departmentId === user?.departmentId);
+      setEmployees(departmentFilteredEmployees);
     } catch (err) {
       console.error('Error loading employees:', err);
     }
@@ -147,8 +153,10 @@ const ShiftList: React.FC<ShiftListProps> = ({
     try {
       const data = await departmentService.getAll();
       // Kullanıcının hastanesindeki departmanları filtrele
-      const filteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
-      setDepartments(filteredDepartments);
+      const hospitalFilteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
+      // Kullanıcının departmanını filtrele (sadece kendi departmanını göster)
+      const departmentFilteredDepartments = hospitalFilteredDepartments.filter(dept => dept.id === user?.departmentId);
+      setDepartments(departmentFilteredDepartments);
     } catch (err) {
       console.error('Error loading departments:', err);
     }
@@ -243,6 +251,36 @@ const ShiftList: React.FC<ShiftListProps> = ({
     }
   };
 
+  // Excel export fonksiyonu
+  const exportToExcel = () => {
+    const csvContent = [
+      // Header
+      ['Tarih', 'Başlangıç', 'Bitiş', 'Vardiya Tipi', 'Çalışan', 'Hastane', 'Departman', 'Notlar'],
+      // Data
+      ...filteredShifts.map(shift => [
+        formatDate(shift.startTime),
+        formatDateTime(shift.startTime),
+        formatDateTime(shift.endTime),
+        getShiftTypeLabel(shift.shiftType),
+        shift.employeeName || '-',
+        shift.hospitalName || '-',
+        shift.departmentName || '-',
+        shift.notes || '-'
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    // CSV dosyası oluştur ve indir
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `vardiyalar_${months[selectedMonth - 1]}_${new Date().getFullYear()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -263,7 +301,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" gutterBottom>
-          {months[selectedMonth - 1]} {new Date().getFullYear()} Vardiyaları
+          {months[selectedMonth - 1]} {new Date().getFullYear()} Shift Listesi - {user?.department}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {filteredShifts.length} / {shifts.length} vardiya
@@ -359,6 +397,21 @@ const ShiftList: React.FC<ShiftListProps> = ({
                   Yeni Vardiya
                 </Button>
               )}
+              <Button
+                variant="contained"
+                startIcon={<ExportIcon />}
+                onClick={exportToExcel}
+                size="small"
+                disabled={filteredShifts.length === 0}
+                sx={{
+                  bgcolor: 'success.main',
+                  '&:hover': {
+                    bgcolor: 'success.dark',
+                  }
+                }}
+              >
+                Excel'e Aktar
+              </Button>
             </Box>
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Ay</InputLabel>
@@ -368,15 +421,15 @@ const ShiftList: React.FC<ShiftListProps> = ({
                 label="Ay"
                 sx={{
                   '& .MuiSelect-select': {
-                    backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
-                    color: selectedMonth ? '#0277bd' : 'inherit',
-                    fontWeight: selectedMonth ? 600 : 'normal',
+                    backgroundColor: 'white',
+                    color: 'inherit',
+                    fontWeight: 'normal',
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                    borderColor: 'inherit',
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: selectedMonth ? '#01579b' : 'inherit',
+                    borderColor: 'inherit',
                   },
                 }}
               >

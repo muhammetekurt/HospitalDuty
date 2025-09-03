@@ -243,7 +243,7 @@ const Profile: React.FC<ProfileProps> = ({ onNavigateToShiftPreferences }) => {
                     }
                   }}
                 >
-                  Shift Tercihleri
+                  Shift Tercihi Ekle
                 </Button>
                 
                 <Button

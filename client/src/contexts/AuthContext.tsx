@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import type { AuthContextType, User } from '../types/auth';
 import { authService } from '../services/authService';
 
@@ -62,11 +63,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateUser = async () => {
+    try {
+      const userData = await authService.getMe();
+      setUser(userData);
+    } catch (error) {
+      console.error('Failed to update user data:', error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
     login,
     logout,
+    updateUser,
     isAuthenticated: !!user && !!token,
     isLoading,
   };

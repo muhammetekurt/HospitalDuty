@@ -226,7 +226,7 @@ const Login: React.FC = () => {
             {/* Footer */}
             <Box textAlign="center" mt={4}>
               <Typography variant="caption" color="text.secondary">
-                © 2024 Hospital Duty Management System
+                © 2025 Hastane Yönetim Sistemi
               </Typography>
             </Box>
           </CardContent>

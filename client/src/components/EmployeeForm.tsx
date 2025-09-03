@@ -39,7 +39,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   onSubmit,
   employee,
 }) => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState<UpdateEmployeeRequest>({
     firstName: '',
     lastName: '',
@@ -55,20 +55,32 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [loadingHospitals, setLoadingHospitals] = useState(false);
+
   const [loadingDepartments, setLoadingDepartments] = useState(false);
 
   const isEdit = !!employee;
 
-  const roleOptions = [
-    { value: Role.SystemAdmin, label: 'Sistem Yöneticisi' },
-    { value: Role.HospitalDirector, label: 'Hastane Müdürü' },
-    { value: Role.DepartmentManager, label: 'Departman Müdürü' },
-    { value: Role.DepartmentLeader, label: 'Departman Lideri' },
-    { value: Role.Doctor, label: 'Doktor' },
-    { value: Role.Nurse, label: 'Hemşire' },
-    { value: Role.Staff, label: 'Personel' },
-  ];
+  // Kullanıcının rolüne göre rol seçeneklerini filtrele
+  const getAvailableRoles = () => {
+    const allRoles = [
+      { value: Role.SystemAdmin, label: 'Sistem Yöneticisi' },
+      { value: Role.HospitalDirector, label: 'Hastane Müdürü' },
+      { value: Role.DepartmentManager, label: 'Departman Müdürü' },
+      { value: Role.DepartmentLeader, label: 'Departman Lideri' },
+      { value: Role.Doctor, label: 'Doktor' },
+      { value: Role.Nurse, label: 'Hemşire' },
+      { value: Role.Staff, label: 'Personel' },
+    ];
+
+    // SystemAdmin değilse SystemAdmin rolünü gizle
+    if (!user?.roles?.includes(Role.SystemAdmin)) {
+      return allRoles.filter(role => role.value !== Role.SystemAdmin);
+    }
+
+    return allRoles;
+  };
+
+  const roleOptions = getAvailableRoles();
 
   useEffect(() => {
     if (employee) {
@@ -112,15 +124,12 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
   const loadHospitals = async () => {
     try {
-      setLoadingHospitals(true);
       const data = await hospitalService.getAll();
       // Sadece kullanıcının hastanesini göster
       const userHospital = data.filter(hospital => hospital.id === user?.hospitalId);
       setHospitals(userHospital);
     } catch (err) {
       console.error('Error loading hospitals:', err);
-    } finally {
-      setLoadingHospitals(false);
     }
   };
 
@@ -218,6 +227,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
         console.log('Form data:', formData);
         await employeeService.update(employee.id, formData);
         console.log('Employee updated successfully');
+        
+        // Eğer güncellenen çalışan mevcut kullanıcı ise, user bilgilerini güncelle
+        if (employee.id === user?.id) {
+          await updateUser();
+        }
       }
 
       onSubmit();
