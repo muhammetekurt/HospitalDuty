@@ -60,15 +60,27 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
   const isEdit = !!employee;
 
-  const roleOptions = [
-    { value: Role.SystemAdmin, label: 'Sistem Yöneticisi' },
-    { value: Role.HospitalDirector, label: 'Hastane Müdürü' },
-    { value: Role.DepartmentManager, label: 'Departman Müdürü' },
-    { value: Role.DepartmentLeader, label: 'Departman Lideri' },
-    { value: Role.Doctor, label: 'Doktor' },
-    { value: Role.Nurse, label: 'Hemşire' },
-    { value: Role.Staff, label: 'Personel' },
-  ];
+  // Kullanıcının rolüne göre rol seçeneklerini filtrele
+  const getAvailableRoles = () => {
+    const allRoles = [
+      { value: Role.SystemAdmin, label: 'Sistem Yöneticisi' },
+      { value: Role.HospitalDirector, label: 'Hastane Müdürü' },
+      { value: Role.DepartmentManager, label: 'Departman Müdürü' },
+      { value: Role.DepartmentLeader, label: 'Departman Lideri' },
+      { value: Role.Doctor, label: 'Doktor' },
+      { value: Role.Nurse, label: 'Hemşire' },
+      { value: Role.Staff, label: 'Personel' },
+    ];
+
+    // SystemAdmin değilse SystemAdmin rolünü gizle
+    if (!user?.roles?.includes(Role.SystemAdmin)) {
+      return allRoles.filter(role => role.value !== Role.SystemAdmin);
+    }
+
+    return allRoles;
+  };
+
+  const roleOptions = getAvailableRoles();
 
   useEffect(() => {
     if (employee) {

@@ -65,7 +65,7 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [loadingHospitals, setLoadingHospitals] = useState(false);
+
   const [loadingDepartments, setLoadingDepartments] = useState(false);
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
 
@@ -145,15 +145,12 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
 
   const loadHospitals = async () => {
     try {
-      setLoadingHospitals(true);
       const data = await hospitalService.getAll();
       // Sadece kullanıcının hastanesini göster
       const userHospital = data.filter(hospital => hospital.id === user?.hospitalId);
       setHospitals(userHospital);
     } catch (err) {
       console.error('Error loading hospitals:', err);
-    } finally {
-      setLoadingHospitals(false);
     }
   };
 
@@ -203,8 +200,9 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       return roleOptions.map(role => ({ value: role.value, label: role.label }));
     } else {
       // Diğer roller sadece kendi seviyelerinden düşük rolleri verebilir
+      // SystemAdmin rolünü hiçbir zaman gösterme (SystemAdmin olmayanlar için)
       return roleOptions
-        .filter(role => role.level > userHighestLevel)
+        .filter(role => role.level > userHighestLevel && role.value !== Role.SystemAdmin)
         .map(role => ({ value: role.value, label: role.label }));
     }
   };
