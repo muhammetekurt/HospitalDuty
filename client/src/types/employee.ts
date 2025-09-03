@@ -31,6 +31,7 @@ export interface CreateEmployeeRequest {
   lastName: string;
   email: string;
   phoneNumber?: string;
+  roles?: string[];
   departmentId?: string;
   hospitalId?: string;
   applicationUserId?: string;

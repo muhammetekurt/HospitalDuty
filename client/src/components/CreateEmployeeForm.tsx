@@ -20,13 +20,16 @@ import {
   StepContent,
   Paper,
   Divider,
+  Chip,
+  OutlinedInput,
 } from '@mui/material';
 import {
   Person as PersonIcon,
   Business as BusinessIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
-import type { CreateEmployeeRequest } from '../types/employee';
+import type { CreateEmployeeRequest, Employee } from '../types/employee';
+import { Role } from '../types/employee';
 import { employeeService } from '../services/employeeService';
 import { hospitalService } from '../services/hospitalService';
 import { departmentService } from '../services/departmentService';
@@ -50,6 +53,7 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
     lastName: '',
     email: '',
     phoneNumber: '',
+    roles: [],
     departmentId: '',
     hospitalId: '',
   });
@@ -61,6 +65,7 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingHospitals, setLoadingHospitals] = useState(false);
   const [loadingDepartments, setLoadingDepartments] = useState(false);
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
 
   const steps = [
     {
@@ -74,6 +79,11 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       icon: <BusinessIcon />,
     },
     {
+      label: 'Roller',
+      description: 'Çalışanın rollerini seçin',
+      icon: <CheckCircleIcon />,
+    },
+    {
       label: 'Onay',
       description: 'Bilgileri kontrol edin ve onaylayın',
       icon: <CheckCircleIcon />,
@@ -83,9 +93,18 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
   useEffect(() => {
     if (open) {
       loadHospitals();
+      loadCurrentUser();
       resetForm();
     }
   }, [open]);
+
+  // Yetki kontrolü - DepartmentLeader ve altı çalışan ekleyemez
+  const canCreateEmployee = (): boolean => {
+    if (!currentUser?.roles) return false;
+    
+    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
+    return !currentUser.roles.some(role => restrictedRoles.includes(role));
+  };
 
   useEffect(() => {
     if (formData.hospitalId) {
@@ -101,12 +120,22 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       lastName: '',
       email: '',
       phoneNumber: '',
+      roles: [],
       departmentId: '',
       hospitalId: '',
     });
     setActiveStep(0);
     setError(null);
     setErrors({});
+  };
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await employeeService.getMyInfos();
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error loading current user:', err);
+    }
   };
 
   const loadHospitals = async () => {
@@ -130,6 +159,39 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       console.error('Error loading departments:', err);
     } finally {
       setLoadingDepartments(false);
+    }
+  };
+
+  // Rol hiyerarşi mantığı
+  const getAvailableRoles = (): { value: Role; label: string }[] => {
+    if (!currentUser?.roles) return [];
+
+    const roleOptions = [
+      { value: Role.SystemAdmin, label: 'Sistem Yöneticisi', level: 1 },
+      { value: Role.HospitalDirector, label: 'Hastane Müdürü', level: 2 },
+      { value: Role.DepartmentManager, label: 'Departman Müdürü', level: 3 },
+      { value: Role.DepartmentLeader, label: 'Departman Lideri', level: 4 },
+      { value: Role.Doctor, label: 'Doktor', level: 5 },
+      { value: Role.Nurse, label: 'Hemşire', level: 6 },
+      { value: Role.Staff, label: 'Personel', level: 7 },
+    ];
+
+    // Kullanıcının en yüksek yetkili rolünü bul
+    const userRoles = currentUser.roles;
+    const userHighestLevel = Math.min(
+      ...userRoles.map(role => 
+        roleOptions.find(opt => opt.value === role)?.level || 999
+      )
+    );
+
+    // SystemAdmin ise tüm rolleri verebilir, diğerleri sadece alt seviye rolleri verebilir
+    if (userHighestLevel === 1) { // SystemAdmin
+      return roleOptions.map(role => ({ value: role.value, label: role.label }));
+    } else {
+      // Diğer roller sadece kendi seviyelerinden düşük rolleri verebilir
+      return roleOptions
+        .filter(role => role.level > userHighestLevel)
+        .map(role => ({ value: role.value, label: role.label }));
     }
   };
 
@@ -159,6 +221,12 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
       }
     }
 
+    if (step === 2) {
+      if (!formData.roles || formData.roles.length === 0) {
+        newErrors.roles = 'En az bir rol seçilmelidir';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -181,6 +249,21 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
     }
   };
 
+  const handleRoleChange = (event: any) => {
+    const value = event.target.value;
+    setFormData(prev => ({
+      ...prev,
+      roles: typeof value === 'string' ? value.split(',') : value,
+    }));
+
+    if (errors.roles) {
+      setErrors(prev => ({
+        ...prev,
+        roles: '',
+      }));
+    }
+  };
+
   const handleNext = () => {
     if (validateStep(activeStep)) {
       setActiveStep(prev => prev + 1);
@@ -192,7 +275,7 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(0) || !validateStep(1)) {
+    if (!validateStep(0) || !validateStep(1) || !validateStep(2)) {
       setActiveStep(0);
       return;
     }
@@ -365,6 +448,80 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
 
       case 2:
         return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+            <FormControl fullWidth disabled={loading} error={!!errors.roles}>
+              <InputLabel>Roller</InputLabel>
+              <Select
+                multiple
+                value={formData.roles || []}
+                onChange={handleRoleChange}
+                input={<OutlinedInput label="Roller" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => {
+                      const role = getAvailableRoles().find(r => r.value === value);
+                      return (
+                        <Chip 
+                          key={value} 
+                          label={role?.label || value} 
+                          size="small"
+                          color="primary"
+                          variant="filled"
+                          sx={{
+                            backgroundColor: '#ff9800',
+                            color: 'white',
+                            fontWeight: 600,
+                            '& .MuiChip-deleteIcon': {
+                              color: 'white',
+                            }
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                )}
+                required
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.roles && formData.roles.length > 0 ? '#fff3e0' : 'transparent',
+                    minHeight: '56px',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.roles && formData.roles.length > 0 ? '#ff9800' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.roles && formData.roles.length > 0 ? '#f57c00' : 'inherit',
+                  },
+                }}
+              >
+                {getAvailableRoles().map((role) => (
+                  <MenuItem 
+                    key={role.value} 
+                    value={role.value}
+                    sx={{
+                      backgroundColor: formData.roles && formData.roles.includes(role.value) ? '#fff3e0' : 'transparent',
+                      color: formData.roles && formData.roles.includes(role.value) ? '#ff9800' : 'inherit',
+                      fontWeight: formData.roles && formData.roles.includes(role.value) ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.roles && formData.roles.includes(role.value) ? '#ffe0b2' : '#f5f5f5',
+                      }
+                    }}
+                  >
+                    {role.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.roles && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                  {errors.roles}
+                </Typography>
+              )}
+            </FormControl>
+          </Box>
+        );
+
+      case 3:
+        return (
           <Box sx={{ pt: 2 }}>
             <Paper sx={{ p: 3, mb: 2, bgcolor: '#f5f5f5' }}>
               <Typography variant="h6" gutterBottom>
@@ -417,6 +574,31 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
                     {departments.find(d => d.id === formData.departmentId)?.name}
                   </Typography>
                 </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Roller
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                    {formData.roles?.map((role) => {
+                      const roleInfo = getAvailableRoles().find(r => r.value === role);
+                      return (
+                        <Chip 
+                          key={role} 
+                          label={roleInfo?.label || role} 
+                          size="small"
+                          color="primary"
+                          variant="filled"
+                          sx={{
+                            backgroundColor: '#ff9800',
+                            color: 'white',
+                            fontWeight: 600,
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Box>
               </Box>
             </Paper>
           </Box>
@@ -426,6 +608,43 @@ const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
         return null;
     }
   };
+
+  // Yetki kontrolü
+  if (open && !canCreateEmployee()) {
+    return (
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <PersonIcon color="error" />
+            <Typography variant="h5" component="div">
+              Yetki Hatası
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Çalışan Ekleyemezsiniz
+            </Typography>
+            <Typography variant="body2">
+              DepartmentLeader, Doctor, Nurse ve Staff rolleri çalışan ekleyemez. 
+              Sadece kendi profilinizi düzenleyebilirsiniz.
+            </Typography>
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={handleClose} variant="contained">
+            Tamam
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog

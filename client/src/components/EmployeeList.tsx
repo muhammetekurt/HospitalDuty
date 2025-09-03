@@ -36,6 +36,7 @@ import {
   Phone as PhoneIcon,
 } from '@mui/icons-material';
 import type { Employee } from '../types/employee';
+import { Role } from '../types/employee';
 import type { Department } from '../types/department';
 import { employeeService } from '../services/employeeService';
 import { departmentService } from '../services/departmentService';
@@ -55,6 +56,7 @@ const EmployeeList: React.FC = () => {
     open: boolean;
     employee: Employee | null;
   }>({ open: false, employee: null });
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
   
   // Filter states
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
@@ -63,6 +65,7 @@ const EmployeeList: React.FC = () => {
   useEffect(() => {
     loadEmployees();
     loadDepartments();
+    loadCurrentUser();
   }, []);
 
   useEffect(() => {
@@ -91,6 +94,37 @@ const EmployeeList: React.FC = () => {
     } catch (err) {
       console.error('Error loading departments:', err);
     }
+  };
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await employeeService.getMyInfos();
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error loading current user:', err);
+    }
+  };
+
+  // Yetki kontrol fonksiyonları
+  const canManageEmployees = (): boolean => {
+    if (!currentUser?.roles) return false;
+    
+    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
+    return !currentUser.roles.some(role => restrictedRoles.includes(role));
+  };
+
+  const canEditEmployee = (): boolean => {
+    if (!currentUser?.roles) return false;
+    
+    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
+    return !currentUser.roles.some(role => restrictedRoles.includes(role));
+  };
+
+  const canDeleteEmployee = (): boolean => {
+    if (!currentUser?.roles) return false;
+    
+    const restrictedRoles: string[] = [Role.DepartmentLeader, Role.Doctor, Role.Nurse, Role.Staff];
+    return !currentUser.roles.some(role => restrictedRoles.includes(role));
   };
 
   const applyFilters = () => {
@@ -227,19 +261,21 @@ const EmployeeList: React.FC = () => {
             {filteredEmployees.length} / {employees.length} çalışan
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<PersonIcon />}
-          onClick={() => setOpenCreateForm(true)}
-          sx={{ 
-            bgcolor: 'primary.main',
-            '&:hover': {
-              bgcolor: 'primary.dark',
-            }
-          }}
-        >
-          Yeni Çalışan
-        </Button>
+        {canManageEmployees() && (
+          <Button
+            variant="contained"
+            startIcon={<PersonIcon />}
+            onClick={() => setOpenCreateForm(true)}
+            sx={{ 
+              bgcolor: 'primary.main',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              }
+            }}
+          >
+            Yeni Çalışan
+          </Button>
+        )}
       </Box>
 
       {/* Filtre Kartı */}
@@ -400,34 +436,38 @@ const EmployeeList: React.FC = () => {
                   </Box>
                 </TableCell>
                 <TableCell align="center">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleEdit(employee)}
-                    size="small"
-                    sx={{ 
-                      color: 'primary.main',
-                      '&:hover': {
-                        bgcolor: 'primary.light',
-                        color: 'primary.dark',
-                      }
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(employee)}
-                    size="small"
-                    sx={{ 
-                      color: 'secondary.main',
-                      '&:hover': {
-                        bgcolor: 'secondary.light',
-                        color: 'secondary.dark',
-                      }
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  {canEditEmployee() && (
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleEdit(employee)}
+                      size="small"
+                      sx={{ 
+                        color: 'primary.main',
+                        '&:hover': {
+                          bgcolor: 'primary.light',
+                          color: 'primary.dark',
+                        }
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  )}
+                  {canDeleteEmployee() && (
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(employee)}
+                      size="small"
+                      sx={{ 
+                        color: 'secondary.main',
+                        '&:hover': {
+                          bgcolor: 'secondary.light',
+                          color: 'secondary.dark',
+                        }
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
