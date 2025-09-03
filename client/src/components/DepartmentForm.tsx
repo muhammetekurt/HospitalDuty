@@ -98,7 +98,11 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
     try {
       setLoadingEmployees(true);
       const data = await employeeService.getAll();
-      setEmployees(data);
+      // Sadece DepartmentManager rolü olan çalışanları filtrele
+      const managers = data.filter(employee => 
+        employee.roles && employee.roles.includes('DepartmentManager')
+      );
+      setEmployees(managers);
     } catch (err) {
       console.error('Error loading employees:', err);
     } finally {
@@ -109,7 +113,11 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   const loadEmployeesByHospital = async (hospitalId: string) => {
     try {
       const data = await employeeService.getByHospital(hospitalId);
-      setEmployees(data);
+      // Sadece DepartmentManager rolü olan çalışanları filtrele
+      const managers = data.filter(employee => 
+        employee.roles && employee.roles.includes('DepartmentManager')
+      );
+      setEmployees(managers);
     } catch (err) {
       console.error('Error loading employees by hospital:', err);
     }
