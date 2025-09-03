@@ -51,7 +51,26 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       await authService.forgotPassword({ email });
       setSuccess(true);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Şifre sıfırlama işlemi başarısız oldu');
+      // Backend'den gelen hata mesajına göre kullanıcı dostu mesaj göster
+      const errorMessage = err.response?.data?.message || err.message || '';
+      
+      // Backend'den gelen mesajı kontrol et
+      if (errorMessage === 'User not found.' ||
+          errorMessage === 'Sistemde kayıtlı e-posta bulunamadı. Lütfen e-posta adresinizi kontrol edin.' ||
+          errorMessage.toLowerCase().includes('user not found') || 
+          errorMessage.toLowerCase().includes('kullanıcı bulunamadı') ||
+          errorMessage.toLowerCase().includes('email not found') ||
+          errorMessage.toLowerCase().includes('e-posta bulunamadı')) {
+        setError('Sistemde kayıtlı e-posta bulunamadı. Lütfen e-posta adresinizi kontrol edin.');
+      } else if (errorMessage.toLowerCase().includes('invalid email') ||
+                 errorMessage.toLowerCase().includes('geçersiz e-posta')) {
+        setError('Geçersiz e-posta adresi. Lütfen doğru e-posta adresini girin.');
+      } else if (errorMessage.toLowerCase().includes('network') ||
+                 errorMessage.toLowerCase().includes('connection')) {
+        setError('Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.');
+      } else {
+        setError('Sistemde kayıtlı e-posta bulunamadı. Lütfen e-posta adresinizi kontrol edin.');
+      }
     } finally {
       setLoading(false);
     }

@@ -85,6 +85,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const [departmentFormOpen, setDepartmentFormOpen] = useState(false);
   const [employeeFormOpen, setEmployeeFormOpen] = useState(false);
 
+  // Departman yönetim yetkisi kontrolü
+  const canManageDepartments = (): boolean => {
+    if (!user?.roles) return false;
+    return user.roles.some(role => 
+      role === 'SystemAdmin' || role === 'HospitalDirector'
+    );
+  };
+
   // Navigation functions
   const navigateToEmployees = () => {
     onTabChange(3); // EmployeeList tab
@@ -96,6 +104,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
   const navigateToDepartments = () => {
     onTabChange(2); // DepartmentList tab
+  };
+
+  const navigateToShiftCalendar = () => {
+    onTabChange(6); // ShiftCalendar tab
   };
 
   useEffect(() => {
@@ -516,31 +528,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   Çalışan Ekle
                 </Button>
                 
-                <Button
-                  variant="outlined"
-                  startIcon={<BusinessIcon />}
-                  fullWidth
-                  onClick={() => setDepartmentFormOpen(true)}
-                  sx={{ 
-                    justifyContent: 'flex-start',
-                    textTransform: 'none',
-                    py: 1.5
-                  }}
-                >
-                  Departman Ekle
-                </Button>
+                {canManageDepartments() && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<BusinessIcon />}
+                    fullWidth
+                    onClick={() => setDepartmentFormOpen(true)}
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      textTransform: 'none',
+                      py: 1.5
+                    }}
+                  >
+                    Departman Ekle
+                  </Button>
+                )}
                 
                 <Button
                   variant="outlined"
-                  startIcon={<TrendingUpIcon />}
+                  startIcon={<CalendarIcon />}
                   fullWidth
+                  onClick={navigateToShiftCalendar}
                   sx={{ 
                     justifyContent: 'flex-start',
                     textTransform: 'none',
                     py: 1.5
                   }}
                 >
-                  Rapor Oluştur
+                  Shift Takvimine Git
                 </Button>
               </Box>
             </CardContent>
