@@ -15,7 +15,6 @@ import {
 import {
   Email as EmailIcon,
   Lock as LockIcon,
-  LocalHospital as HospitalIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import ForgotPasswordDialog from './ForgotPasswordDialog';
@@ -91,17 +90,28 @@ const Login: React.FC = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 80,
-                  height: 80,
-                  borderRadius: '50%',
-                  bgcolor: 'primary.main',
+                  width: 120,
+                  height: 120,
+                  borderRadius: '12px',
+                  bgcolor: 'white',
                   mb: 2,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  border: '3px solid #e0e0e0',
                 }}
               >
-                <HospitalIcon sx={{ fontSize: 40, color: 'white' }} />
+                <img 
+                  src="/hospital.jpeg" 
+                  alt="Hospital Logo" 
+                  style={{ 
+                    height: '100px', 
+                    width: '100px', 
+                    borderRadius: '8px',
+                    objectFit: 'cover'
+                  }} 
+                />
               </Box>
               <Typography variant="h4" component="h1" fontWeight="bold" color="primary.main">
-                Hospital Duty
+                Hastane Nöbet
               </Typography>
               <Typography variant="h6" color="text.secondary" sx={{ mt: 1 }}>
                 Yönetim Sistemi

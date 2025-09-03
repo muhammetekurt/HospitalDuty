@@ -174,6 +174,18 @@ const AppContent: React.FC = () => {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
+            <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+              <img 
+                src="/hospital.jpeg" 
+                alt="Hospital Logo" 
+                style={{ 
+                  height: '40px', 
+                  width: '40px', 
+                  borderRadius: '8px',
+                  objectFit: 'cover'
+                }} 
+              />
+            </Box>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Hospital Duty Management
             </Typography>
