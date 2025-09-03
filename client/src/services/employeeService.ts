@@ -78,6 +78,12 @@ export const employeeService = {
     return response.data;
   },
 
+  // Çalışan oluştur
+  create: async (employee: CreateEmployeeRequest): Promise<Employee> => {
+    const response = await api.post<Employee>('/Employee', employee);
+    return response.data;
+  },
+
   // Çalışan güncelle
   update: async (id: string, employee: UpdateEmployeeRequest): Promise<Employee> => {
     const response = await api.put<Employee>(`/Employee/${id}`, employee);

@@ -26,10 +26,11 @@ export interface Employee {
 }
 
 export interface CreateEmployeeRequest {
-  id: string;
+  id?: string;
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber?: string;
   departmentId?: string;
   hospitalId?: string;
   applicationUserId?: string;

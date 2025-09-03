@@ -40,6 +40,7 @@ import type { Department } from '../types/department';
 import { employeeService } from '../services/employeeService';
 import { departmentService } from '../services/departmentService';
 import EmployeeForm from './EmployeeForm';
+import CreateEmployeeForm from './CreateEmployeeForm';
 
 const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -48,6 +49,7 @@ const EmployeeList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openForm, setOpenForm] = useState(false);
+  const [openCreateForm, setOpenCreateForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
@@ -159,6 +161,15 @@ const EmployeeList: React.FC = () => {
     handleFormClose();
   };
 
+  const handleCreateFormClose = () => {
+    setOpenCreateForm(false);
+  };
+
+  const handleCreateFormSubmit = async () => {
+    await loadEmployees();
+    handleCreateFormClose();
+  };
+
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'SystemAdmin':
@@ -208,12 +219,27 @@ const EmployeeList: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Çalışanlar
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {filteredEmployees.length} / {employees.length} çalışan
-        </Typography>
+        <Box>
+          <Typography variant="h4" component="h1">
+            Çalışanlar
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {filteredEmployees.length} / {employees.length} çalışan
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<PersonIcon />}
+          onClick={() => setOpenCreateForm(true)}
+          sx={{ 
+            bgcolor: 'primary.main',
+            '&:hover': {
+              bgcolor: 'primary.dark',
+            }
+          }}
+        >
+          Yeni Çalışan
+        </Button>
       </Box>
 
       {/* Filtre Kartı */}
@@ -465,6 +491,13 @@ const EmployeeList: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Create Employee Form */}
+      <CreateEmployeeForm
+        open={openCreateForm}
+        onClose={handleCreateFormClose}
+        onSubmit={handleCreateFormSubmit}
+      />
     </Box>
   );
 };
