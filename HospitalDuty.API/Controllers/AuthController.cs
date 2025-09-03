@@ -102,6 +102,29 @@ public class AuthController : ControllerBase
         return Ok(employee);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpGet("current-user-info")]
+    public IActionResult GetCurrentUserInfo()
+    {
+        var userInfo = new
+        {
+            UserId = _currentUserService.UserId,
+            FullName = _currentUserService.FullName,
+            Email = _currentUserService.Email,
+            IsAuthenticated = _currentUserService.IsAuthenticated,
+            Roles = _currentUserService.Roles,
+            DepartmentId = _currentUserService.DepartmentId,
+            HospitalId = _currentUserService.HospitalId,
+            HasSystemAdminRole = _currentUserService.IsInRole("SystemAdmin"),
+            HasHospitalDirectorRole = _currentUserService.IsInRole("HospitalDirector"),
+            HasDepartmentManagerRole = _currentUserService.IsInRole("DepartmentManager"),
+            HasDoctorRole = _currentUserService.IsInRole("Doctor"),
+            HasNurseRole = _currentUserService.IsInRole("Nurse")
+        };
+        
+        return Ok(userInfo);
+    }
+
     [HttpGet("create-password")]
     public string CreatePassword(int length)
     {

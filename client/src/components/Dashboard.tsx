@@ -215,15 +215,20 @@ export const Dashboard: React.FC = () => {
                         <ListItemText
                           primary={`${employee?.firstName || 'Bilinmeyen'} ${employee?.lastName || 'Çalışan'}`}
                           secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                              <Typography variant="caption">
-                                {formatDateTime(shift.startTime)} - {formatDateTime(shift.endTime)}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                              <Typography variant="caption" color="text.secondary">
+                                {employee?.department || 'Departman Bilinmiyor'}
                               </Typography>
-                              <Chip
-                                label={getShiftTypeLabel(shift.shiftType)}
-                                color={getShiftTypeColor(shift.shiftType) as any}
-                                size="small"
-                              />
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="caption">
+                                  {formatDateTime(shift.startTime)} - {formatDateTime(shift.endTime)}
+                                </Typography>
+                                <Chip
+                                  label={getShiftTypeLabel(shift.shiftType)}
+                                  color={getShiftTypeColor(shift.shiftType) as any}
+                                  size="small"
+                                />
+                              </Box>
                             </Box>
                           }
                         />
