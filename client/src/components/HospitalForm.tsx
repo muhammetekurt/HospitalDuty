@@ -341,12 +341,36 @@ const HospitalForm: React.FC<HospitalFormProps> = ({
                 value={formData.directorId || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, directorId: e.target.value || undefined }))}
                 label="Direktör"
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.directorId ? '#fff3e0' : 'transparent',
+                    color: formData.directorId ? '#f57c00' : 'inherit',
+                    fontWeight: formData.directorId ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.directorId ? '#f57c00' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.directorId ? '#ef6c00' : 'inherit',
+                  },
+                }}
               >
                 <MenuItem value="">
                   <em>Direktör seçiniz (opsiyonel)</em>
                 </MenuItem>
                 {employees.map((employee) => (
-                  <MenuItem key={employee.id} value={employee.id}>
+                  <MenuItem 
+                    key={employee.id} 
+                    value={employee.id}
+                    sx={{
+                      backgroundColor: formData.directorId === employee.id ? '#fff3e0' : 'transparent',
+                      color: formData.directorId === employee.id ? '#f57c00' : 'inherit',
+                      fontWeight: formData.directorId === employee.id ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.directorId === employee.id ? '#ffe0b2' : '#f5f5f5',
+                      }
+                    }}
+                  >
                     {employee.firstName} {employee.lastName}
                   </MenuItem>
                 ))}

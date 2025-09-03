@@ -94,7 +94,9 @@ public class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = _currentUserService.UserId;
+        if (userId == null) return Unauthorized();
+        
         var employee = await _employeeService.GetByIdAsync(Guid.Parse(userId));
         if (employee == null) return NotFound();
         return Ok(employee);

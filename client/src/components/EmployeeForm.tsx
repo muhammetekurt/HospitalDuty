@@ -317,9 +317,33 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 onChange={handleInputChange('hospitalId')}
                 label="Hastane"
                 required
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.hospitalId ? '#e3f2fd' : 'transparent',
+                    color: formData.hospitalId ? '#1976d2' : 'inherit',
+                    fontWeight: formData.hospitalId ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.hospitalId ? '#1976d2' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.hospitalId ? '#1565c0' : 'inherit',
+                  },
+                }}
               >
                 {hospitals.map((hospital) => (
-                  <MenuItem key={hospital.id} value={hospital.id}>
+                  <MenuItem 
+                    key={hospital.id} 
+                    value={hospital.id}
+                    sx={{
+                      backgroundColor: formData.hospitalId === hospital.id ? '#e3f2fd' : 'transparent',
+                      color: formData.hospitalId === hospital.id ? '#1976d2' : 'inherit',
+                      fontWeight: formData.hospitalId === hospital.id ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.hospitalId === hospital.id ? '#bbdefb' : '#f5f5f5',
+                      }
+                    }}
+                  >
                     {hospital.name} - {hospital.city}
                   </MenuItem>
                 ))}
@@ -338,9 +362,33 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 onChange={handleInputChange('departmentId')}
                 label="Departman"
                 required
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.departmentId ? '#e8f5e8' : 'transparent',
+                    color: formData.departmentId ? '#2e7d32' : 'inherit',
+                    fontWeight: formData.departmentId ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.departmentId ? '#2e7d32' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.departmentId ? '#1b5e20' : 'inherit',
+                  },
+                }}
               >
                 {departments.map((department) => (
-                  <MenuItem key={department.id} value={department.id}>
+                  <MenuItem 
+                    key={department.id} 
+                    value={department.id}
+                    sx={{
+                      backgroundColor: formData.departmentId === department.id ? '#e8f5e8' : 'transparent',
+                      color: formData.departmentId === department.id ? '#2e7d32' : 'inherit',
+                      fontWeight: formData.departmentId === department.id ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.departmentId === department.id ? '#c8e6c9' : '#f5f5f5',
+                      }
+                    }}
+                  >
                     {department.name}
                   </MenuItem>
                 ))}
@@ -369,16 +417,47 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                           label={role?.label || value} 
                           size="small"
                           color="primary"
-                          variant="outlined"
+                          variant="filled"
+                          sx={{
+                            backgroundColor: '#ff9800',
+                            color: 'white',
+                            fontWeight: 600,
+                            '& .MuiChip-deleteIcon': {
+                              color: 'white',
+                            }
+                          }}
                         />
                       );
                     })}
                   </Box>
                 )}
                 required
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.roles && formData.roles.length > 0 ? '#fff3e0' : 'transparent',
+                    minHeight: '56px',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.roles && formData.roles.length > 0 ? '#ff9800' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.roles && formData.roles.length > 0 ? '#f57c00' : 'inherit',
+                  },
+                }}
               >
                 {roleOptions.map((role) => (
-                  <MenuItem key={role.value} value={role.value}>
+                  <MenuItem 
+                    key={role.value} 
+                    value={role.value}
+                    sx={{
+                      backgroundColor: formData.roles && formData.roles.includes(role.value) ? '#fff3e0' : 'transparent',
+                      color: formData.roles && formData.roles.includes(role.value) ? '#ff9800' : 'inherit',
+                      fontWeight: formData.roles && formData.roles.includes(role.value) ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.roles && formData.roles.includes(role.value) ? '#ffe0b2' : '#f5f5f5',
+                      }
+                    }}
+                  >
                     {role.label}
                   </MenuItem>
                 ))}

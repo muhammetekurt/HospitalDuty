@@ -240,9 +240,33 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
                 onChange={handleInputChange('hospitalId')}
                 label="Hastane"
                 required
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.hospitalId ? '#e3f2fd' : 'transparent',
+                    color: formData.hospitalId ? '#1976d2' : 'inherit',
+                    fontWeight: formData.hospitalId ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.hospitalId ? '#1976d2' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.hospitalId ? '#1565c0' : 'inherit',
+                  },
+                }}
               >
                 {hospitals.map((hospital) => (
-                  <MenuItem key={hospital.id} value={hospital.id}>
+                  <MenuItem 
+                    key={hospital.id} 
+                    value={hospital.id}
+                    sx={{
+                      backgroundColor: formData.hospitalId === hospital.id ? '#e3f2fd' : 'transparent',
+                      color: formData.hospitalId === hospital.id ? '#1976d2' : 'inherit',
+                      fontWeight: formData.hospitalId === hospital.id ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.hospitalId === hospital.id ? '#bbdefb' : '#f5f5f5',
+                      }
+                    }}
+                  >
                     {hospital.name} - {hospital.city}
                   </MenuItem>
                 ))}
@@ -260,12 +284,36 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
                 value={formData.managerId || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, managerId: e.target.value || undefined }))}
                 label="Müdür"
+                sx={{
+                  '& .MuiSelect-select': {
+                    backgroundColor: formData.managerId ? '#e8f5e8' : 'transparent',
+                    color: formData.managerId ? '#2e7d32' : 'inherit',
+                    fontWeight: formData.managerId ? 600 : 'normal',
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.managerId ? '#2e7d32' : 'inherit',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: formData.managerId ? '#1b5e20' : 'inherit',
+                  },
+                }}
               >
                 <MenuItem value="">
                   <em>Müdür seçiniz (opsiyonel)</em>
                 </MenuItem>
                 {employees.map((employee) => (
-                  <MenuItem key={employee.id} value={employee.id}>
+                  <MenuItem 
+                    key={employee.id} 
+                    value={employee.id}
+                    sx={{
+                      backgroundColor: formData.managerId === employee.id ? '#e8f5e8' : 'transparent',
+                      color: formData.managerId === employee.id ? '#2e7d32' : 'inherit',
+                      fontWeight: formData.managerId === employee.id ? 600 : 'normal',
+                      '&:hover': {
+                        backgroundColor: formData.managerId === employee.id ? '#c8e6c9' : '#f5f5f5',
+                      }
+                    }}
+                  >
                     {employee.firstName} {employee.lastName}
                   </MenuItem>
                 ))}

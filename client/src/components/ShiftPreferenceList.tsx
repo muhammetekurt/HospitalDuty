@@ -149,9 +149,33 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
               label="Ay"
+              sx={{
+                '& .MuiSelect-select': {
+                  backgroundColor: selectedMonth ? '#e1f5fe' : 'transparent',
+                  color: selectedMonth ? '#0277bd' : 'inherit',
+                  fontWeight: selectedMonth ? 600 : 'normal',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: selectedMonth ? '#0277bd' : 'inherit',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: selectedMonth ? '#01579b' : 'inherit',
+                },
+              }}
             >
               {months.map((month, index) => (
-                <MenuItem key={index} value={index + 1}>
+                <MenuItem 
+                  key={index} 
+                  value={index + 1}
+                  sx={{
+                    backgroundColor: selectedMonth === index + 1 ? '#e1f5fe' : 'transparent',
+                    color: selectedMonth === index + 1 ? '#0277bd' : 'inherit',
+                    fontWeight: selectedMonth === index + 1 ? 600 : 'normal',
+                    '&:hover': {
+                      backgroundColor: selectedMonth === index + 1 ? '#b3e5fc' : '#f5f5f5',
+                    }
+                  }}
+                >
                   {month}
                 </MenuItem>
               ))}
