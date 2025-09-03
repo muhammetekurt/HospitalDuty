@@ -74,11 +74,13 @@ const ShiftCalendar: React.FC<ShiftCalendarProps> = ({
 
       // Filtreleme (hospital/department)
       const targetHospitalId = hospitalId || user?.hospitalId;
+      const targetDepartmentId = departmentId || user?.departmentId;
+      
       if (targetHospitalId) {
         fetchedShifts = fetchedShifts.filter(shift => shift.hospitalId === targetHospitalId);
       }
-      if (departmentId) {
-        fetchedShifts = fetchedShifts.filter(shift => shift.departmentId === departmentId);
+      if (targetDepartmentId) {
+        fetchedShifts = fetchedShifts.filter(shift => shift.departmentId === targetDepartmentId);
       }
 
       setShifts(fetchedShifts);

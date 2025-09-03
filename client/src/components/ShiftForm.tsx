@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -77,6 +77,13 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
     notes: ''
   });
 
+  // Departmana göre filtrelenmiş çalışanlar
+  const filteredEmployees = useMemo(() => {
+    return employees.filter(employee => 
+      !formData.departmentId || employee.departmentId === formData.departmentId
+    );
+  }, [employees, formData.departmentId]);
+
   const shiftTypes = [
     { value: ShiftType.Normal, label: 'Normal' },
     { value: ShiftType.Night, label: 'Gece' },
@@ -107,6 +114,16 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       }
     }
   }, [open, isEdit, shift]);
+
+  // Departman değiştiğinde seçili çalışanı temizle
+  useEffect(() => {
+    if (formData.employeeId && formData.departmentId) {
+      const selectedEmployee = employees.find(emp => emp.id === formData.employeeId);
+      if (selectedEmployee && selectedEmployee.departmentId !== formData.departmentId) {
+        setFormData(prev => ({ ...prev, employeeId: '' }));
+      }
+    }
+  }, [formData.departmentId, formData.employeeId, employees]);
 
   const loadData = async () => {
     try {
@@ -236,6 +253,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                   value={formData.employeeId}
                   onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                   label="Çalışan"
+                  disabled={!formData.departmentId}
                   sx={{
                     '& .MuiSelect-select': {
                       backgroundColor: formData.employeeId ? '#e1f5fe' : 'transparent',
@@ -250,22 +268,32 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                     },
                   }}
                 >
-                  {employees.map((employee) => (
-                    <MenuItem 
-                      key={employee.id} 
-                      value={employee.id}
-                      sx={{
-                        backgroundColor: formData.employeeId === employee.id ? '#e1f5fe' : 'transparent',
-                        color: formData.employeeId === employee.id ? '#0277bd' : 'inherit',
-                        fontWeight: formData.employeeId === employee.id ? 600 : 'normal',
-                        '&:hover': {
-                          backgroundColor: formData.employeeId === employee.id ? '#b3e5fc' : '#f5f5f5',
-                        }
-                      }}
-                    >
-                      {employee.firstName} {employee.lastName}
+                  {!formData.departmentId ? (
+                    <MenuItem disabled>
+                      Önce departman seçiniz
                     </MenuItem>
-                  ))}
+                  ) : filteredEmployees.length === 0 ? (
+                    <MenuItem disabled>
+                      Bu departmanda çalışan bulunamadı
+                    </MenuItem>
+                  ) : (
+                    filteredEmployees.map((employee) => (
+                      <MenuItem 
+                        key={employee.id} 
+                        value={employee.id}
+                        sx={{
+                          backgroundColor: formData.employeeId === employee.id ? '#e1f5fe' : 'transparent',
+                          color: formData.employeeId === employee.id ? '#0277bd' : 'inherit',
+                          fontWeight: formData.employeeId === employee.id ? 600 : 'normal',
+                          '&:hover': {
+                            backgroundColor: formData.employeeId === employee.id ? '#b3e5fc' : '#f5f5f5',
+                          }
+                        }}
+                      >
+                        {employee.firstName} {employee.lastName}
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               </FormControl>
 
@@ -276,7 +304,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                   value={formData.hospitalId}
                   onChange={(e) => setFormData({ ...formData, hospitalId: e.target.value })}
                   label="Hastane"
-                  disabled={!isEdit}
+                  disabled={true}
                   sx={{
                     '& .MuiSelect-select': {
                       backgroundColor: formData.hospitalId ? '#f3e5f5' : 'transparent',
@@ -317,7 +345,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
                   value={formData.departmentId}
                   onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
                   label="Departman"
-                  disabled={!isEdit}
+                  disabled={true}
                   sx={{
                     '& .MuiSelect-select': {
                       backgroundColor: formData.departmentId ? '#e8f5e8' : 'transparent',

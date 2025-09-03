@@ -39,7 +39,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   onSubmit,
   employee,
 }) => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState<UpdateEmployeeRequest>({
     firstName: '',
     lastName: '',
@@ -55,7 +55,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [loadingHospitals, setLoadingHospitals] = useState(false);
+
   const [loadingDepartments, setLoadingDepartments] = useState(false);
 
   const isEdit = !!employee;
@@ -112,15 +112,12 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
   const loadHospitals = async () => {
     try {
-      setLoadingHospitals(true);
       const data = await hospitalService.getAll();
       // Sadece kullanıcının hastanesini göster
       const userHospital = data.filter(hospital => hospital.id === user?.hospitalId);
       setHospitals(userHospital);
     } catch (err) {
       console.error('Error loading hospitals:', err);
-    } finally {
-      setLoadingHospitals(false);
     }
   };
 
@@ -218,6 +215,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
         console.log('Form data:', formData);
         await employeeService.update(employee.id, formData);
         console.log('Employee updated successfully');
+        
+        // Eğer güncellenen çalışan mevcut kullanıcı ise, user bilgilerini güncelle
+        if (employee.id === user?.id) {
+          await updateUser();
+        }
       }
 
       onSubmit();

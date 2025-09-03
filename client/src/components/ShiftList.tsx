@@ -115,8 +115,11 @@ const ShiftList: React.FC<ShiftListProps> = ({
       // Kullanıcının hastanesindeki shift'leri filtrele
       const hospitalFilteredData = data.filter(shift => shift.hospitalId === user?.hospitalId);
       
+      // Kullanıcının departmanındaki shift'leri filtrele
+      const departmentFilteredData = hospitalFilteredData.filter(shift => shift.departmentId === user?.departmentId);
+      
       // Ay filtresi uygula
-      const filteredData = hospitalFilteredData.filter(shift => {
+      const filteredData = departmentFilteredData.filter(shift => {
         const shiftDate = new Date(shift.startTime);
         return shiftDate.getMonth() + 1 === selectedMonth;
       });
@@ -136,8 +139,10 @@ const ShiftList: React.FC<ShiftListProps> = ({
     try {
       const data = await employeeService.getAll();
       // Kullanıcının hastanesindeki çalışanları filtrele
-      const filteredEmployees = data.filter(emp => emp.hospitalId === user?.hospitalId);
-      setEmployees(filteredEmployees);
+      const hospitalFilteredEmployees = data.filter(emp => emp.hospitalId === user?.hospitalId);
+      // Kullanıcının departmanındaki çalışanları filtrele
+      const departmentFilteredEmployees = hospitalFilteredEmployees.filter(emp => emp.departmentId === user?.departmentId);
+      setEmployees(departmentFilteredEmployees);
     } catch (err) {
       console.error('Error loading employees:', err);
     }
@@ -147,8 +152,10 @@ const ShiftList: React.FC<ShiftListProps> = ({
     try {
       const data = await departmentService.getAll();
       // Kullanıcının hastanesindeki departmanları filtrele
-      const filteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
-      setDepartments(filteredDepartments);
+      const hospitalFilteredDepartments = data.filter(dept => dept.hospitalId === user?.hospitalId);
+      // Kullanıcının departmanını filtrele (sadece kendi departmanını göster)
+      const departmentFilteredDepartments = hospitalFilteredDepartments.filter(dept => dept.id === user?.departmentId);
+      setDepartments(departmentFilteredDepartments);
     } catch (err) {
       console.error('Error loading departments:', err);
     }

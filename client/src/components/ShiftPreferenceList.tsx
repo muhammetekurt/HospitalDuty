@@ -93,8 +93,10 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
       
       // Çalışanları yükle ve kullanıcının hastanesindeki çalışanları filtrele
       const employeesData = await employeeService.getAll();
-      const filteredEmployees = employeesData.filter(emp => emp.hospitalId === user?.hospitalId);
-      setEmployees(filteredEmployees);
+      const hospitalFilteredEmployees = employeesData.filter(emp => emp.hospitalId === user?.hospitalId);
+      // Kullanıcının departmanındaki çalışanları filtrele
+      const departmentFilteredEmployees = hospitalFilteredEmployees.filter(emp => emp.departmentId === user?.departmentId);
+      setEmployees(departmentFilteredEmployees);
       
       let data: ShiftPreference[];
       if (employeeId) {
@@ -105,7 +107,7 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
       
       // Kullanıcının hastanesindeki shift tercihlerini filtrele
       const hospitalFilteredData = data.filter(preference => {
-        const employee = filteredEmployees.find(emp => emp.id === preference.employeeId);
+        const employee = departmentFilteredEmployees.find(emp => emp.id === preference.employeeId);
         return employee !== undefined;
       });
       
