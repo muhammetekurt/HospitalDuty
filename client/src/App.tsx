@@ -222,9 +222,15 @@ const AppContent: React.FC = () => {
     return user.roles.includes('DepartmentManager') || user.roles.includes('DepartmentLeader');
   };
 
+  // SystemAdmin kontrolü
+  const isSystemAdmin = () => {
+    if (!user?.roles) return false;
+    return user.roles.includes('SystemAdmin');
+  };
+
   const menuItems = [
     { text: 'Ana Sayfa', icon: <DashboardIcon />, tab: 0 },
-    { text: 'Hastaneler', icon: <BusinessIcon />, tab: 1 },
+    ...(isSystemAdmin() ? [{ text: 'Hastaneler', icon: <BusinessIcon />, tab: 1 }] : []),
     { text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 },
     { text: 'Çalışanlar', icon: <PeopleIcon />, tab: 3 },
     { text: 'Shift Tercihleri', icon: <ScheduleIcon />, tab: 4 },
@@ -451,7 +457,7 @@ const AppContent: React.FC = () => {
         >
           <Routes>
             <Route path="/" element={<Dashboard onTabChange={handleTabChange} />} />
-            <Route path="/hospitals" element={<HospitalList />} />
+            {isSystemAdmin() && <Route path="/hospitals" element={<HospitalList />} />}
             <Route path="/departments" element={<DepartmentList />} />
             <Route path="/employees" element={<EmployeeList />} />
             <Route 
