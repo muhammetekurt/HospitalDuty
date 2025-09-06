@@ -45,6 +45,7 @@ import ShiftForm from './components/ShiftForm';
 import ShiftCalendar from './components/ShiftCalendar';
 import { shiftService } from './services/shiftService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
 
 const theme = createTheme({
   palette: {
@@ -145,6 +146,7 @@ const drawerWidth = 240;
 
 const AppContent: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -534,8 +536,10 @@ const AppContent: React.FC = () => {
                     try {
                       await shiftService.deleteShift(shift.id);
                       setRefreshKey(prev => prev + 1);
+                      showToast('Vardiya başarıyla silindi!');
                     } catch (error) {
                       console.error('Delete error:', error);
+                      showToast('Vardiya silinirken bir hata oluştu!', 'error');
                     }
                   } : undefined}
                 />
@@ -564,6 +568,7 @@ const AppContent: React.FC = () => {
           }}
           onSuccess={() => {
             setRefreshKey(prev => prev + 1);
+            setOpenShiftFormDialog(false);
             setEditingShift(null);
           }}
           shift={editingShift}
@@ -578,7 +583,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );
