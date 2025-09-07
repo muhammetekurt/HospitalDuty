@@ -276,6 +276,7 @@ const AppContent: React.FC = () => {
     { text: 'Shift Tercihleri', icon: <ScheduleIcon />, tab: 4 },
     { text: 'Aylık Shift Listesi', icon: <AssignmentIcon />, tab: 5 },
     { text: 'Shift Takvimi', icon: <CalendarIcon />, tab: 6 },
+    { text: `${user?.firstName} ${user?.lastName}`, icon: null, tab: 7, isProfile: true },
   ];
 
   if (isLoading) {
@@ -362,25 +363,46 @@ const AppContent: React.FC = () => {
       <Divider />
       <List>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              selected={currentTab === item.tab}
-              onClick={() => handleTabChange(item.tab)}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  '&:hover': {
+          <React.Fragment key={item.text}>
+            {item.isProfile && <Divider sx={{ my: 1 }} />}
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={currentTab === item.tab}
+                onClick={() => handleTabChange(item.tab)}
+                sx={{
+                  '&.Mui-selected': {
                     backgroundColor: 'primary.light',
+                    '&:hover': {
+                      backgroundColor: 'primary.light',
+                    },
                   },
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: currentTab === item.tab ? 'primary.dark' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
+                }}
+              >
+                {item.isProfile ? (
+                  <>
+                    <ListItemIcon sx={{ color: currentTab === item.tab ? 'primary.dark' : 'inherit' }}>
+                      <Avatar 
+                        src={user?.profileImageUrl}
+                        sx={{ width: 24, height: 24, bgcolor: 'secondary.main' }}
+                      >
+                        {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                      </Avatar>
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ListItemIcon sx={{ color: currentTab === item.tab ? 'primary.dark' : 'inherit' }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </>
+                )}
+              </ListItemButton>
+            </ListItem>
+          </React.Fragment>
         ))}
       </List>
     </Box>
