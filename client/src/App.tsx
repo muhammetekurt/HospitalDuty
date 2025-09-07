@@ -173,6 +173,22 @@ const AppContent: React.FC = () => {
     }
   };
 
+  // Sayfa başlıklarını getir
+  const getPageTitle = () => {
+    const path = location.pathname;
+    switch (path) {
+      case '/': return 'Ana Sayfa';
+      case '/hospitals': return 'Hastaneler';
+      case '/departments': return 'Departmanlar';
+      case '/employees': return 'Çalışanlar';
+      case '/shift-preferences': return 'Shift Tercihleri';
+      case '/shifts': return 'Aylık Shift Listesi';
+      case '/shift-calendar': return 'Shift Takvimi';
+      case '/profile': return 'Profil';
+      default: return 'Ana Sayfa';
+    }
+  };
+
   const currentTab = getCurrentTab();
 
   const handleTabChange = (newValue: number) => {
@@ -439,8 +455,8 @@ const AppContent: React.FC = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              Hospital Duty Management
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'white', fontWeight: 500 }}>
+              {getPageTitle()}
             </Typography>
             
             <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>

@@ -159,9 +159,6 @@ const Profile: React.FC<ProfileProps> = ({ onNavigateToShiftPreferences }) => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Profil
-      </Typography>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>

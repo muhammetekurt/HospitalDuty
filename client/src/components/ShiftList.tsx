@@ -317,10 +317,10 @@ const ShiftList: React.FC<ShiftListProps> = ({
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="body2" color="text.secondary">
           {showTodayOnly 
             ? `Bugünün Nöbetleri - ${user?.department}` 
-            : `${months[selectedMonth - 1]} ${new Date().getFullYear()} Shift Listesi - ${user?.department}`
+            : `${months[selectedMonth - 1]} ${new Date().getFullYear()} - ${user?.department}`
           }
         </Typography>
         <Typography variant="body2" color="text.secondary">

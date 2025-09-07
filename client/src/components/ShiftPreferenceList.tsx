@@ -224,11 +224,8 @@ const ShiftPreferenceList: React.FC<ShiftPreferenceListProps> = ({
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" gutterBottom>
-          Shift Tercihleri - {user?.department}
-        </Typography>
         <Typography variant="body2" color="text.secondary">
-          {filteredPreferences.length} / {preferences.length} tercih
+          {user?.department} - {filteredPreferences.length} / {preferences.length} tercih
         </Typography>
       </Box>
 

@@ -303,9 +303,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     <Box sx={{ p: 3 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-          Ana Sayfa
-        </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <HospitalIcon color="primary" />
           <Typography variant="h6" color="text.secondary">
