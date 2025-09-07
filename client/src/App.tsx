@@ -43,6 +43,7 @@ import ShiftPreferenceDialog from './components/ShiftPreferenceDialog';
 import ShiftList from './components/ShiftList';
 import ShiftForm from './components/ShiftForm';
 import ShiftCalendar from './components/ShiftCalendar';
+import Unauthorized from './components/Unauthorized';
 import { shiftService } from './services/shiftService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
@@ -284,10 +285,16 @@ const AppContent: React.FC = () => {
     return user.roles.includes('SystemAdmin');
   };
 
+  // Departman yönetimi yetkilendirme kontrolü
+  const canManageDepartments = () => {
+    if (!user?.roles) return false;
+    return user.roles.includes('SystemAdmin') || user.roles.includes('HospitalDirector');
+  };
+
   const menuItems = [
     { text: 'Ana Sayfa', icon: <DashboardIcon />, tab: 0 },
     ...(isSystemAdmin() ? [{ text: 'Hastaneler', icon: <BusinessIcon />, tab: 1 }] : []),
-    { text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 },
+    ...(canManageDepartments() ? [{ text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 }] : []),
     { text: 'Çalışanlar', icon: <PeopleIcon />, tab: 3 },
     { text: 'Shift Tercihleri', icon: <ScheduleIcon />, tab: 4 },
     { text: 'Aylık Shift Listesi', icon: <AssignmentIcon />, tab: 5 },
@@ -543,8 +550,14 @@ const AppContent: React.FC = () => {
         >
           <Routes>
             <Route path="/" element={<Dashboard onTabChange={handleTabChange} />} />
-            {isSystemAdmin() && <Route path="/hospitals" element={<HospitalList />} />}
-            <Route path="/departments" element={<DepartmentList />} />
+            <Route 
+              path="/hospitals" 
+              element={isSystemAdmin() ? <HospitalList /> : <Unauthorized />} 
+            />
+            <Route 
+              path="/departments" 
+              element={canManageDepartments() ? <DepartmentList /> : <Unauthorized />} 
+            />
             <Route path="/employees" element={<EmployeeList />} />
             <Route 
               path="/shift-preferences" 
