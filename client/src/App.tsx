@@ -43,8 +43,10 @@ import ShiftPreferenceDialog from './components/ShiftPreferenceDialog';
 import ShiftList from './components/ShiftList';
 import ShiftForm from './components/ShiftForm';
 import ShiftCalendar from './components/ShiftCalendar';
+import Unauthorized from './components/Unauthorized';
 import { shiftService } from './services/shiftService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
 
 const theme = createTheme({
   palette: {
@@ -145,6 +147,7 @@ const drawerWidth = 240;
 
 const AppContent: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -168,6 +171,22 @@ const AppContent: React.FC = () => {
       case '/shift-calendar': return 6;
       case '/profile': return 7;
       default: return 0;
+    }
+  };
+
+  // Sayfa başlıklarını getir
+  const getPageTitle = () => {
+    const path = location.pathname;
+    switch (path) {
+      case '/': return 'Ana Sayfa';
+      case '/hospitals': return 'Hastaneler';
+      case '/departments': return 'Departmanlar';
+      case '/employees': return 'Çalışanlar';
+      case '/shift-preferences': return 'Shift Tercihleri';
+      case '/shifts': return 'Aylık Shift Listesi';
+      case '/shift-calendar': return 'Shift Takvimi';
+      case '/profile': return 'Profil';
+      default: return 'Ana Sayfa';
     }
   };
 
@@ -266,14 +285,21 @@ const AppContent: React.FC = () => {
     return user.roles.includes('SystemAdmin');
   };
 
+  // Departman yönetimi yetkilendirme kontrolü
+  const canManageDepartments = () => {
+    if (!user?.roles) return false;
+    return user.roles.includes('SystemAdmin') || user.roles.includes('HospitalDirector');
+  };
+
   const menuItems = [
     { text: 'Ana Sayfa', icon: <DashboardIcon />, tab: 0 },
     ...(isSystemAdmin() ? [{ text: 'Hastaneler', icon: <BusinessIcon />, tab: 1 }] : []),
-    { text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 },
+    ...(canManageDepartments() ? [{ text: 'Departmanlar', icon: <GroupsIcon />, tab: 2 }] : []),
     { text: 'Çalışanlar', icon: <PeopleIcon />, tab: 3 },
     { text: 'Shift Tercihleri', icon: <ScheduleIcon />, tab: 4 },
     { text: 'Aylık Shift Listesi', icon: <AssignmentIcon />, tab: 5 },
     { text: 'Shift Takvimi', icon: <CalendarIcon />, tab: 6 },
+    { text: `${user?.firstName} ${user?.lastName}`, icon: null, tab: 7, isProfile: true },
   ];
 
   if (isLoading) {
@@ -360,25 +386,46 @@ const AppContent: React.FC = () => {
       <Divider />
       <List>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              selected={currentTab === item.tab}
-              onClick={() => handleTabChange(item.tab)}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  '&:hover': {
+          <React.Fragment key={item.text}>
+            {item.isProfile && <Divider sx={{ my: 1 }} />}
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={currentTab === item.tab}
+                onClick={() => handleTabChange(item.tab)}
+                sx={{
+                  '&.Mui-selected': {
                     backgroundColor: 'primary.light',
+                    '&:hover': {
+                      backgroundColor: 'primary.light',
+                    },
                   },
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: currentTab === item.tab ? 'primary.dark' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
+                }}
+              >
+                {item.isProfile ? (
+                  <>
+                    <ListItemIcon sx={{ color: currentTab === item.tab ? 'primary.dark' : 'inherit' }}>
+                      <Avatar 
+                        src={user?.profileImageUrl}
+                        sx={{ width: 24, height: 24, bgcolor: 'secondary.main' }}
+                      >
+                        {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                      </Avatar>
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ListItemIcon sx={{ color: currentTab === item.tab ? 'primary.dark' : 'inherit' }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </>
+                )}
+              </ListItemButton>
+            </ListItem>
+          </React.Fragment>
         ))}
       </List>
     </Box>
@@ -415,8 +462,8 @@ const AppContent: React.FC = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              Hospital Duty Management
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'white', fontWeight: 500 }}>
+              {getPageTitle()}
             </Typography>
             
             <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -503,8 +550,14 @@ const AppContent: React.FC = () => {
         >
           <Routes>
             <Route path="/" element={<Dashboard onTabChange={handleTabChange} />} />
-            {isSystemAdmin() && <Route path="/hospitals" element={<HospitalList />} />}
-            <Route path="/departments" element={<DepartmentList />} />
+            <Route 
+              path="/hospitals" 
+              element={isSystemAdmin() ? <HospitalList /> : <Unauthorized />} 
+            />
+            <Route 
+              path="/departments" 
+              element={canManageDepartments() ? <DepartmentList /> : <Unauthorized />} 
+            />
             <Route path="/employees" element={<EmployeeList />} />
             <Route 
               path="/shift-preferences" 
@@ -534,8 +587,10 @@ const AppContent: React.FC = () => {
                     try {
                       await shiftService.deleteShift(shift.id);
                       setRefreshKey(prev => prev + 1);
+                      showToast('Vardiya başarıyla silindi!');
                     } catch (error) {
                       console.error('Delete error:', error);
+                      showToast('Vardiya silinirken bir hata oluştu!', 'error');
                     }
                   } : undefined}
                 />
@@ -564,6 +619,7 @@ const AppContent: React.FC = () => {
           }}
           onSuccess={() => {
             setRefreshKey(prev => prev + 1);
+            setOpenShiftFormDialog(false);
             setEditingShift(null);
           }}
           shift={editingShift}
@@ -578,7 +634,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );

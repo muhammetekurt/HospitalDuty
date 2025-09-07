@@ -302,9 +302,6 @@ const EmployeeList: React.FC = () => {
     <Box sx={{ p: 3 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
-          <Typography variant="h4" component="h1">
-            Çalışanlar
-          </Typography>
           <Typography variant="body2" color="text.secondary">
             {filteredEmployees.length} / {employees.length} çalışan
           </Typography>

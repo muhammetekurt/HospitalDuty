@@ -110,10 +110,7 @@ const HospitalList: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Hastaneler
-        </Typography>
+      <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}

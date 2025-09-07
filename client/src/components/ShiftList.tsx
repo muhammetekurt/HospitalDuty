@@ -34,6 +34,9 @@ import {
   Delete as DeleteIcon,
   Add as AddIcon,
   FileDownload as ExportIcon,
+  Today as TodayIcon,
+  CheckBox as CheckBoxIcon,
+  CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
 } from '@mui/icons-material';
 import { shiftService } from '../services/shiftService';
 import { employeeService } from '../services/employeeService';
@@ -83,6 +86,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
   const [selectedShiftType, setSelectedShiftType] = useState<string>('');
+  const [showTodayOnly, setShowTodayOnly] = useState<boolean>(false);
 
   const months = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -99,7 +103,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
 
   useEffect(() => {
     applyFilters();
-  }, [shifts, selectedEmployee, selectedDepartment, selectedShiftType]);
+  }, [shifts, selectedEmployee, selectedDepartment, selectedShiftType, showTodayOnly]);
 
   const loadShifts = async () => {
     try {
@@ -187,6 +191,18 @@ const ShiftList: React.FC<ShiftListProps> = ({
       );
     }
 
+    // Bugünün nöbetleri filtresi
+    if (showTodayOnly) {
+      const today = new Date();
+      const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD formatında
+      
+      filtered = filtered.filter(shift => {
+        const shiftDate = new Date(shift.startTime);
+        const shiftDateString = shiftDate.toISOString().split('T')[0];
+        return shiftDateString === todayString;
+      });
+    }
+
     setFilteredShifts(filtered);
   };
 
@@ -194,6 +210,7 @@ const ShiftList: React.FC<ShiftListProps> = ({
     setSelectedEmployee('');
     setSelectedDepartment('');
     setSelectedShiftType('');
+    setShowTodayOnly(false);
   };
 
   // Vardiya tipi seçenekleri
@@ -300,8 +317,11 @@ const ShiftList: React.FC<ShiftListProps> = ({
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" gutterBottom>
-          {months[selectedMonth - 1]} {new Date().getFullYear()} Shift Listesi - {user?.department}
+        <Typography variant="body2" color="text.secondary">
+          {showTodayOnly 
+            ? `Bugünün Nöbetleri - ${user?.department}` 
+            : `${months[selectedMonth - 1]} ${new Date().getFullYear()} - ${user?.department}`
+          }
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {filteredShifts.length} / {shifts.length} vardiya
@@ -413,8 +433,38 @@ const ShiftList: React.FC<ShiftListProps> = ({
                 Excel'e Aktar
               </Button>
             </Box>
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Ay</InputLabel>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Button
+                variant={showTodayOnly ? "contained" : "outlined"}
+                startIcon={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {showTodayOnly ? (
+                      <CheckBoxIcon sx={{ fontSize: 18, color: 'white' }} />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                    )}
+                    <TodayIcon sx={{ fontSize: 18 }} />
+                  </Box>
+                }
+                onClick={() => setShowTodayOnly(!showTodayOnly)}
+                size="small"
+                sx={{
+                  bgcolor: showTodayOnly ? 'primary.main' : 'transparent',
+                  color: showTodayOnly ? 'white' : 'primary.main',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    bgcolor: showTodayOnly ? 'primary.dark' : 'primary.light',
+                    color: 'white',
+                  },
+                  '& .MuiButton-startIcon': {
+                    marginRight: 0.5
+                  }
+                }}
+              >
+                Bugünün Nöbetleri
+              </Button>
+              <FormControl size="small" sx={{ minWidth: 120 }}>
+                <InputLabel>Ay</InputLabel>
               <Select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
@@ -450,7 +500,8 @@ const ShiftList: React.FC<ShiftListProps> = ({
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+              </FormControl>
+            </Box>
           </Box>
         </CardContent>
       </Card>

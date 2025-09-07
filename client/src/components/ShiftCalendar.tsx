@@ -178,8 +178,8 @@ const ShiftCalendar: React.FC<ShiftCalendarProps> = ({
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="tr">
       <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-          Shift Takvimi{user?.department ? ` - ${user.department}` : ''}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          {user?.department || 'Shift Takvimi'}
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>

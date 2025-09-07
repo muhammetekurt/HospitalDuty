@@ -24,6 +24,7 @@ import { employeeService } from '../services/employeeService';
 import { hospitalService } from '../services/hospitalService';
 import { departmentService } from '../services/departmentService';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import type { Shift, CreateShiftRequest, UpdateShiftRequest } from '../types/shift';
 import { ShiftType } from '../types/shift';
 import type { Employee } from '../types/employee';
@@ -46,9 +47,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
   isEdit = false
 }) => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
@@ -152,7 +153,6 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       notes: ''
     });
     setError(null);
-    setSuccess(false);
   };
 
   const handleSubmit = async () => {
@@ -199,7 +199,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
         await shiftService.createShift(createData);
       }
       
-      setSuccess(true);
+      showToast(`Vardiya başarıyla ${isEdit ? 'güncellendi' : 'oluşturuldu'}!`);
       onSuccess();
     } catch (err: any) {
       console.error('Shift form error:', err);
@@ -243,8 +243,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
       </DialogTitle>
       
       <DialogContent style={{ paddingTop: '20px' }}>
-        {!success ? (
-          <Box>
+        <Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
               {/* Çalışan Seçimi */}
               <FormControl required sx={{ minWidth: 250 }}>
@@ -466,33 +465,20 @@ const ShiftForm: React.FC<ShiftFormProps> = ({
               </Alert>
             )}
           </Box>
-        ) : (
-          <Alert severity="success" sx={{ mt: 2 }}>
-            Vardiya başarıyla {isEdit ? 'güncellendi' : 'oluşturuldu'}!
-          </Alert>
-        )}
       </DialogContent>
       
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        {!success ? (
-          <>
-            <Button onClick={handleClose} disabled={loading}>
-              İptal
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} /> : null}
-            >
-              {loading ? 'Kaydediliyor...' : (isEdit ? 'Güncelle' : 'Oluştur')}
-            </Button>
-          </>
-        ) : (
-          <Button onClick={handleClose} variant="contained">
-            Tamam
-          </Button>
-        )}
+        <Button onClick={handleClose} disabled={loading}>
+          İptal
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} /> : null}
+        >
+          {loading ? 'Kaydediliyor...' : (isEdit ? 'Güncelle' : 'Oluştur')}
+        </Button>
       </DialogActions>
     </Dialog>
   );
