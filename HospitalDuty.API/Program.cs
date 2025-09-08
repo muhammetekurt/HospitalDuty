@@ -102,6 +102,13 @@ builder.Services.AddScoped<IShiftPreferenceRepository, ShiftPreferenceRepository
 builder.Services.AddScoped<IShiftPreferenceService, ShiftPreferenceService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+// AI Service
+var geminiApiKey = builder.Configuration["Gemini:ApiKey"];
+if (!string.IsNullOrEmpty(geminiApiKey))
+{
+    builder.Services.AddScoped<IAIService>(provider => new AIService(geminiApiKey));
+}
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
