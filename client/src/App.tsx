@@ -44,6 +44,7 @@ import ShiftList from './components/ShiftList';
 import ShiftForm from './components/ShiftForm';
 import ShiftCalendar from './components/ShiftCalendar';
 import Unauthorized from './components/Unauthorized';
+import ChatBot from './components/ChatBot';
 import { shiftService } from './services/shiftService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
@@ -157,6 +158,7 @@ const AppContent: React.FC = () => {
   const [openShiftFormDialog, setOpenShiftFormDialog] = React.useState(false);
   const [editingShift, setEditingShift] = React.useState<any>(null);
   const [refreshKey, setRefreshKey] = React.useState(0);
+  const [isChatBotOpen, setIsChatBotOpen] = React.useState(false);
 
   // URL'den current tab'ı belirle
   const getCurrentTab = () => {
@@ -624,6 +626,12 @@ const AppContent: React.FC = () => {
           }}
           shift={editingShift}
           isEdit={!!editingShift}
+        />
+
+        {/* ChatBot */}
+        <ChatBot 
+          isOpen={isChatBotOpen} 
+          onToggle={() => setIsChatBotOpen(!isChatBotOpen)} 
         />
       </Box>
     </ThemeProvider>
