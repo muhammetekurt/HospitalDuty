@@ -17,6 +17,7 @@ import {
   Close as CloseIcon,
   SmartToy as BotIcon
 } from '@mui/icons-material';
+import { aiService } from '../services/aiService';
 
 interface Message {
   id: number;
@@ -155,23 +156,43 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
-    // Bot cevabını simüle et
-    setTimeout(() => {
-      const botAnswer = findAnswer(inputValue);
+    try {
+      // AI servisinden cevap al
+      const response = await aiService.chat({
+        message: currentInput,
+        context: 'HospitalDuty vardiya yönetim sistemi'
+      });
+
       const botMessage: Message = {
         id: Date.now() + 1,
-        text: botAnswer,
+        text: response.message,
         isUser: false,
         timestamp: new Date(),
         showContinueOptions: true
       };
       
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('AI Error:', error);
+      
+      // Hata durumunda fallback cevap
+      const fallbackAnswer = findAnswer(currentInput);
+      const botMessage: Message = {
+        id: Date.now() + 1,
+        text: fallbackAnswer,
+        isUser: false,
+        timestamp: new Date(),
+        showContinueOptions: true
+      };
+      
+      setMessages(prev => [...prev, botMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
   const handleQuickQuestion = (question: string) => {
