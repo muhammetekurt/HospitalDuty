@@ -73,6 +73,22 @@ const faqData = [
   {
     question: "Bildirimler nasıl alırım?",
     answer: "Shift değişiklikleri, yeni atamalar ve önemli güncellemeler için otomatik bildirimler alırsınız. Bildirimler uygulama içinde ve e-posta ile gönderilir."
+  },
+  {
+    question: "Shift tercihlerimi nasıl belirlerim?",
+    answer: "Shift tercihlerinizi belirlemek için 'Vardiya Tercihleri' sayfasına gidin. Orada hangi günlerde çalışmak istediğinizi, hangi saatleri tercih ettiğinizi ve çalışmak istemediğiniz günleri belirleyebilirsiniz. Bu tercihler vardiya planlamasında dikkate alınır."
+  },
+  {
+    question: "Vardiya tercihleri nasıl çalışır?",
+    answer: "Vardiya tercihleri sistemi, çalışanların hangi günlerde ve saatlerde çalışmak istediğini belirtmesine olanak tanır. Sistem bu tercihleri dikkate alarak vardiya planlaması yapar. Tercihlerinizi 'Vardiya Tercihleri' sayfasından güncelleyebilirsiniz."
+  },
+  {
+    question: "Hangi shift türleri var?",
+    answer: "Sistemimizde 3 farklı shift türü bulunmaktadır:\n• Normal (0): Standart çalışma saatleri\n• Night (1): Gece vardiyası\n• Emergency (2): Acil durum vardiyası\n\nHer shift türünün kendine özgü çalışma saatleri ve kuralları vardır."
+  },
+  {
+    question: "Vardiya nasıl eklerim?",
+    answer: "Vardiya eklemek için 'Vardiya Listesi' sayfasına gidin ve 'Yeni Vardiya Ekle' butonuna tıklayın. Çalışanı, tarihi, başlangıç ve bitiş saatlerini, shift türünü seçin ve kaydedin. Sadece yetkili kullanıcılar vardiya ekleyebilir."
   }
 ];
 
@@ -80,7 +96,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Merhaba! Hastane Yönetim uygulaması hakkında size nasıl yardımcı olabilirim? Aşağıdaki örnek sorulardan birini seçebilir veya kendi sorunuzu yazabilirsiniz.",
+      text: "Merhaba! Hastane Yönetim Sistemi'ne hoş geldiniz! Vardiya planlaması, çalışan takibi ve hastane operasyonları hakkında size nasıl yardımcı olabilirim? Aşağıdaki örnek sorulardan birini seçebilir veya kendi sorunuzu yazabilirsiniz.",
       isUser: false,
       timestamp: new Date(),
       showContinueOptions: false
@@ -121,7 +137,13 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
     if (normalizedQuestion.includes('giriş') || normalizedQuestion.includes('login')) {
       return faqData[0].answer;
     } else if (normalizedQuestion.includes('shift') && normalizedQuestion.includes('tercih')) {
-      return faqData[1].answer;
+      return faqData[6].answer; // "Shift tercihlerimi nasıl belirlerim?"
+    } else if (normalizedQuestion.includes('vardiya') && normalizedQuestion.includes('tercih')) {
+      return faqData[7].answer; // "Vardiya tercihleri nasıl çalışır?"
+    } else if (normalizedQuestion.includes('shift') && (normalizedQuestion.includes('tür') || normalizedQuestion.includes('tip'))) {
+      return faqData[8].answer; // "Hangi shift türleri var?"
+    } else if (normalizedQuestion.includes('vardiya') && (normalizedQuestion.includes('ekle') || normalizedQuestion.includes('oluştur'))) {
+      return faqData[9].answer; // "Vardiya nasıl eklerim?"
     } else if (normalizedQuestion.includes('takvim') || normalizedQuestion.includes('calendar')) {
       return faqData[2].answer;
     } else if (normalizedQuestion.includes('profil') || normalizedQuestion.includes('profile')) {
@@ -133,9 +155,9 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
     } else if (normalizedQuestion.includes('sistem') || normalizedQuestion.includes('admin')) {
       return faqData[6].answer;
     } else if (normalizedQuestion.includes('mobil') || normalizedQuestion.includes('mobile')) {
-      return faqData[8].answer;
+      return faqData[4].answer;
     } else if (normalizedQuestion.includes('bildirim') || normalizedQuestion.includes('notification')) {
-      return faqData[9].answer;
+      return faqData[5].answer;
     }
 
     return "Üzgünüm, bu konuda size yardımcı olamıyorum. Lütfen daha spesifik bir soru sorun veya aşağıdaki örnek sorulardan birini seçin. Daha fazla yardım için sistem yöneticinizle iletişime geçebilirsiniz.";
@@ -160,11 +182,28 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
     setInputValue('');
     setIsTyping(true);
 
+    // Önce FAQ kontrolü yap
+    const faqAnswer = findAnswer(currentInput);
+    if (faqAnswer !== "Üzgünüm, bu konuda size yardımcı olamıyorum. Lütfen daha spesifik bir soru sorun veya aşağıdaki örnek sorulardan birini seçin. Daha fazla yardım için sistem yöneticinizle iletişime geçebilirsiniz.") {
+      // FAQ'da cevap bulundu, AI'ya sorma
+      const botMessage: Message = {
+        id: Date.now() + 1,
+        text: faqAnswer,
+        isUser: false,
+        timestamp: new Date(),
+        showContinueOptions: true
+      };
+      
+      setMessages(prev => [...prev, botMessage]);
+      setIsTyping(false);
+      return;
+    }
+
+    // FAQ'da cevap bulunamadı, AI'ya sor
     try {
-      // AI servisinden cevap al
       const response = await aiService.chat({
         message: currentInput,
-        context: 'HospitalDuty vardiya yönetim sistemi'
+        context: 'Hastane Yönetim vardiya yönetim sistemi'
       });
 
       const botMessage: Message = {
@@ -239,8 +278,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
         <Box
           sx={{
             position: 'fixed',
-            bottom: 24,
-            right: 24,
+            bottom: { xs: 16, sm: 24 },
+            right: { xs: 16, sm: 24 },
             zIndex: 1000,
           }}
         >
@@ -270,10 +309,12 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
           elevation={8}
           sx={{
             position: 'fixed',
-            bottom: 24,
-            right: 24,
-            width: 380,
-            height: 500,
+            bottom: { xs: 16, sm: 24 },
+            right: { xs: 16, sm: 24 },
+            left: { xs: 16, sm: 'auto' },
+            width: { xs: 'calc(100vw - 32px)', sm: 380 },
+            height: { xs: 'calc(100vh - 32px)', sm: 500 },
+            maxHeight: { xs: 'calc(100vh - 32px)', sm: 500 },
             zIndex: 1001,
             display: 'flex',
             flexDirection: 'column',

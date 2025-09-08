@@ -43,7 +43,7 @@ namespace HospitalDuty.API.Controllers
                 var projectData = await GetProjectDataAsync();
                 
                 // AI'ya proje verilerini context olarak gönder
-                var context = $"HospitalDuty vardiya yönetim sistemi\n\n{projectData}";
+                var context = $"Hastane Yönetim vardiya yönetim sistemi\n\n{projectData}";
                 var response = await _aiService.GetAIResponseAsync(request.Message, context);
                 
                 return Ok(new ChatResponse
